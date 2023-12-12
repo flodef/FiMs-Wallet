@@ -1,16 +1,25 @@
 {
+  "name": "fims_wallet",
+  "version": "0.1.0",
   "private": true,
   "license": "MIT",
   "scripts": {
+    "clean": "shx rm -rf .next",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "nuke": "shx rm -rf node_modules package-lock.json || true"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/react-hooks": "^8.0.1",
     "@tremor/react": "^3.10.0",
+    "@types/jest": "^29.5.11",
     "@types/js-cookie": "^3.0.5",
     "@types/node": "20.8.9",
     "@types/react": "18.2.33",
@@ -20,6 +29,8 @@
     "autoprefixer": "^10.4.16",
     "eslint": "8.52.0",
     "eslint-config-next": "14.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "js-cookie": "^3.0.5",
     "next": "14.0.0",
     "next-auth": "5.0.0-beta.3",

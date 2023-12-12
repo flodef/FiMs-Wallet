@@ -21,12 +21,14 @@
 import { Card, Metric, Text, Title, BarList, Flex, Grid } from '@tremor/react';
 // import Chart from './chart';
 
-const getBarData = (name: string, amount: number) => ({
-  name,
-  amount,
-  value: Math.abs(amount),
-  color: amount < 0 ? 'red' : 'green'
-});
+export function getBarData(name: string, amount: number) {
+  return {
+    name,
+    amount,
+    value: Math.abs(amount),
+    color: amount < 0 ? 'red' : 'green'
+  };
+}
 
 const result = [
   { name: 'Total', total: 234072.58 },
