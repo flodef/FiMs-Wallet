@@ -8,8 +8,10 @@ import { signIn, signOut } from 'next-auth/react';
 import Image from 'next/image';
 
 const navigation = [
-  { name: 'Dashboard', href: '/' },
-  { name: 'Playground', href: '/playground' }
+  { name: 'Compte', href: '/account' },
+  { name: 'Historique', href: '/historic' },
+  { name: 'Transactions', href: '/transactions' },
+  { name: 'FiMs', href: '/' }
 ];
 
 function classNames(...classes: string[]) {
@@ -50,21 +52,25 @@ export default function Navbar({ user }: { user: any }) {
                   </svg>
                 </div>
                 <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
-                  {navigation.map((item) => (
-                    <a
-                      key={item.name}
-                      href={item.href}
-                      className={classNames(
-                        pathname === item.href
-                          ? 'border-slate-500 text-gray-900'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                        'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
-                      )}
-                      aria-current={pathname === item.href ? 'page' : undefined}
-                    >
-                      {item.name}
-                    </a>
-                  ))}
+                  {navigation
+                    .filter((item) => (user ? item.href === '/' : true))
+                    .map((item) => (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        className={classNames(
+                          pathname === item.href
+                            ? 'border-slate-500 text-gray-900'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                          'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                        )}
+                        aria-current={
+                          pathname === item.href ? 'page' : undefined
+                        }
+                      >
+                        {item.name}
+                      </a>
+                    ))}
                 </div>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
@@ -101,7 +107,7 @@ export default function Navbar({ user }: { user: any }) {
                               )}
                               onClick={() => signOut()}
                             >
-                              Sign out
+                              Se déconnecter
                             </button>
                           )}
                         </Menu.Item>
@@ -115,7 +121,7 @@ export default function Navbar({ user }: { user: any }) {
                               )}
                               onClick={() => signIn('github')}
                             >
-                              Sign in
+                              Se connecter
                             </button>
                           )}
                         </Menu.Item>
@@ -183,7 +189,7 @@ export default function Navbar({ user }: { user: any }) {
                       onClick={() => signOut()}
                       className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                     >
-                      Sign out
+                      Se déconnecter
                     </button>
                   </div>
                 </>
@@ -193,7 +199,7 @@ export default function Navbar({ user }: { user: any }) {
                     onClick={() => signIn('github')}
                     className="flex w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                   >
-                    Sign in
+                    Se connecter
                   </button>
                 </div>
               )}
