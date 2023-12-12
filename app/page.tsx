@@ -51,7 +51,6 @@ const result = [
 ];
 
 const distribution = [
-  getBarData('Investis', 261952.97),
   getBarData('Fonctionnement', -1958.64),
   getBarData('Stratégie', -70053.31),
   getBarData('Prix', 42202.53)
@@ -109,13 +108,14 @@ export default function IndexPage() {
       </Card>
       <Grid numItemsSm={2} numItemsLg={data.length} className="gap-6">
         {data.map((item) => (
-          <Card key={item.category}>
+          <Card data-testid="card" key={item.category}>
             <Title>{item.category}</Title>
             <Flex className="mt-6">
               <Text>{item.context}</Text>
               <Text className="text-right"></Text>
             </Flex>
             <BarList
+              data-testid="bar-chart"
               data={item.data}
               showAnimation={true}
               valueFormatter={(number: number) =>
