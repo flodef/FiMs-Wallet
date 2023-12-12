@@ -1,34 +1,8 @@
-// import { Card, Text, Title } from '@tremor/react';
-// import Search from './search';
-// import UsersTable from './table';
-
-// export default async function IndexPage() {
-
-//   return (
-//     <main className="p-4 md:p-10 mx-auto max-w-7xl">
-//       <Title>Users</Title>
-//       <Text>A list of users retrieved from a Postgres database.</Text>
-//       <Search />
-//       <Card className="mt-6">
-//         <UsersTable users={users} />
-//       </Card>
-//     </main>
-//   );
-// }
-
 'use client';
 
 import { Card, Metric, Text, Title, BarList, Flex, Grid } from '@tremor/react';
+import { getBarData } from './utils';
 // import Chart from './chart';
-
-export function getBarData(name: string, amount: number) {
-  return {
-    name,
-    amount,
-    value: Math.abs(amount),
-    color: amount < 0 ? 'red' : 'green'
-  };
-}
 
 const result = [
   { name: 'Total', total: 234072.58 },
