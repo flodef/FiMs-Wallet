@@ -13,6 +13,7 @@ describe('DataProvider', () => {
     expect(true).toBe(true);
   });
 });
+
 // describe('IndexPage', () => {
 //   // Renders the main page with correct layout and components
 //   it('should render the main page with correct layout and components', () => {
@@ -34,90 +35,90 @@ describe('DataProvider', () => {
 //     expect(screen.getAllByTestId('bar-chart')).toHaveLength(2);
 //   });
 
-// Formats the currency values correctly
-// it('should format the currency values correctly', () => {
-//   render(<IndexPage />);
-//   const totalMetric = screen
-//     .getByText(/^Total$/)
-//     ?.closest('div')
-//     ?.querySelector('metric');
-//   const investisMetric = screen
-//     .getByText(/^Investis$/)
-//     ?.closest('div')
-//     ?.querySelector('metric');
-//   const profitsMetric = screen
-//     .getByText(/^Profits$/)
-//     ?.closest('div')
-//     ?.querySelector('metric');
-//   const fimsSolMetric = screen
-//     .getByText(/^FiMs SOL$/)
-//     ?.closest('div')
-//     ?.querySelector('metric');
-//   const fimsTokenMetric = screen
-//     .getByText(/^FiMs Token$/)
-//     ?.closest('div')
-//     ?.querySelector('metric');
-//   expect(totalMetric).toHaveTextContent('€234,072.58');
-//   expect(investisMetric).toHaveTextContent('€261,952.97');
-//   expect(profitsMetric).toHaveTextContent('-€27,398.13');
-//   expect(fimsSolMetric).toHaveTextContent('€65.31');
-//   expect(fimsTokenMetric).toHaveTextContent('€1.01');
-// });
+//   // Formats the currency values correctly
+//   // it('should format the currency values correctly', () => {
+//   //   render(<IndexPage />);
+//   //   const totalMetric = screen
+//   //     .getByText(/^Total$/)
+//   //     ?.closest('div')
+//   //     ?.querySelector('metric');
+//   //   const investisMetric = screen
+//   //     .getByText(/^Investis$/)
+//   //     ?.closest('div')
+//   //     ?.querySelector('metric');
+//   //   const profitsMetric = screen
+//   //     .getByText(/^Profits$/)
+//   //     ?.closest('div')
+//   //     ?.querySelector('metric');
+//   //   const fimsSolMetric = screen
+//   //     .getByText(/^FiMs SOL$/)
+//   //     ?.closest('div')
+//   //     ?.querySelector('metric');
+//   //   const fimsTokenMetric = screen
+//   //     .getByText(/^FiMs Token$/)
+//   //     ?.closest('div')
+//   //     ?.querySelector('metric');
+//   //   expect(totalMetric).toHaveTextContent('€234,072.58');
+//   //   expect(investisMetric).toHaveTextContent('€261,952.97');
+//   //   expect(profitsMetric).toHaveTextContent('-€27,398.13');
+//   //   expect(fimsSolMetric).toHaveTextContent('€65.31');
+//   //   expect(fimsTokenMetric).toHaveTextContent('€1.01');
+//   // });
 
-// // Handles negative total values correctly
-// it('should handle negative total values correctly', () => {
-//   render(<IndexPage />);
-//   const profitsMetric = screen
-//     .getByText(/Profits/)
-//     .closest('div')
-//     .querySelector('metric');
-//   expect(profitsMetric).toHaveStyle({ color: 'red' });
-// });
+//   // // Handles negative total values correctly
+//   // it('should handle negative total values correctly', () => {
+//   //   render(<IndexPage />);
+//   //   const profitsMetric = screen
+//   //     .getByText(/Profits/)
+//   //     .closest('div')
+//   //     .querySelector('metric');
+//   //   expect(profitsMetric).toHaveStyle({ color: 'red' });
+//   // });
 
-// // Handles zero total values correctly
-// it('should handle zero total values correctly', () => {
-//   const zeroResult = [
-//     { name: 'Total', total: 0 },
-//     {
-//       name: 'Investis',
-//       total: 0
-//     },
-//     {
-//       name: 'Profits',
-//       total: 0
-//     },
-//     {
-//       name: 'FiMs SOL',
-//       total: 0
-//     },
-//     {
-//       name: 'FiMs Token',
-//       total: 0
-//     }
-//   ];
-//   render(<IndexPage result={zeroResult} />);
-//   const totalMetric = screen
-//     .getByText(/Total/)
-//     .closest('div')
-//     .querySelector('metric');
-//   expect(totalMetric).toHaveTextContent('€0.00');
-// });
+//   // // Handles zero total values correctly
+//   // it('should handle zero total values correctly', () => {
+//   //   const zeroResult = [
+//   //     { name: 'Total', total: 0 },
+//   //     {
+//   //       name: 'Investis',
+//   //       total: 0
+//   //     },
+//   //     {
+//   //       name: 'Profits',
+//   //       total: 0
+//   //     },
+//   //     {
+//   //       name: 'FiMs SOL',
+//   //       total: 0
+//   //     },
+//   //     {
+//   //       name: 'FiMs Token',
+//   //       total: 0
+//   //     }
+//   //   ];
+//   //   render(<IndexPage result={zeroResult} />);
+//   //   const totalMetric = screen
+//   //     .getByText(/Total/)
+//   //     .closest('div')
+//   //     .querySelector('metric');
+//   //   expect(totalMetric).toHaveTextContent('€0.00');
+//   // });
 
-// // Handles missing data for bar charts correctly
-// it('should handle missing data for bar charts correctly', () => {
-//   const emptyData = [
-//     {
-//       category: 'Répartition',
-//       context: 'Coûts / Profits',
-//       data: []
-//     },
-//     {
-//       category: 'Trésorerie',
-//       context: 'Monnaie',
-//       data: []
-//     }
-//   ];
-//   render(<IndexPage data={emptyData} />);
-//   expect(screen.getAllByRole('bar-chart')).toHaveLength(0);
-// });
+//   // // Handles missing data for bar charts correctly
+//   // it('should handle missing data for bar charts correctly', () => {
+//   //   const emptyData = [
+//   //     {
+//   //       category: 'Répartition',
+//   //       context: 'Coûts / Profits',
+//   //       data: []
+//   //     },
+//   //     {
+//   //       category: 'Trésorerie',
+//   //       context: 'Monnaie',
+//   //       data: []
+//   //     }
+//   //   ];
+//   //   render(<IndexPage data={emptyData} />);
+//   //   expect(screen.getAllByRole('bar-chart')).toHaveLength(0);
+//   // });
 // });
