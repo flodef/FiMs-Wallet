@@ -1,59 +1,99 @@
 'use client';
 
-import { Card, Metric, Text, Title, BarList, Flex, Grid } from '@tremor/react';
-import { getBarData } from './utils';
+import { BarList, Card, Flex, Grid, Metric, Text, Title } from '@tremor/react';
+import { useEffect, useRef, useState } from 'react';
+import { getBarData } from '../utils/chart';
+import { loadData } from '../utils/processData';
 // import Chart from './chart';
 
-const result = [
-  { name: 'Total', total: 234072.58 },
-  {
-    name: 'Investis',
-    total: 261952.97
-  },
-  {
-    name: 'Profits',
-    total: -27398.13
-  },
-  {
-    name: 'FiMs SOL',
-    total: 65.31
-  },
-  {
-    name: 'FiMs Token',
-    total: 1.011
-  }
-];
-
-// TODO: Replace with real data
-// TODO: Add explanation for the data titles
-
-const distribution = [
-  getBarData('Transferts', -1958.64),
-  getBarData('Stratégie', -70053.31),
-  getBarData('Prix', 42202.53)
-];
-
-const currencies = [
-  getBarData('Solana', 279669.56),
-  getBarData('Euros', -47526.02)
-];
-
-const data = [
-  {
-    category: 'Trésorerie',
-    total: 234072.58,
-    context: 'Monnaie',
-    data: currencies
-  },
-  {
-    category: 'Profits',
-    total: -27398.13,
-    context: 'Type',
-    data: distribution
-  }
-];
-
 export default function IndexPage() {
+  const [result, setResult] = useState([
+    { name: 'Total', label: 'TOTAL', value: 0, total: 234072.58 },
+    {
+      name: 'Investis',
+      label: 'Transfered',
+      value: 0,
+      total: 261952.97
+    },
+    {
+      name: 'Profits',
+      label: 'Profit',
+      value: 0,
+      total: -27398.13
+    },
+    {
+      name: 'FiMs SOL',
+      label: 'Price @',
+      value: 0,
+      total: 65.31
+    },
+    {
+      name: 'FiMs Token',
+      label: 'Price @',
+      value: 0,
+      total: 1.011
+    }
+  ]);
+
+  const loaded = useRef(false);
+  const [refresh, setRefresh] = useState(false);
+  useEffect(() => {
+    if (!loaded.current || refresh) {
+      loadData().then((data) => {
+        console.log(data);
+        loaded.current = true;
+
+        // Refresh data every minute
+        setRefresh(false);
+        setTimeout(() => {
+          setRefresh(true);
+        }, 60000);
+
+        // Update data
+        setResult(
+          result.map((item) => {
+            return {
+              name: item.name,
+              label: item.label,
+              value: item.value,
+              total:
+                data.find((d) => d.label.startsWith(item.label))?.value ?? 0
+            };
+          })
+        );
+      });
+    }
+  }, [refresh, result]);
+
+  // TODO: Replace with real data
+  // TODO: Add explanation for the data titles
+
+  const distribution = [
+    getBarData('Transferts', -1958.64),
+    getBarData('Stratégie', -70053.31),
+    getBarData('Prix', 42202.53)
+  ];
+
+  const currencies = [
+    getBarData('Solana', 279669.56),
+    getBarData('Euros', -47526.02)
+  ];
+
+  const data = [
+    {
+      category: 'Trésorerie',
+      total: 234072.58,
+      context: 'Monnaie',
+      data: currencies
+    },
+    {
+      category: 'Profits',
+      total: -27398.13,
+      context: 'Type',
+      data: distribution
+    }
+  ];
+
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
       <Card className="mb-8">
@@ -68,6 +108,7 @@ export default function IndexPage() {
               >
                 <Metric
                   color={item.total < 0 ? 'red' : 'green'}
+                  className={!loaded.current ? 'blur-sm' : 'animate-unblur'}
                   style={{
                     fontSize: item.name === 'Total' ? '2rem' : '1.5rem'
                   }}
