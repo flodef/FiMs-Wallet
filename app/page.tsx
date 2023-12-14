@@ -2,8 +2,8 @@
 
 import { BarList, Card, Flex, Grid, Metric, Text, Title } from '@tremor/react';
 import { useEffect, useRef, useState } from 'react';
-import { getBarData } from '../utils/chart';
-import { loadData } from '../utils/processData';
+import { getBarData } from './utils/chart';
+import { loadData } from './utils/processData';
 // import Chart from './chart';
 
 export default function IndexPage() {
