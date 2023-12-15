@@ -1,17 +1,17 @@
 'use client';
 
-import { Fragment } from 'react';
-import { usePathname } from 'next/navigation';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { signIn, signOut } from 'next-auth/react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+import { Fragment } from 'react';
 
 const navigation = [
   { name: 'Compte', href: '/account' },
   { name: 'Historique', href: '/historic' },
   { name: 'Transactions', href: '/transactions' },
-  { name: 'FiMs', href: '/' }
+  { name: 'FiMs', href: '/' },
 ];
 
 function classNames(...classes: string[]) {
@@ -37,12 +37,7 @@ export default function Navbar({ user }: { user: any }) {
                     className="text-gray-100"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <rect
-                      width="100%"
-                      height="100%"
-                      rx="16"
-                      fill="currentColor"
-                    />
+                    <rect width="100%" height="100%" rx="16" fill="currentColor" />
                     <path
                       fillRule="evenodd"
                       clipRule="evenodd"
@@ -57,16 +52,14 @@ export default function Navbar({ user }: { user: any }) {
                     .map((item) => (
                       <a
                         key={item.name}
-                        href={item.href}
+                        href={pathname === item.href ? undefined : item.href} // Prevent double navigation
                         className={classNames(
                           pathname === item.href
                             ? 'border-slate-500 text-gray-900'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
                           'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
                         )}
-                        aria-current={
-                          pathname === item.href ? 'page' : undefined
-                        }
+                        aria-current={pathname === item.href ? 'page' : undefined}
                       >
                         {item.name}
                       </a>
@@ -176,12 +169,8 @@ export default function Navbar({ user }: { user: any }) {
                       />
                     </div>
                     <div className="ml-3">
-                      <div className="text-base font-medium text-gray-800">
-                        {user.name}
-                      </div>
-                      <div className="text-sm font-medium text-gray-500">
-                        {user.email}
-                      </div>
+                      <div className="text-base font-medium text-gray-800">{user.name}</div>
+                      <div className="text-sm font-medium text-gray-500">{user.email}</div>
                     </div>
                   </div>
                   <div className="mt-3 space-y-1">
