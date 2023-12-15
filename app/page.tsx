@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  AreaChart,
   BadgeDelta,
   BarList,
   Card,
@@ -11,10 +12,10 @@ import {
   Subtitle,
   Text,
   Title,
-  AreaChart,
 } from '@tremor/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getBarData } from './utils/chart';
+import { useIsMobile } from './utils/mobile';
 import {} from './utils/number';
 import { DataName, loadData } from './utils/processData';
 // import Chart from './chart';
@@ -125,6 +126,8 @@ export default function IndexPage() {
     },
   ];
 
+  const isMobile = useIsMobile();
+
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
       <Card className="mb-8">
@@ -148,11 +151,13 @@ export default function IndexPage() {
           </BadgeDelta>
         </Flex>
         <Flex className="mt-4">
+          {!isMobile && (
+            <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
+              {`${translation['total']} : ${getValue('total')}`}
+            </Subtitle>
+          )}
           <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-            {`Trésorerie : ${getValue('total')}`}
-          </Subtitle>
-          <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-            {`Profits : ${getValue('profit')} (${getRatio('profit')})`}
+            {`${translation['profit']} : ${getValue('profit')} (${getRatio('profit')})`}
           </Subtitle>
         </Flex>
         <DeltaBar value={parseFloat(getRatio('profit'))} className="mt-2" />
@@ -172,7 +177,7 @@ export default function IndexPage() {
               </div>
             </Flex>
             <Flex className="mt-6">
-              <Subtitle>{item.context}</Subtitle>
+              {!isMobile && <Subtitle>{item.context}</Subtitle>}
               <Text className="text-right"></Text>
             </Flex>
             <BarList
