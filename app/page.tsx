@@ -15,7 +15,7 @@ import {
 } from '@tremor/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getBarData } from './utils/chart';
-import {} from './utils/currency';
+import {} from './utils/number';
 import { DataName, loadData } from './utils/processData';
 // import Chart from './chart';
 
