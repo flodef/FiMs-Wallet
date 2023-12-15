@@ -21,18 +21,24 @@ export class UserNotFoundError extends Error {
   }
 }
 
-interface DataName {
-  json: string;
-  sheet: string;
-}
+// interface DataName {
+//   json: string;
+//   sheet: string;
+// }
 
-const dataNames: { [key: string]: DataName } = {
-  parameters: { json: 'parameters', sheet: 'Paramètres' },
-  paymentMethods: { json: 'paymentMethods', sheet: 'Paiements' },
-  currencies: { json: 'currencies', sheet: '_Monnaies' },
-  products: { json: 'products', sheet: '_Produits' },
-  users: { json: 'users', sheet: 'Utilisateurs' }
-};
+// const dataNames: { [key: string]: DataName } = {
+//   dashboard: { json: 'parameters', sheet: 'Dashboard' },
+//   paymentMethods: { json: 'paymentMethods', sheet: 'Historic' },
+//   currencies: { json: 'currencies', sheet: '_Monnaies' },
+//   products: { json: 'products', sheet: '_Produits' },
+//   users: { json: 'users', sheet: 'Utilisateurs' },
+// };
+
+export enum DataName {
+  dashboard = 'Dashboard',
+  historic = 'Historic',
+  token = 'Token',
+}
 
 export function getPublicKey() {
   let publicKey = localStorage.getItem('PublicKey');
@@ -43,19 +49,33 @@ export function getPublicKey() {
   return publicKey;
 }
 
-export async function loadData(isOutOfLocalHost = true) {
-  if (isOutOfLocalHost && !navigator.onLine)
-    throw new Error('The web app is offline');
+export async function loadData(name: DataName, isOutOfLocalHost = true) {
+  if (isOutOfLocalHost && !navigator.onLine) throw new Error('The web app is offline');
 
-  const dashboard = isOutOfLocalHost
-    ? await fetch(`./api/spreadsheet?sheetName=Dashboard&isRaw=true`)
-        .catch((error) => {
-          console.error(error);
-        })
-        .then(convertDashboardData)
-    : [];
+  let convert: (response: void | Response) => Promise<any>;
+  switch (name) {
+    case DataName.dashboard:
+      convert = convertDashboardData;
+      break;
+    case DataName.historic:
+      convert = convertHistoricData;
+      break;
+    case DataName.token:
+      convert = convertTokenData;
+      break;
+    default:
+      throw new Error('Unknown data name');
+  }
 
-  return dashboard ?? [];
+  return (
+    (isOutOfLocalHost
+      ? await fetch(`./api/spreadsheet?sheetName=${name}&isRaw=true`)
+          .catch((error) => {
+            console.error(error);
+          })
+          .then(convert)
+      : []) ?? []
+  );
 
   //   const param = await fetchData(dataNames.parameters, id, false).then(
   //     convertParametersData
@@ -134,29 +154,17 @@ export async function loadData(isOutOfLocalHost = true) {
   //   };
 }
 
-async function fetchData(
-  dataName: DataName,
-  id: string | undefined,
-  isRaw = true
-) {
-  return await fetch(
-    id !== undefined
-      ? `./api/spreadsheet?sheetName=${
-          dataName.sheet
-        }&id=${id}&isRaw=${isRaw.toString()}`
-      : `./api/json?fileName=${dataName.json}`
-  ).catch((error) => {
-    console.error(error);
-  });
-}
+// async function fetchData(dataName: DataName, id: string | undefined, isRaw = true) {
+//   return await fetch(
+//     id !== undefined
+//       ? `./api/spreadsheet?sheetName=${dataName.sheet}&id=${id}&isRaw=${isRaw.toString()}`
+//       : `./api/json?fileName=${dataName.json}`
+//   ).catch((error) => {
+//     console.error(error);
+//   });
+// }
 
-function checkData(
-  data: any,
-  minCol: number,
-  maxCol = minCol,
-  minRow = 1,
-  maxRow = 100000
-) {
+function checkData(data: any, minCol: number, maxCol = minCol, minRow = 1, maxRow = 100000) {
   if (!data) throw new Error('data not fetched');
   if (data.error?.message) throw new Error(data.error.message);
   if (!data.values?.length) throw new MissingDataError();
@@ -176,135 +184,73 @@ function checkColumn(item: any[], minCol: number) {
 
 async function convertDashboardData(response: void | Response) {
   if (typeof response === 'undefined') return;
-  return await response
-    .json()
-    .then((data: { values: string[][]; error: { message: string } }) => {
-      checkData(data, 4, 4, 13, 13);
+  return await response.json().then((data: { values: string[][]; error: { message: string } }) => {
+    checkData(data, 4, 4, 13, 13);
 
-      return data.values
-        .filter((_, i) => i !== 0)
-        .map((item) => {
-          checkColumn(item, 4);
-          return {
-            label: String(item.at(0)).trim(),
-            sol: Number(item.at(1)),
-            value: Number(item.at(2))
-            // ratio: Number(item.at(3)) //not used
-          };
-        });
-    });
-}
-
-async function convertUsersData(response: void | Response) {
-  if (typeof response === 'undefined') return;
-  return await response
-    .json()
-    .then((data: { values: string[][]; error: { message: string } }) => {
-      checkData(data, 3);
-
-      return data.values
-        .filter((_, i) => i !== 0)
-        .map((item) => {
-          checkColumn(item, 3);
-          return {
-            key: String(item.at(0)).trim(),
-            name: String(item.at(1)).trim(),
-            role: String(item.at(2)).trim()
-          };
-        });
-    });
-}
-
-async function convertParametersData(response: void | Response) {
-  if (typeof response === 'undefined') return;
-  return await response
-    .json()
-    .then((data: { values: string[][]; error: { message: string } }) => {
-      checkData(data, 2, 2, 5, 5);
-
-      return data.values.map((item) => {
-        checkColumn(item, 2);
-        return item.at(1);
-      });
-    });
-}
-
-async function convertPaymentMethodsData(response: void | Response) {
-  if (typeof response === 'undefined') return;
-  return await response
-    .json()
-    .then(
-      (data: {
-        values: (string | boolean)[][];
-        error: { message: string };
-      }) => {
-        checkData(data, 4);
-
-        return data.values
-          .filter((_, i) => i !== 0)
-          .filter((item) => !Boolean(item.at(3)))
-          .map((item) => {
-            checkColumn(item, 4);
-            return {
-              method: NormalizedString(item.at(0)),
-              address: String(item.at(1)).trim(),
-              currency: String(item.at(2)).trim()
-            };
-          });
-      }
-    );
-}
-
-async function convertCurrenciesData(response: void | Response) {
-  if (typeof response === 'undefined') return;
-  return await response
-    .json()
-    .then(
-      (data: { values: (string | number)[][]; error: { message: string } }) => {
-        checkData(data, 4);
-
-        return data.values
-          .filter((_, i) => i !== 0)
-          .map((item) => {
-            checkColumn(item, 4);
-            return {
-              label: NormalizedString(item.at(0)),
-              maxValue: Number(item.at(1)),
-              symbol: String(item.at(2)).trim(),
-              maxDecimals: Number(item.at(3))
-            };
-          });
-      }
-    );
-}
-
-async function convertProductsData(response: void | Response) {
-  if (typeof response === 'undefined') return;
-  return await response
-    .json()
-    .then(
-      (data: { values: (string | number)[][]; error: { message: string } }) => {
-        checkData(data, 4, 10);
-
+    return data.values
+      .filter((_, i) => i !== 0)
+      .map((item) => {
+        checkColumn(item, 4);
         return {
-          products: data.values
-            .filter((_, i) => i !== 0)
-            .filter((item) => !Boolean(item.at(3)))
-            .map((item) => {
-              checkColumn(item, 4);
-              return {
-                rate: (Number(item.at(0)) ?? 0) * 100,
-                category: NormalizedString(item.at(1)),
-                label: NormalizedString(item.at(2)),
-                prices: item
-                  .filter((_, i) => i >= 4)
-                  .map((price) => Number(price) ?? 0)
-              };
-            }),
-          currencies: data.values[0].filter((_, i) => i >= 4)
+          label: String(item.at(0)).trim(),
+          // sol: Number(item.at(1)), //not used
+          value: Number(item.at(2)),
+          ratio: Number(item.at(3)),
         };
-      }
-    );
+      });
+  });
+}
+
+async function convertTokenData(response: void | Response) {
+  if (typeof response === 'undefined') return;
+  return await response.json().then((data: { values: string[][]; error: { message: string } }) => {
+    checkData(data, 9, 9, 6, 6);
+
+    return data.values
+      .filter((_, i) => i !== 0)
+      .map((item) => {
+        checkColumn(item, 4);
+        return {
+          // token: String(item.at(0)).trim(), //not used
+          name: String(item.at(1)).trim(),
+          value: Number(item.at(2)),
+          // mintAddress: String(item.at(3)).trim(), //not used
+          // available: Number(item.at(4)), //not used
+          // yearlyYield: Number(item.at(5)), //not used
+          inceptionYield: Number(item.at(6)),
+          // inceptionPrice: Number(item.at(7)), //not used
+          // duration: Number(item.at(8)), //not used
+        };
+      });
+  });
+}
+
+async function convertHistoricData(response: void | Response) {
+  if (typeof response === 'undefined') return;
+  return await response.json().then((data: { values: string[][]; error: { message: string } }) => {
+    checkData(data, 12);
+
+    return data.values
+      .filter((_, i) => i !== 0)
+      .map((item) => {
+        checkColumn(item, 12);
+        return {
+          date: Number(item.at(0)),
+          stringDate: new Date(Math.round((Number(item.at(0)) - 25569) * 86400 * 1000)).toLocaleDateString(),
+          'Total Investi': Number(item.at(1)),
+          // transferCost: Number(item.at(2)), //not used
+          // strategyCost: Number(item.at(3)), //not used
+          // priceChange: Number(item.at(4)), //not used
+          Trésorerie: Number(item.at(5)),
+          // boughtPrice: Number(item.at(6)), //not used
+          // price: Number(item.at(7)), //not used
+          // profit: Number(item.at(8)), //not used
+          // profitRate: Number(item.at(9)), //not used
+          // progress: Number(item.at(10)), //not used
+          // ratio: Number(item.at(11)), //not used
+        };
+      });
+  });
 }
 
 function NormalizedString(value: any) {
