@@ -39,5 +39,6 @@ Number.prototype.toRatio = function (maxDecimals = 2) {
   return `${(Number(this) * 100).toFixed(maxDecimals)}%`;
 };
 String.prototype.fromCurrency = function (locale = 'fr') {
-  return parseFloat(locale === 'fr' ? this.replace(/\s/g, '').replace(/,/g, '.') : this.replace(/,/g, ''));
+  const number = locale === 'fr' ? this.replace(/,/g, '.') : this.replace(/,/g, '');
+  return parseFloat(number.replace(/[^0-9\.\-]/g, ''));
 };

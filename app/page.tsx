@@ -164,7 +164,7 @@ export default function IndexPage() {
               <div>
                 <Title>{item.category}</Title>
                 <Metric
-                  color={parseFloat(item.total) < 0 ? 'red' : 'green'}
+                  color={item.total.fromCurrency() < 0 ? 'red' : 'green'}
                   className={!loaded.current ? 'blur-sm' : 'animate-unblur'}
                 >
                   {item.total}
