@@ -21,7 +21,7 @@ Number.prototype.toLocaleCurrency = function (currency = 'EUR') {
   }).format(Number(this));
 };
 
-Number.prototype.toShortCurrency = function (maxDecimals = 2, symbol = '€') {
+Number.prototype.toShortCurrency = function (maxDecimals = 0, symbol = '€') {
   return (
     this.toFixed(maxDecimals)
       .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
