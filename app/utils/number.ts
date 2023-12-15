@@ -38,7 +38,9 @@ Number.prototype.toCurrency = function (maxDecimals = 2, symbol = '€') {
 Number.prototype.toRatio = function (maxDecimals = 2) {
   return `${(Number(this) * 100).toFixed(maxDecimals)}%`;
 };
-String.prototype.fromCurrency = function (locale = 'fr') {
-  const number = locale === 'fr' ? this.replace(/,/g, '.') : this.replace(/,/g, '');
+String.prototype.fromCurrency = function (locale?: string) {
+  const number = (locale ?? Intl.NumberFormat().resolvedOptions().locale).startsWith('fr')
+    ? this.replace(/,/g, '.')
+    : this.replace(/,/g, '');
   return parseFloat(number.replace(/[^0-9\.\-]/g, ''));
 };
