@@ -185,7 +185,7 @@ function checkColumn(item: any[], minCol: number) {
 async function convertDashboardData(response: void | Response) {
   if (typeof response === 'undefined') return;
   return await response.json().then((data: { values: string[][]; error: { message: string } }) => {
-    checkData(data, 4, 4, 13, 13);
+    checkData(data, 4, 4, 14, 14);
 
     return data.values
       .filter((_, i) => i !== 0)
@@ -208,16 +208,17 @@ async function convertTokenData(response: void | Response) {
 
     return data.values
       .filter((_, i) => i !== 0)
+      .filter((item) => item.at(0) !== '€') // TODO : remove this line when Euro is removed from the spreadsheet
       .map((item) => {
         checkColumn(item, 4);
         return {
           // token: String(item.at(0)).trim(), //not used
-          name: String(item.at(1)).trim(),
+          label: String(item.at(1)).trim(), // token name
           value: Number(item.at(2)),
           // mintAddress: String(item.at(3)).trim(), //not used
           // available: Number(item.at(4)), //not used
-          // yearlyYield: Number(item.at(5)), //not used
-          inceptionYield: Number(item.at(6)),
+          ratio: Number(item.at(5)), //yearlyYield
+          // inception yield: Number(item.at(6)), // not used
           // inceptionPrice: Number(item.at(7)), //not used
           // duration: Number(item.at(8)), //not used
         };
