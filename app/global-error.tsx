@@ -8,13 +8,7 @@ import { EMAIL } from './utils/constants';
 
 const openSans = Open_Sans({ subsets: ['latin'], weight: ['400', '700'] });
 
-export default function GlobalError({
-  error,
-  reset
-}: {
-  error: Error;
-  reset: () => void;
-}) {
+export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
   useEffect(() => {
     // Log the error to an error reporting service
     console.error(error);
@@ -33,29 +27,22 @@ export default function GlobalError({
     'dark:bg-secondary-active-dark dark:bg-gradient-to-t dark:from-secondary-active-dark dark:to-secondary-dark ' +
     'left-[-20%] top-[45%] shadow-[0_1vmin_5vmin_rgba(0,0,0,0.5)]';
   const crossClassName =
-    barClassName.replaceAll(' ', ' before:').trim() +
-    ' ' +
-    barClassName.replaceAll(' ', ' after:').trim();
-  const zeroAClassName =
-    zeroClassName.replaceAll('$', 'a') + ' ' + crossClassName;
-  const zeroBClassName =
-    zeroClassName.replaceAll('$', 'b') + ' ' + crossClassName;
+    barClassName.replaceAll(' ', ' before:').trim() + ' ' + barClassName.replaceAll(' ', ' after:').trim();
+  const zeroAClassName = zeroClassName.replaceAll('$', 'a') + ' ' + crossClassName;
+  const zeroBClassName = zeroClassName.replaceAll('$', 'b') + ' ' + crossClassName;
 
   return (
     <div className={openSans.className}>
       <div
         className={
-          'w-screen h-screen overflow-hidden flex flex-col items-center justify-center font-bold ' +
+          'mt-10 overflow-hidden flex flex-col items-center justify-center font-bold ' +
           'uppercase text-[3vmin] text-center text-secondary-light dark:text-secondary-dark'
         }
       >
         <p className="px-6 z-10">
           Oups ! L&apos;appli s&apos;est emmelée les pinceaux ... <br />
           Merci de me le signaler à{' '}
-          <Link
-            target="_blank"
-            href={`mailto:${EMAIL}?subject=Erreur innatendue sur ${window.location}`}
-          >
+          <Link target="_blank" href={`mailto:${EMAIL}?subject=Erreur innatendue sur ${window.location}`}>
             {EMAIL}
           </Link>
         </p>
