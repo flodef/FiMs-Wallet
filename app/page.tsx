@@ -21,7 +21,7 @@ import { getBarData } from './utils/chart';
 import { useIsMobile } from './utils/mobile';
 import {} from './utils/number';
 import { DataName, loadData } from './utils/processData';
-// import Chart from './chart';
+import { useIsReady } from './hooks/useWindowParam';
 
 const tokenValueStart = 1000;
 
@@ -222,18 +222,20 @@ export default function IndexPage() {
         <Card>
           <Flex alignItems="start" flexDirection={!isMobile ? 'row' : 'col'}>
             <div>
-              <Title>{t['result']}</Title>
+              <Title className="mb-2">{t['result']}</Title>
             </div>
-            <TabGroup
-              index={resultIndex}
-              onIndexChange={setResultIndex}
-              className={!isMobile ? 'text-right' : 'mt-2 mb-4'}
-            >
-              <TabList variant={!isMobile ? 'solid' : 'line'}>
-                <Tab icon={ChartPieIcon}>{t['total']}</Tab>
-                <Tab icon={ListBulletIcon}>{t['profit']}</Tab>
-              </TabList>
-            </TabGroup>
+            {useIsReady() && (
+              <TabGroup
+                index={resultIndex}
+                onIndexChange={setResultIndex}
+                className={!isMobile ? 'text-right' : 'mt-2 mb-4'}
+              >
+                <TabList variant={!isMobile ? 'solid' : 'line'}>
+                  <Tab icon={ChartPieIcon}>{t['total']}</Tab>
+                  <Tab icon={ListBulletIcon}>{t['profit']}</Tab>
+                </TabList>
+              </TabGroup>
+            )}
           </Flex>
           <Flex className="mb-6" alignItems="start">
             <div>
@@ -257,18 +259,20 @@ export default function IndexPage() {
         </Card>
         <Card>
           <Flex alignItems="start" flexDirection={!isMobile ? 'row' : 'col'}>
-            <Title>{t['price']}</Title>
-            <TabGroup
-              index={priceIndex}
-              onIndexChange={setPriceIndex}
-              className={!isMobile ? 'text-right' : 'mt-2 mb-4'}
-            >
-              <TabList variant={!isMobile ? 'solid' : 'line'}>
-                {token.map((t) => (
-                  <Tab key={t.label}>{t.label}</Tab>
-                ))}
-              </TabList>
-            </TabGroup>
+            <Title className="mb-2">{t['price']}</Title>
+            {useIsReady() && (
+              <TabGroup
+                index={priceIndex}
+                onIndexChange={setPriceIndex}
+                className={!isMobile ? 'text-right' : 'mt-2 mb-4'}
+              >
+                <TabList variant={!isMobile ? 'solid' : 'line'}>
+                  {token.map((t) => (
+                    <Tab key={t.label}>{t.label}</Tab>
+                  ))}
+                </TabList>
+              </TabGroup>
+            )}
           </Flex>
           <Flex className="mb-5" alignItems="start">
             <div>
