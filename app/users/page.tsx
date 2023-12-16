@@ -1,13 +1,11 @@
+import { Card, Table, Text, Title } from '@tremor/react';
 import { sql } from '@vercel/postgres';
-import { Card, Title, Text } from '@tremor/react';
 import Search from '../search';
-import UsersTable from '../table';
+import { TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
 
 interface User {
-  id: number;
   name: string;
-  username: string;
-  email: string;
+  address: string;
 }
 
 export default async function IndexPage({ searchParams }: { searchParams: { q: string } }) {
@@ -18,14 +16,6 @@ export default async function IndexPage({ searchParams }: { searchParams: { q: s
     WHERE name ILIKE ${'%' + search + '%'};
   `;
   const users = result.rows as User[];
-  // const users = [
-  //   {
-  //     id: 1,
-  //     name: 'John Doe',
-  //     username: 'johndoe',
-  //     email: 'johndoe@email.com'
-  //   }
-  // ].filter((user) => user.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
@@ -33,7 +23,25 @@ export default async function IndexPage({ searchParams }: { searchParams: { q: s
       <Text>A list of users retrieved from a Postgres database.</Text>
       <Search />
       <Card className="mt-6">
-        <UsersTable users={users} />
+        {/* <UsersTable users={users} /> */}
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Name</TableHeaderCell>
+              <TableHeaderCell>Address</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.name}>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>
+                  <Text>{user.address}</Text>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Card>
     </main>
   );
