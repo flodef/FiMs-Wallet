@@ -1,9 +1,9 @@
 import './globals.css';
 
-import { Analytics } from '@vercel/analytics/react';
 import Nav from './nav';
 import Toast from './toast';
 import { Suspense } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
   title: 'FiMs Wallet',
@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Nav />
         </Suspense>
         {children}
-        <Analytics />
+        <SpeedInsights />
         <Toast />
       </body>
     </html>
