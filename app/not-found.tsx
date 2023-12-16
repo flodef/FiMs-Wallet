@@ -6,18 +6,13 @@ export default function NotFound() {
     <Link className="flex justify-center" href="/">
       <div
         className={
-          'container h-screen w-screen flex flex-col justify-center font-bold ' +
+          'container mt-10 flex flex-col justify-center font-bold ' +
           'uppercase text-[3vmin] text-center text-secondary-light dark:text-secondary-dark'
         }
       >
         <div className="row">
           <div className="col-sm-12 col-md-12 mt-5 mb-5">
-            <svg
-              width="100%"
-              viewBox="0 0 636 324"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg width="100%" viewBox="0 0 636 324" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g id="OBJECTS">
                 <g id="Group">
                   <path
@@ -204,11 +199,7 @@ export default function NotFound() {
                       d="M569.9 241.4V244.7C569.3 244.6 567.9 244.7 566.7 244.9C565.9 245 565.2 245 564.8 245.1L564.5 242.3L565.8 242.1L569.9 241.4Z"
                       fill="url(#paint10_linear)"
                     />
-                    <g
-                      id="handboy"
-                      className="animate-swing origin-[98%_98%]"
-                      style={{ transformBox: 'fill-box' }}
-                    >
+                    <g id="handboy" className="animate-swing origin-[98%_98%]" style={{ transformBox: 'fill-box' }}>
                       <path
                         id="Vector_32"
                         d="M529.1 188C529.1 188 529.2 188.3 528.8 188.7C528.5 189 528 189.3 527.1 189.7C521.7 191.8 510.6 186.7 504.5 183.3C498.5 179.9 481.3 182.7 469.7 181.1C458.1 179.5 453.2 173.3 442.8 170.7C432.4 168.1 393.6 179.3 391.4 170.6C389.2 161.9 432.8 77.2 436.6 83.1C440.3 89 453.2 89.4 462.3 94.1C471.4 98.8 479.1 122.1 489.2 124.4C490.6 124.7 491.9 125.2 493.2 125.9C501.2 130.2 507 140.9 507.2 149.7C507.4 159.9 521.4 168.1 526.5 173.6C531.5 179.2 529.1 188 529.1 188Z"
@@ -660,11 +651,7 @@ export default function NotFound() {
                       d="M98.7 198.7C98.7 198.8 98.5 199 98.3 199.1C96 200.7 84.4 204.1 80.1 199.7C79.5 199.1 79.8 198.5 80.3 197.8C80.9 198.3 82 198.8 84 199.2C87.9 199.8 94.7 198.8 98 196.4C98.4 197.4 98.8 198.2 98.7 198.7Z"
                       fill="black"
                     />
-                    <g
-                      id="girllight"
-                      className="animate-swing origin-[0%_97%]"
-                      style={{ transformBox: 'fill-box' }}
-                    >
+                    <g id="girllight" className="animate-swing origin-[0%_97%]" style={{ transformBox: 'fill-box' }}>
                       <path
                         id="Vector_102"
                         d="M121.8 188C121.8 188 119.4 179.3 124.5 173.8C129.6 168.3 143.5 160.1 143.8 149.9C144.1 139.7 151.7 126.9 161.8 124.5C171.9 122.2 179.6 98.8 188.7 94.2C197.8 89.5 210.7 89.1 214.4 83.2C218.1 77.3 261.7 162 259.6 170.7C257.4 179.4 218.6 168.2 208.2 170.8C197.8 173.4 192.9 179.6 181.3 181.2C169.7 182.8 152.5 180 146.5 183.4C140.5 186.8 129.4 191.8 123.9 189.8C121.6 188.8 121.8 188 121.8 188Z"
@@ -699,11 +686,7 @@ export default function NotFound() {
                       d="M97.9 164.4C97.1 166.2 95.8 168.2 95.5 168.3C95.1 168.4 94.9 165.1 93.7 164.9C92.5 164.6 92.3 166.9 93.1 167.7C93.5 168.1 93.2 169 92.6 169.8C91.9 170.6 90.9 171.2 89.8 170.5C87.8 169.3 87.4 161.5 87.4 160.9C87.4 160.9 87.4 160.4 87.5 159.7C88.5 159.6 90.8 159.8 91.3 161.8C91.8 163.8 91.8 164.7 91.8 165.1C91.9 164.5 92.4 162.8 94.3 163.2C95.4 163.3 96.7 164.1 97.9 164.4Z"
                       fill="black"
                     />
-                    <g
-                      id="hairgirl"
-                      className="animate-swinghair origin-[60%_0%]"
-                      style={{ transformBox: 'fill-box' }}
-                    >
+                    <g id="hairgirl" className="animate-swinghair origin-[60%_0%]" style={{ transformBox: 'fill-box' }}>
                       <path
                         id="Vector_108"
                         d="M89.6 161.6C89.6 161.6 88.8 159.9 86.1 160.4C83.5 160.9 82.3 164.3 83.5 169.8C83.5 164.9 84.2 163.8 84.2 163.8C84.2 163.8 83.1 166.8 84.5 173.5C85.9 180.2 86.8 186.7 83.2 189.5C90.3 185.5 90.8 180.7 90.3 174.9C90 169.1 91.3 164 89.6 161.6Z"
@@ -1194,9 +1177,7 @@ export default function NotFound() {
               </defs>
             </svg>
           </div>
-          <p className="px-6 cursor-pointer">
-            Perdu ? Retour à l&apos;envoyeur !
-          </p>
+          <p className="px-6 cursor-pointer">Perdu ? Retour à l&apos;envoyeur !</p>
         </div>
       </div>
     </Link>
