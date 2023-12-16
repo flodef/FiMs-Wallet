@@ -9,8 +9,8 @@ import { Fragment } from 'react';
 import { FiMsLogo } from './FiMsLogo';
 
 const navigation = [
-  { name: 'Compte', href: '/account' },
-  { name: 'Historique', href: '/historic' },
+  { name: 'Mon compte', href: '/account' },
+  { name: 'Utilisateurs', href: '/users' },
   { name: 'Transactions', href: '/transactions' },
   { name: 'FiMs', href: '/' },
 ];
@@ -34,7 +34,7 @@ export default function Navbar({ user }: { user: any }) {
                 </div>
                 <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
                   {navigation
-                    .filter((item) => (user ? item.href === '/' : true))
+                    .filter((item) => (!user ? item.href === '/' : true))
                     .map((item) => (
                       <a
                         key={item.name}
