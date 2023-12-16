@@ -17,7 +17,7 @@ import {
   Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useIsReady } from './hooks/useWindowParam';
+import { useIsWindowReady } from './hooks/useWindowParam';
 import { getBarData } from './utils/chart';
 import { useIsMobile } from './utils/mobile';
 import {} from './utils/number';
@@ -226,7 +226,7 @@ export default function IndexPage() {
             <div>
               <Title className="mb-2">{t['result']}</Title>
             </div>
-            {useIsReady() && (
+            {useIsWindowReady() && (
               <TabGroup
                 index={resultIndex}
                 onIndexChange={setResultIndex}
@@ -262,7 +262,7 @@ export default function IndexPage() {
         <Card>
           <Flex alignItems="start" flexDirection={!isMobile ? 'row' : 'col'}>
             <Title className="mb-2">{t['price']}</Title>
-            {useIsReady() && (
+            {useIsWindowReady() && (
               <TabGroup
                 index={priceIndex}
                 onIndexChange={setPriceIndex}

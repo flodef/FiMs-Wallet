@@ -65,6 +65,6 @@ export function useWindowParam() {
   };
 }
 
-export function useIsReady() {
+export function useIsWindowReady() {
   return useWindowParam().width > 0;
 }
