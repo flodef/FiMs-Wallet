@@ -17,13 +17,13 @@ import {
   Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useIsReady } from './hooks/useWindowParam';
 import { getBarData } from './utils/chart';
 import { useIsMobile } from './utils/mobile';
 import {} from './utils/number';
 import { DataName, loadData } from './utils/processData';
-import { useIsReady } from './hooks/useWindowParam';
 
-const tokenValueStart = 1000;
+const tokenValueStart = 100;
 
 interface dataset {
   [key: string]: string;
@@ -50,6 +50,10 @@ interface data {
   ratio: number;
 }
 
+interface token extends data {
+  duration: number;
+}
+
 interface historic {
   date: number;
   stringDate: string;
@@ -63,12 +67,10 @@ interface tokenHisto {
 }
 
 const today = new Date();
-const todayDate = today.toLocaleDateString();
-const nextYearDate = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate()).toLocaleDateString();
 
 export default function IndexPage() {
   const [dashboard, setDashboard] = useState<data[]>([]);
-  const [token, setToken] = useState<data[]>([]);
+  const [token, setToken] = useState<token[]>([]);
   const [historic, setHistoric] = useState<historic[]>([]);
   const [tokenHisto, setTokenHisto] = useState<tokenHisto[][]>([]);
   const [tokenHistoLimit, setTokenHistoLimit] = useState<{ min: number; max: number }>();
@@ -90,7 +92,7 @@ export default function IndexPage() {
   );
 
   const generateTokenHisto = useCallback(
-    (token: data[]) => {
+    (token: token[]) => {
       let min = tokenValueStart;
       let max = tokenValueStart;
       const tokenHisto: tokenHisto[][] = [];
@@ -98,11 +100,11 @@ export default function IndexPage() {
         const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(token, t.label)) / 100);
         tokenHisto.push([
           {
-            date: todayDate,
+            date: new Date(today.getTime() - t.duration * 24 * 60 * 60 * 1000).toLocaleDateString(),
             Montant: tokenValueStart,
           },
           {
-            date: nextYearDate,
+            date: today.toLocaleDateString(),
             Montant: tokenValueEnd,
           },
         ]);
@@ -138,7 +140,7 @@ export default function IndexPage() {
         })
         .then(() => {
           loadData(DataName.token)
-            .then((data: data[]) => {
+            .then((data: token[]) => {
               console.log(data);
               setToken(data);
               generateTokenHisto(data);
@@ -280,6 +282,18 @@ export default function IndexPage() {
                 {getValue(token, token.at(priceIndex)?.label)}
               </Metric>
             </div>
+            <BadgeDelta
+              className="mt-2"
+              deltaType={
+                parseFloat(getRatio(token, token.at(priceIndex)?.label)) < 0
+                  ? 'moderateDecrease'
+                  : parseFloat(getRatio(token, token.at(priceIndex)?.label)) > 0
+                    ? 'moderateIncrease'
+                    : 'unchanged'
+              }
+            >
+              {getRatio(token, token.at(priceIndex)?.label)}
+            </BadgeDelta>
           </Flex>
           <AreaChart
             className="h-44"
@@ -291,7 +305,7 @@ export default function IndexPage() {
                 ? 'green'
                 : 'red',
             ]}
-            valueFormatter={(number) => number.toShortCurrency()}
+            valueFormatter={(number) => number.toFixed(0)}
             yAxisWidth={50}
             showAnimation={true}
             animationDuration={2000}

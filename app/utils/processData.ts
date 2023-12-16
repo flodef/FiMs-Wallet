@@ -217,10 +217,10 @@ async function convertTokenData(response: void | Response) {
           value: Number(item.at(2)),
           // mintAddress: String(item.at(3)).trim(), //not used
           // available: Number(item.at(4)), //not used
-          ratio: Number(item.at(5)), //yearlyYield
-          // inception yield: Number(item.at(6)), // not used
+          // yearlyYield: Number(item.at(5)),  //not used
+          ratio: Number(item.at(6)), // inception yield
           // inceptionPrice: Number(item.at(7)), //not used
-          // duration: Number(item.at(8)), //not used
+          duration: Number(item.at(8)),
         };
       });
   });
