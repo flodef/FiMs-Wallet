@@ -11,12 +11,12 @@ export function isMobileDevice() {
 }
 
 // Detects if the screen size is a mobile size (does not update on screen resize - use useIsMobile instead)
-export function isMobileSize() {
-  return typeof window === 'undefined' || window.screen.availWidth < 768;
+export function isMobileSize(maxWidth = 768) {
+  return typeof window === 'undefined' || window.screen.availWidth < maxWidth;
 }
 
 // Detects if the screen size is a mobile size (update on screen resize)
-export function useIsMobile() {
+export function useIsMobile(maxWidth = 768) {
   const { width } = useWindowParam();
-  return width < 768 && width > 0;
+  return width < maxWidth && width > 0;
 }
