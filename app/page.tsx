@@ -2,14 +2,17 @@
 
 import { ChartPieIcon, ListBulletIcon } from '@heroicons/react/24/outline';
 import {
+  Accordion,
+  AccordionBody,
+  AccordionHeader,
   AreaChart,
   BadgeDelta,
   BarList,
-  Card,
   DeltaBar,
   Flex,
   Grid,
   Metric,
+  SparkAreaChart,
   Subtitle,
   Tab,
   TabGroup,
@@ -19,9 +22,10 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useIsWindowReady } from './hooks/useWindowParam';
 import { getBarData } from './utils/chart';
-import { useIsMobile } from './utils/mobile';
+import { isMobileSize, useIsMobile } from './utils/mobile';
 import {} from './utils/number';
 import { DataName, loadData } from './utils/processData';
+import Loading from './loading';
 
 const tokenValueStart = 100;
 
@@ -116,7 +120,6 @@ export default function IndexPage() {
         min: min,
         max: max,
       });
-      console.log(min, max);
     },
     [getRatio]
   );
@@ -155,8 +158,6 @@ export default function IndexPage() {
     }
   }, [refresh, generateTokenHisto]);
 
-  // TODO: Add explanation for the data titles
-
   const getBarList = useCallback(
     (labels: string[]) => {
       return labels
@@ -181,159 +182,198 @@ export default function IndexPage() {
     },
   ];
 
+  const isTablet = useIsMobile(1024);
+
   const [resultIndex, setResultIndex] = useState(0);
   const [priceIndex, setPriceIndex] = useState(0);
+  const [performanceExpanded, setPerformanceExpanded] = useState(true);
 
-  const isMobile = useIsMobile();
+  useEffect(() => {
+    setPerformanceExpanded(!isMobileSize());
+  }, []);
 
   return (
-    <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      <Card className="mb-8">
-        <Flex alignItems="start">
-          <div>
-            <Title>{t['transfered']}</Title>
-            <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
-              {getValue(dashboard, 'transfered', 200000)}
-            </Metric>
-          </div>
-          <BadgeDelta
-            deltaType={
-              parseFloat(getRatio(dashboard, 'price @')) < 0
-                ? 'moderateDecrease'
-                : parseFloat(getRatio(dashboard, 'price @')) > 0
-                  ? 'moderateIncrease'
-                  : 'unchanged'
-            }
-          >
-            {getRatio(dashboard, 'price @')}
-          </BadgeDelta>
-        </Flex>
-        <Flex className="mt-4">
-          {!isMobile && (
-            <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-              {`${t['total']} : ${getValue(dashboard, 'total')}`}
-            </Subtitle>
-          )}
-          <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-            {`${t['profit']} : ${getValue(dashboard, 'profit')} (${getRatio(dashboard, 'profit')})`}
-          </Subtitle>
-        </Flex>
-        <DeltaBar value={parseFloat(getRatio(dashboard, 'profit'))} className="mt-2" />
-      </Card>
-      <Grid numItemsSm={2} numItemsLg={result.length} className="gap-6 mb-8">
-        <Card>
-          <Flex alignItems="start" flexDirection={!isMobile ? 'row' : 'col'}>
-            <div>
-              <Title className="mb-2">{t['result']}</Title>
-            </div>
-            {useIsWindowReady() && (
-              <TabGroup
-                index={resultIndex}
-                onIndexChange={setResultIndex}
-                className={!isMobile ? 'text-right' : 'mt-2 mb-4'}
-              >
-                <TabList variant={!isMobile ? 'solid' : 'line'}>
-                  <Tab icon={ChartPieIcon}>{t['total']}</Tab>
-                  <Tab icon={ListBulletIcon}>{t['profit']}</Tab>
-                </TabList>
-              </TabGroup>
-            )}
-          </Flex>
-          <Flex className="mb-6" alignItems="start">
-            <div>
-              <Metric
-                color={result[resultIndex].total.fromCurrency() < 0 ? 'red' : 'green'}
-                className={!loaded.current ? 'blur-sm' : 'animate-unblur'}
-              >
-                {result[resultIndex].total}
-              </Metric>
-            </div>
-          </Flex>
-          <BarList
-            data-testid="bar-chart"
-            data={result[resultIndex].data}
-            showAnimation={true}
-            valueFormatter={(number: number) =>
-              (result[resultIndex].data.find((d) => d.value === number)?.amount ?? number).toLocaleCurrency()
-            }
-            className="mt-2"
-          />
-        </Card>
-        <Card>
-          <Flex alignItems="start" flexDirection={!isMobile ? 'row' : 'col'}>
-            <Title className="mb-2">{t['price']}</Title>
-            {useIsWindowReady() && (
-              <TabGroup
-                index={priceIndex}
-                onIndexChange={setPriceIndex}
-                className={!isMobile ? 'text-right' : 'mt-2 mb-4'}
-              >
-                <TabList variant={!isMobile ? 'solid' : 'line'}>
-                  {token.map((t) => (
-                    <Tab key={t.label}>{t.label}</Tab>
-                  ))}
-                </TabList>
-              </TabGroup>
-            )}
-          </Flex>
-          <Flex className="mb-5" alignItems="start">
-            <div>
-              <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
-                {getValue(token, token.at(priceIndex)?.label)}
-              </Metric>
-            </div>
-            <BadgeDelta
-              className="mt-2"
-              deltaType={
-                parseFloat(getRatio(token, token.at(priceIndex)?.label)) < 0
-                  ? 'moderateDecrease'
-                  : parseFloat(getRatio(token, token.at(priceIndex)?.label)) > 0
-                    ? 'moderateIncrease'
-                    : 'unchanged'
-              }
-            >
-              {getRatio(token, token.at(priceIndex)?.label)}
-            </BadgeDelta>
-          </Flex>
-          <AreaChart
-            className="h-44"
-            data={tokenHisto[priceIndex]}
-            categories={[t['amount']]}
-            index="date"
-            colors={[
-              tokenHisto.length && tokenHisto[priceIndex][0].Montant < tokenHisto[priceIndex][1].Montant
-                ? 'green'
-                : 'red',
-            ]}
-            valueFormatter={(number) => number.toFixed(0)}
-            yAxisWidth={50}
-            showAnimation={true}
-            animationDuration={2000}
-            curveType="monotone"
-            noDataText={t['loading']}
-            minValue={tokenHistoLimit?.min ?? 0}
-            maxValue={tokenHistoLimit?.max ?? 0}
-            showLegend={false}
-            startEndOnly={true}
-          />
-        </Card>
-      </Grid>
-      <Card className="mt-8">
-        <Title>Performance</Title>
-        <AreaChart
-          className="mt-4 h-80"
-          data={historic.sort((a, b) => a.date - b.date)}
-          categories={[t['transfered'], t['total']]}
-          index="stringDate"
-          colors={['indigo', 'fuchsia']}
-          valueFormatter={(number) => number.toShortCurrency()}
-          yAxisWidth={50}
-          showAnimation={true}
-          animationDuration={2000}
-          curveType="monotone"
-          noDataText={t['loading']}
-        />
-      </Card>
+    <main className="space-y-6 p-4 md:p-10 mx-auto max-w-7xl">
+      {useIsWindowReady() ? (
+        <>
+          <Accordion defaultOpen={!isMobileSize()}>
+            <AccordionHeader>
+              <Flex alignItems="start">
+                <div>
+                  <Title className="text-left">{t['transfered']}</Title>
+                  <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
+                    {getValue(dashboard, 'transfered', 200000)}
+                  </Metric>
+                </div>
+                <BadgeDelta
+                  deltaType={
+                    parseFloat(getRatio(dashboard, 'price @')) < 0
+                      ? 'moderateDecrease'
+                      : parseFloat(getRatio(dashboard, 'price @')) > 0
+                        ? 'moderateIncrease'
+                        : 'unchanged'
+                  }
+                >
+                  {getRatio(dashboard, 'price @')}
+                </BadgeDelta>
+              </Flex>
+            </AccordionHeader>
+            <AccordionBody>
+              <Flex className="mt-4">
+                <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
+                  {`${t['profit']} : ${getValue(dashboard, 'profit')} (${getRatio(dashboard, 'profit')})`}
+                </Subtitle>
+                <Subtitle className={'truncate hidden sm:block ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
+                  {`${t['total']} : ${getValue(dashboard, 'total')}`}
+                </Subtitle>
+              </Flex>
+              <DeltaBar value={parseFloat(getRatio(dashboard, 'profit'))} className="mt-2" />
+            </AccordionBody>
+          </Accordion>
+
+          <Grid numItemsSm={2} numItemsLg={result.length} className="gap-6">
+            <Accordion defaultOpen={!isMobileSize()}>
+              <AccordionHeader>
+                <Flex alignItems="start" flexDirection="col">
+                  <Flex alignItems="start" flexDirection={!isTablet ? 'row' : 'col'}>
+                    <Title className="text-left">{t['result']}</Title>
+                    {/* {useIsWindowReady() && ( */}
+                    <TabGroup
+                      index={resultIndex}
+                      onIndexChange={setResultIndex}
+                      className={'mb-4 lg:mb-0 lg:text-right'}
+                    >
+                      <TabList
+                        className="float-left lg:float-right"
+                        variant={!isTablet ? 'solid' : 'line'}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Tab icon={ChartPieIcon}>{t['total']}</Tab>
+                        <Tab icon={ListBulletIcon}>{t['profit']}</Tab>
+                      </TabList>
+                    </TabGroup>
+                    {/* )} */}
+                  </Flex>
+                  <Metric
+                    color={result[resultIndex].total.fromCurrency() < 0 ? 'red' : 'green'}
+                    className={!loaded.current ? 'blur-sm' : 'animate-unblur'}
+                  >
+                    {result[resultIndex].total}
+                  </Metric>
+                </Flex>
+              </AccordionHeader>
+              <AccordionBody>
+                <BarList
+                  data-testid="bar-chart"
+                  data={result[resultIndex].data}
+                  showAnimation={true}
+                  valueFormatter={(number: number) =>
+                    (result[resultIndex].data.find((d) => d.value === number)?.amount ?? number).toLocaleCurrency()
+                  }
+                  className="mt-2"
+                />
+              </AccordionBody>
+            </Accordion>
+            <Accordion defaultOpen={!isMobileSize()}>
+              <AccordionHeader>
+                <Flex alignItems="start" flexDirection="col">
+                  <Flex alignItems="start" flexDirection={!isTablet ? 'row' : 'col'}>
+                    <Title className="text-left">{t['price']}</Title>
+                    {/* {useIsWindowReady() && ( */}
+                    <TabGroup index={priceIndex} onIndexChange={setPriceIndex} className="mb-4 lg:mb-0 lg:text-right">
+                      <TabList
+                        className="float-left lg:float-right"
+                        variant={!isTablet ? 'solid' : 'line'}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {token.map((t) => (
+                          <Tab key={t.label}>{t.label}</Tab>
+                        ))}
+                      </TabList>
+                    </TabGroup>
+                    {/* )} */}
+                  </Flex>
+                  <Flex alignItems="start" flexDirection="row">
+                    <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
+                      {getValue(token, token.at(priceIndex)?.label)}
+                    </Metric>
+                    <BadgeDelta
+                      className="mt-2"
+                      deltaType={
+                        parseFloat(getRatio(token, token.at(priceIndex)?.label)) < 0
+                          ? 'moderateDecrease'
+                          : parseFloat(getRatio(token, token.at(priceIndex)?.label)) > 0
+                            ? 'moderateIncrease'
+                            : 'unchanged'
+                      }
+                    >
+                      {getRatio(token, token.at(priceIndex)?.label)}
+                    </BadgeDelta>
+                  </Flex>
+                </Flex>
+              </AccordionHeader>
+              <AccordionBody>
+                <AreaChart
+                  className="h-44"
+                  data={tokenHisto[priceIndex]}
+                  categories={[t['amount']]}
+                  index="date"
+                  colors={[
+                    tokenHisto.length && tokenHisto[priceIndex][0].Montant < tokenHisto[priceIndex][1].Montant
+                      ? 'green'
+                      : 'red',
+                  ]}
+                  valueFormatter={(number) => number.toFixed(0)}
+                  yAxisWidth={50}
+                  showAnimation={true}
+                  animationDuration={2000}
+                  curveType="monotone"
+                  noDataText={t['loading']}
+                  minValue={tokenHistoLimit?.min ?? 0}
+                  maxValue={tokenHistoLimit?.max ?? 0}
+                  showLegend={false}
+                  startEndOnly={true}
+                />
+              </AccordionBody>
+            </Accordion>
+          </Grid>
+          <Accordion defaultOpen={performanceExpanded} onClick={() => setPerformanceExpanded(!performanceExpanded)}>
+            <AccordionHeader>
+              <Title>Performance</Title>
+              {!performanceExpanded && (
+                <Flex className="w-full" justifyContent="center">
+                  <SparkAreaChart
+                    data={historic.sort((a, b) => a.date - b.date)}
+                    categories={[t['total']]}
+                    index={'stringDate'}
+                    colors={['emerald']}
+                    className="ml-4 h-10 w-[80%] text-center"
+                    curveType="monotone"
+                    noDataText={t['loading']}
+                  />
+                </Flex>
+              )}
+            </AccordionHeader>
+            <AccordionBody>
+              <AreaChart
+                className="h-80"
+                data={historic.sort((a, b) => a.date - b.date)}
+                categories={[t['transfered'], t['total']]}
+                index="stringDate"
+                colors={['indigo', 'fuchsia']}
+                valueFormatter={(number) => number.toShortCurrency()}
+                yAxisWidth={50}
+                showAnimation={true}
+                animationDuration={2000}
+                curveType="monotone"
+                noDataText={t['loading']}
+              />
+            </AccordionBody>
+          </Accordion>
+        </>
+      ) : (
+        Loading()
+      )}
     </main>
   );
 }
