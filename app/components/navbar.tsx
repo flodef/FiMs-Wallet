@@ -6,7 +6,9 @@ import { signIn, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Fragment } from 'react';
-import { FiMsLogo } from './FiMsLogo';
+import { FiMsLogo } from '../images/FiMsLogo';
+import { Button } from '@tremor/react';
+import { usePopup } from '../hooks/usePopup';
 
 const navigation = [
   { name: 'Mon compte', href: '/account' },
@@ -20,10 +22,11 @@ function classNames(...classes: string[]) {
 }
 
 export default function Navbar({ user }: { user: any }) {
+  const { openPopup, isPopupOpen } = usePopup();
   const pathname = usePathname();
 
   return (
-    <Disclosure as="nav" className="bg-white shadow-sm">
+    <Disclosure as="nav" className={'bg-white shadow-sm ' + (isPopupOpen ? 'blur-sm' : '')}>
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -51,11 +54,32 @@ export default function Navbar({ user }: { user: any }) {
                       </a>
                     ))}
                 </div>
+                <div className="-mr-2 ml-2 flex items-center sm:hidden">
+                  <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none">
+                    <span className="sr-only">Open main menu</span>
+                    {open ? (
+                      <XMarkIcon
+                        className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Bars3Icon
+                        className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </Disclosure.Button>
+                </div>
               </div>
-              <div className="hidden sm:ml-6 sm:flex sm:items-center">
-                <Menu as="div" className="relative ml-3">
+
+              <div className="ml-6 flex items-center">
+                <Button className="flex font-bold" style={{ borderRadius: 24 }} onClick={() => openPopup(null)}>
+                  Se connecter
+                </Button>
+
+                {/* <Menu as="div" className="relative ml-3">
                   <div>
-                    <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">
+                    <Menu.Button className="flex rounded-3xl border-2 border-indigo-700 px-3 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">
                       <span className="sr-only">Open user menu</span>
                       <Image
                         className="h-8 w-8 rounded-full"
@@ -64,6 +88,7 @@ export default function Navbar({ user }: { user: any }) {
                         width={32}
                         alt={`${user?.name || 'placeholder'} avatar`}
                       />
+                      Se connecter
                     </Menu.Button>
                   </div>
                   <Transition
@@ -107,17 +132,7 @@ export default function Navbar({ user }: { user: any }) {
                       )}
                     </Menu.Items>
                   </Transition>
-                </Menu>
-              </div>
-              <div className="-mr-2 flex items-center sm:hidden">
-                <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">
-                  <span className="sr-only">Open main menu</span>
-                  {open ? (
-                    <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-                  ) : (
-                    <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-                  )}
-                </Disclosure.Button>
+                </Menu> */}
               </div>
             </div>
           </div>
@@ -130,7 +145,7 @@ export default function Navbar({ user }: { user: any }) {
                   <Disclosure.Button
                     key={item.name}
                     as="a"
-                    href={item.href}
+                    href={pathname === item.href ? undefined : item.href} // Prevent double navigation
                     className={classNames(
                       pathname === item.href
                         ? 'bg-slate-50 border-slate-500 text-slate-700'

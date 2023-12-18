@@ -1,6 +1,6 @@
 import { Card, Table, Text, Title } from '@tremor/react';
 import { sql } from '@vercel/postgres';
-import Search from '../search';
+import Search from '../components/search';
 import { TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
 
 interface User {
