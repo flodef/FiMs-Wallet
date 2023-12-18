@@ -26,6 +26,7 @@ import { isMobileSize, useIsMobile } from './utils/mobile';
 import {} from './utils/number';
 import { DataName, loadData } from './utils/processData';
 import Loading from './loading';
+import { usePopup } from './hooks/usePopup';
 
 const tokenValueStart = 100;
 
@@ -73,6 +74,8 @@ interface tokenHisto {
 const today = new Date();
 
 export default function IndexPage() {
+  const { isPopupOpen } = usePopup();
+
   const [dashboard, setDashboard] = useState<data[]>([]);
   const [token, setToken] = useState<token[]>([]);
   const [historic, setHistoric] = useState<historic[]>([]);
@@ -193,7 +196,7 @@ export default function IndexPage() {
   }, []);
 
   return (
-    <main className="space-y-6 p-4 md:p-10 mx-auto max-w-7xl">
+    <main className={'space-y-6 p-4 md:p-10 mx-auto max-w-7xl ' + (isPopupOpen ? 'blur-sm' : '')}>
       {useIsWindowReady() ? (
         <>
           <Accordion defaultOpen={!isMobileSize()}>

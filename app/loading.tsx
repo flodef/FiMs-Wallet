@@ -6,10 +6,7 @@ interface LoadingTextProps {
 }
 
 // inspired by https://codepen.io/42EG4M1/pen/bVMzze/
-export const LoadingText: FC<LoadingTextProps> = ({
-  text,
-  fullscreen = true
-}) => {
+export const LoadingText: FC<LoadingTextProps> = ({ text, fullscreen = true }) => {
   const phrase = text
     .toUpperCase()
     .split('')
@@ -25,7 +22,7 @@ export const LoadingText: FC<LoadingTextProps> = ({
     'animate-loading6',
     'animate-loading7',
     'animate-loading8',
-    'animate-loading9'
+    'animate-loading9',
   ];
 
   return (
@@ -51,29 +48,17 @@ interface LoadingDotProps {
 
 // inspired by https://codepen.io/sudeepgumaste/pen/abdrorB
 export const LoadingDot: FC<LoadingDotProps> = ({ fullscreen = true }) => {
-  const circleClassName =
-    ' h-4 w-4 rounded-full bg-writing-light dark:bg-writing-dark ';
+  const circleClassName = ' h-4 w-4 rounded-full bg-tremor-brand dark:bg-tremor-brand-dark ';
   return (
     <div
-      className={
-        'text-center w-full h-full flex items-center justify-center ' +
-        (fullscreen ? 'absolute inset-0' : '')
-      }
+      className={'text-center w-full h-full flex items-center justify-center ' + (fullscreen ? 'absolute inset-0' : '')}
       style={{ background: 'inherit' }}
     >
       <div className={'h-4 w-28 flex relative '}>
-        <span
-          className={
-            circleClassName + 'absolute top-0 left-0 mr-8 animate-grow'
-          }
-        ></span>
+        <span className={circleClassName + 'absolute top-0 left-0 mr-8 animate-grow'}></span>
         <span className={circleClassName + 'mr-[30px] animate-move'}></span>
         <span className={circleClassName + 'mr-[30px] animate-move'}></span>
-        <span
-          className={
-            circleClassName + 'absolute top-0 right-0 mr-0 animate-growReverse'
-          }
-        ></span>
+        <span className={circleClassName + 'absolute top-0 right-0 mr-0 animate-growReverse'}></span>
       </div>
     </div>
   );
@@ -84,22 +69,15 @@ interface LoadingSpinnerProps {
 }
 
 // inspired by https://codepen.io/jkantner/pen/mdKOpbe
-export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
-  fullscreen = true
-}) => {
+export const LoadingSpinner: FC<LoadingSpinnerProps> = ({ fullscreen = true }) => {
   return (
     <div
       className={
-        'text-center w-full h-full flex items-center justify-center ' +
-        (fullscreen ? 'absolute inset-0' : ' scale-75')
+        'text-center w-full h-full flex items-center justify-center ' + (fullscreen ? 'absolute inset-0' : ' scale-75')
       }
       style={{ background: 'inherit' }}
     >
-      <svg
-        className="max-w-[256px] max-h-[128px]"
-        viewBox="0 0 256 128"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg className="max-w-[256px] max-h-[128px]" viewBox="0 0 256 128" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#5ebd3e" />
@@ -115,10 +93,7 @@ export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
           </linearGradient>
         </defs>
         <g fill="none" strokeLinecap="round" strokeWidth="16">
-          <g
-            className="stroke-popup-light dark:stroke-popup-dark transition-[stroke] duration-300"
-            stroke="#ddd"
-          >
+          <g className="stroke-popup-light dark:stroke-popup-dark transition-[stroke] duration-300" stroke="#ddd">
             <path d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56" />
             <path d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64" />
           </g>
@@ -145,7 +120,7 @@ export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
 export enum LoadingType {
   Text,
   Dot,
-  Spinner
+  Spinner,
 }
 
 export default function Loading(type = LoadingType.Dot, fullscreen = true) {
