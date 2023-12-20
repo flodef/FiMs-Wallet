@@ -263,12 +263,26 @@ export default function IndexPage() {
                       </TabList>
                     </TabGroup>
                   </Flex>
-                  <Metric
-                    color={result[resultIndex].total.fromCurrency() < 0 ? 'red' : 'green'}
-                    className={!loaded.current ? 'blur-sm' : 'animate-unblur'}
-                  >
-                    {result[resultIndex].total}
-                  </Metric>
+                  <Flex alignItems="start">
+                    <Metric
+                      color={result[resultIndex].total.fromCurrency() < 0 ? 'red' : 'green'}
+                      className={!loaded.current ? 'blur-sm' : 'animate-unblur'}
+                    >
+                      {result[resultIndex].total}
+                    </Metric>
+                    <BadgeDelta
+                      className="mt-2"
+                      deltaType={
+                        parseFloat(getRatio(dashboard, 'profit')) < 0
+                          ? 'moderateDecrease'
+                          : parseFloat(getRatio(dashboard, 'profit')) > 0
+                            ? 'moderateIncrease'
+                            : 'unchanged'
+                      }
+                    >
+                      {getRatio(dashboard, 'profit')}
+                    </BadgeDelta>
+                  </Flex>
                 </Flex>
               </AccordionHeader>
               <AccordionBody>
@@ -317,7 +331,7 @@ export default function IndexPage() {
                       </TabList>
                     </TabGroup>
                   </Flex>
-                  <Flex alignItems="start" flexDirection="row">
+                  <Flex alignItems="start">
                     <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
                       {getValue(token, token.at(priceIndex)?.label)}
                     </Metric>
