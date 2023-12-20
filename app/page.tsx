@@ -27,12 +27,10 @@ import { getBarData } from './utils/chart';
 import { isMobileSize, useIsMobile } from './utils/mobile';
 import {} from './utils/number';
 import { DataName, loadData } from './utils/processData';
+import { dataset } from './utils/types';
 
 const tokenValueStart = 100;
 
-interface dataset {
-  [key: string]: string;
-}
 const t: dataset = {
   price: 'Prix',
   result: 'Résultat',
@@ -187,13 +185,16 @@ export default function IndexPage() {
 
   const isTablet = useIsMobile(1024);
   const width = useWindowParam().width;
+  const isTokenListExpanded = (width > 400 && width < 640) || width > 830;
 
   const [resultIndex, setResultIndex] = useState(0);
   const [priceIndex, setPriceIndex] = useState(0);
   const [performanceExpanded, setPerformanceExpanded] = useState(true);
   const changeToken = useCallback(
     (increment = true) => {
-      setPriceIndex(((priceIndex ? priceIndex : token.length) + (increment ? 1 : -1)) % token.length);
+      setTimeout(() => {
+        setPriceIndex(((priceIndex ? priceIndex : token.length) + (increment ? 1 : -1)) % token.length);
+      }, 100); // Wait for indexChange event to be triggered
     },
     [priceIndex, token.length]
   );
@@ -289,7 +290,7 @@ export default function IndexPage() {
                     <Title className="text-left">{t['price']}</Title>
                     <TabGroup
                       index={priceIndex}
-                      onIndexChange={setPriceIndex}
+                      onIndexChange={isTokenListExpanded ? setPriceIndex : undefined}
                       className="mb-4 lg:mb-0 lg:text-right max-w-[200px]"
                     >
                       <TabList
@@ -297,17 +298,22 @@ export default function IndexPage() {
                         variant={!isTablet ? 'solid' : 'line'}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {(width > 400 && width < 640) || width > 830
-                          ? token.map((t) => <Tab key={t.label}>{t.label}</Tab>)
-                          : token
-                              .filter((_, i) => i === 0)
-                              .map((t) => (
-                                <Flex key={t.label}>
-                                  <ChevronLeftIcon className="h-4 w-4 mr-2" onClick={() => changeToken(false)} />
-                                  <Tab onClick={() => changeToken()}>{token.length ? token[priceIndex].label : ''}</Tab>
-                                  <ChevronRightIcon className="h-4 w-4 ml-2" onClick={() => changeToken(true)} />
-                                </Flex>
-                              ))}
+                        <Flex>
+                          {token.map((t) => (
+                            <Tab className={isTokenListExpanded ? 'block' : 'hidden'} key={t.label}>
+                              {t.label}
+                            </Tab>
+                          ))}
+
+                          {/* use div otherwise Flex direction is forced to column */}
+                          <div className={!isTokenListExpanded ? 'block' : 'hidden'} key={t.label}>
+                            <Flex key={t.label}>
+                              <ChevronLeftIcon className="h-4 w-4 mr-2" onClick={() => changeToken(false)} />
+                              <Tab onClick={() => changeToken()}>{token.length ? token[priceIndex].label : ''}</Tab>
+                              <ChevronRightIcon className="h-4 w-4 ml-2" onClick={() => changeToken(true)} />
+                            </Flex>
+                          </div>
+                        </Flex>
                       </TabList>
                     </TabGroup>
                   </Flex>
