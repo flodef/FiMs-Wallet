@@ -32,44 +32,48 @@ export default function Navbar({ user }: { user: any }) {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex">
-                <div className="flex flex-shrink-0 items-center">
+                <a className="flex flex-shrink-0 items-center" href={!user || pathname === '/' ? undefined : '/'}>
                   <FiMsLogo />
-                </div>
-                <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
-                  {navigation
-                    .filter((item) => (!user ? item.href === '/' : true))
-                    .map((item) => (
-                      <a
-                        key={item.name}
-                        href={pathname === item.href ? undefined : item.href} // Prevent double navigation
-                        className={classNames(
-                          pathname === item.href
-                            ? 'border-slate-500 text-gray-900'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                          'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
-                        )}
-                        aria-current={pathname === item.href ? 'page' : undefined}
-                      >
-                        {item.name}
-                      </a>
-                    ))}
-                </div>
-                <div className="-mr-2 ml-2 flex items-center sm:hidden">
-                  <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none">
-                    <span className="sr-only">Open main menu</span>
-                    {open ? (
-                      <XMarkIcon
-                        className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <Bars3Icon
-                        className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </Disclosure.Button>
-                </div>
+                </a>
+                {user && (
+                  <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
+                    {navigation
+                      .filter((item) => (!user ? item.href === '/' : true))
+                      .map((item) => (
+                        <a
+                          key={item.name}
+                          href={pathname === item.href ? undefined : item.href} // Prevent double navigation
+                          className={classNames(
+                            pathname === item.href
+                              ? 'border-slate-500 text-gray-900'
+                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                            'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                          )}
+                          aria-current={pathname === item.href ? 'page' : undefined}
+                        >
+                          {item.name}
+                        </a>
+                      ))}
+                  </div>
+                )}
+                {user && (
+                  <div className="-mr-2 ml-2 flex items-center sm:hidden">
+                    <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none">
+                      <span className="sr-only">Open main menu</span>
+                      {open ? (
+                        <XMarkIcon
+                          className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <Bars3Icon
+                          className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </Disclosure.Button>
+                  </div>
+                )}
               </div>
 
               <div className="ml-6 flex items-center">
