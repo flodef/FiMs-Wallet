@@ -1,6 +1,6 @@
 'use client';
 
-import { ChartPieIcon, ListBulletIcon } from '@heroicons/react/24/outline';
+import { ChartPieIcon, ChevronLeftIcon, ChevronRightIcon, ListBulletIcon } from '@heroicons/react/24/outline';
 import {
   Accordion,
   AccordionBody,
@@ -20,13 +20,13 @@ import {
   Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useIsWindowReady } from './hooks/useWindowParam';
+import { usePopup } from './hooks/usePopup';
+import { useIsWindowReady, useWindowParam } from './hooks/useWindowParam';
+import Loading from './loading';
 import { getBarData } from './utils/chart';
 import { isMobileSize, useIsMobile } from './utils/mobile';
 import {} from './utils/number';
 import { DataName, loadData } from './utils/processData';
-import Loading from './loading';
-import { usePopup } from './hooks/usePopup';
 
 const tokenValueStart = 100;
 
@@ -186,10 +186,17 @@ export default function IndexPage() {
   ];
 
   const isTablet = useIsMobile(1024);
+  const width = useWindowParam().width;
 
   const [resultIndex, setResultIndex] = useState(0);
   const [priceIndex, setPriceIndex] = useState(0);
   const [performanceExpanded, setPerformanceExpanded] = useState(true);
+  const changeToken = useCallback(
+    (increment = true) => {
+      setPriceIndex(((priceIndex ? priceIndex : token.length) + (increment ? 1 : -1)) % token.length);
+    },
+    [priceIndex, token.length]
+  );
 
   useEffect(() => {
     setPerformanceExpanded(!isMobileSize());
@@ -240,7 +247,6 @@ export default function IndexPage() {
                 <Flex alignItems="start" flexDirection="col">
                   <Flex alignItems="start" flexDirection={!isTablet ? 'row' : 'col'}>
                     <Title className="text-left">{t['result']}</Title>
-                    {/* {useIsWindowReady() && ( */}
                     <TabGroup
                       index={resultIndex}
                       onIndexChange={setResultIndex}
@@ -255,7 +261,6 @@ export default function IndexPage() {
                         <Tab icon={ListBulletIcon}>{t['profit']}</Tab>
                       </TabList>
                     </TabGroup>
-                    {/* )} */}
                   </Flex>
                   <Metric
                     color={result[resultIndex].total.fromCurrency() < 0 ? 'red' : 'green'}
@@ -282,19 +287,29 @@ export default function IndexPage() {
                 <Flex alignItems="start" flexDirection="col">
                   <Flex alignItems="start" flexDirection={!isTablet ? 'row' : 'col'}>
                     <Title className="text-left">{t['price']}</Title>
-                    {/* {useIsWindowReady() && ( */}
-                    <TabGroup index={priceIndex} onIndexChange={setPriceIndex} className="mb-4 lg:mb-0 lg:text-right">
+                    <TabGroup
+                      index={priceIndex}
+                      onIndexChange={setPriceIndex}
+                      className="mb-4 lg:mb-0 lg:text-right max-w-[200px]"
+                    >
                       <TabList
                         className="float-left lg:float-right"
                         variant={!isTablet ? 'solid' : 'line'}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {token.map((t) => (
-                          <Tab key={t.label}>{t.label}</Tab>
-                        ))}
+                        {(width > 400 && width < 640) || width > 830
+                          ? token.map((t) => <Tab key={t.label}>{t.label}</Tab>)
+                          : token
+                              .filter((_, i) => i === 0)
+                              .map((t) => (
+                                <Flex key={t.label}>
+                                  <ChevronLeftIcon className="h-4 w-4 mr-2" onClick={() => changeToken(false)} />
+                                  <Tab onClick={() => changeToken()}>{token.length ? token[priceIndex].label : ''}</Tab>
+                                  <ChevronRightIcon className="h-4 w-4 ml-2" onClick={() => changeToken(true)} />
+                                </Flex>
+                              ))}
                       </TabList>
                     </TabGroup>
-                    {/* )} */}
                   </Flex>
                   <Flex alignItems="start" flexDirection="row">
                     <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
