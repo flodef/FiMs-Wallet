@@ -57,8 +57,8 @@ export default function Connect() {
 
   const changeUserName = useCallback(
     (value: string) => {
-      setCurrentUserName(value);
-      setHasConnectionError(value !== '' && value === userName);
+      setCurrentUserName(value.toLowerCase());
+      setHasConnectionError(value !== '' && value.toLowerCase() === userName.toLowerCase());
     },
     [userName]
   );
