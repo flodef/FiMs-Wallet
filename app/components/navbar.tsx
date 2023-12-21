@@ -1,14 +1,21 @@
 'use client';
 
-import { Disclosure, Menu, Transition } from '@headlessui/react';
+import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { signIn, signOut } from 'next-auth/react';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { Fragment } from 'react';
-import { FiMsLogo } from '../images/FiMsLogo';
 import { Button } from '@tremor/react';
+import { signIn, signOut } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 import { usePopup } from '../hooks/usePopup';
+import { useUser } from '../hooks/useUser';
+import { FiMsLogo } from '../images/FiMsLogo';
+import { dataset } from '../utils/types';
+import Connect from './connect';
+import Disconnect from './disconnect';
+
+const t: dataset = {
+  connect: 'Se connecter',
+  disconnect: 'Se déconnecter',
+};
 
 const navigation = [
   { name: 'Mon compte', href: '/account' },
@@ -21,8 +28,9 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function Navbar({ user }: { user: any }) {
+export default function Navbar() {
   const { openPopup, isPopupOpen } = usePopup();
+  const { user } = useUser();
   const pathname = usePathname();
 
   return (
@@ -36,10 +44,9 @@ export default function Navbar({ user }: { user: any }) {
                   <FiMsLogo />
                 </a>
                 {user && (
-                  <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
-                    {navigation
-                      .filter((item) => (!user ? item.href === '/' : true))
-                      .map((item) => (
+                  <>
+                    <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
+                      {navigation.map((item) => (
                         <a
                           key={item.name}
                           href={pathname === item.href ? undefined : item.href} // Prevent double navigation
@@ -54,31 +61,34 @@ export default function Navbar({ user }: { user: any }) {
                           {item.name}
                         </a>
                       ))}
-                  </div>
-                )}
-                {user && (
-                  <div className="-mr-2 ml-2 flex items-center sm:hidden">
-                    <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none">
-                      <span className="sr-only">Open main menu</span>
-                      {open ? (
-                        <XMarkIcon
-                          className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <Bars3Icon
-                          className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </Disclosure.Button>
-                  </div>
+                    </div>
+                    <div className="-mr-2 ml-2 flex items-center sm:hidden">
+                      <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none">
+                        <span className="sr-only">Open main menu</span>
+                        {open ? (
+                          <XMarkIcon
+                            className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <Bars3Icon
+                            className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </Disclosure.Button>
+                    </div>
+                  </>
                 )}
               </div>
 
               <div className="ml-6 flex items-center">
-                <Button className="flex font-bold" style={{ borderRadius: 24 }} onClick={() => openPopup(null)}>
-                  Se connecter
+                <Button
+                  className="flex font-bold"
+                  style={{ borderRadius: 24 }}
+                  onClick={() => openPopup(!user ? <Connect /> : <Disconnect />)}
+                >
+                  {!user ? t['connect'] : user.name}
                 </Button>
 
                 {/* <Menu as="div" className="relative ml-3">
@@ -166,7 +176,7 @@ export default function Navbar({ user }: { user: any }) {
               {user ? (
                 <>
                   <div className="flex items-center px-4">
-                    <div className="flex-shrink-0">
+                    {/* <div className="flex-shrink-0">
                       <Image
                         className="h-8 w-8 rounded-full"
                         src={user.image}
@@ -174,10 +184,10 @@ export default function Navbar({ user }: { user: any }) {
                         width={32}
                         alt={`${user.name} avatar`}
                       />
-                    </div>
+                    </div> */}
                     <div className="ml-3">
                       <div className="text-base font-medium text-gray-800">{user.name}</div>
-                      <div className="text-sm font-medium text-gray-500">{user.email}</div>
+                      {/* <div className="text-sm font-medium text-gray-500">{user.email}</div> */}
                     </div>
                   </div>
                   <div className="mt-3 space-y-1">
@@ -185,7 +195,7 @@ export default function Navbar({ user }: { user: any }) {
                       onClick={() => signOut()}
                       className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                     >
-                      Se déconnecter
+                      {t['disconnect']}
                     </button>
                   </div>
                 </>
@@ -195,7 +205,7 @@ export default function Navbar({ user }: { user: any }) {
                     onClick={() => signIn('github')}
                     className="flex w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                   >
-                    Se connecter
+                    {t['connect']}
                   </button>
                 </div>
               )}
