@@ -10,6 +10,7 @@ export interface PopupProviderProps {
 export const PopupProvider: FC<PopupProviderProps> = ({ children }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupContent, setPopupContent] = useState<ReactNode>();
+  const [hasTextInput, setHasTextInput] = useState(false);
 
   const setDocumentStyle = useCallback((isPopupOpen: boolean) => {
     if (typeof document !== 'undefined') {
@@ -19,9 +20,10 @@ export const PopupProvider: FC<PopupProviderProps> = ({ children }) => {
   }, []);
 
   const openPopup = useCallback(
-    (content: ReactNode) => {
+    (content: ReactNode, hasTextInput = false) => {
       setPopupContent(content);
       setDocumentStyle(true);
+      setHasTextInput(hasTextInput);
       setTimeout(() => {
         setIsPopupOpen(true);
       }, 100);
@@ -43,6 +45,7 @@ export const PopupProvider: FC<PopupProviderProps> = ({ children }) => {
         openPopup,
         closePopup,
         popupContent,
+        hasTextInput,
       }}
     >
       {children}

@@ -86,7 +86,7 @@ export default function Navbar() {
                 <Button
                   className="flex font-bold"
                   style={{ borderRadius: 24 }}
-                  onClick={() => openPopup(!user ? <Connect /> : <Disconnect />)}
+                  onClick={() => openPopup(!user ? <Connect /> : <Disconnect />, !user)}
                 >
                   {!user ? t['connect'] : user.name}
                 </Button>
