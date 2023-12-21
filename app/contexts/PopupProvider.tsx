@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, ReactNode, useCallback, useState } from 'react';
-import { PopupContext, usePopup } from '../hooks/usePopup';
+import { PopupContext } from '../hooks/usePopup';
 
 export interface PopupProviderProps {
   children: ReactNode;
@@ -9,7 +9,7 @@ export interface PopupProviderProps {
 
 export const PopupProvider: FC<PopupProviderProps> = ({ children }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [popupContent, setPopupContent] = useState<ReactNode>(null);
+  const [popupContent, setPopupContent] = useState<ReactNode>();
 
   const setDocumentStyle = useCallback((isPopupOpen: boolean) => {
     if (typeof document !== 'undefined') {

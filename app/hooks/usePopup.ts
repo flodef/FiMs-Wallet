@@ -2,7 +2,7 @@ import { ReactNode, createContext, useContext } from 'react';
 
 export interface PopupContextState {
   isPopupOpen: boolean;
-  openPopup: (popupContent: ReactNode) => void;
+  openPopup: (content: ReactNode) => void;
   closePopup: () => void;
   popupContent: ReactNode;
 }

@@ -1,11 +1,10 @@
 'use client';
 
-import { FC } from 'react';
-import { usePopup } from '../hooks/usePopup';
-import { Button, Card, Flex } from '@tremor/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { Card, Flex } from '@tremor/react';
+import { usePopup } from '../hooks/usePopup';
 
-export const Popup: FC = () => {
+export default function Popup() {
   const { closePopup, isPopupOpen, popupContent } = usePopup();
 
   return (
@@ -25,14 +24,16 @@ export const Popup: FC = () => {
         <Card>
           <Flex flexDirection="row" justifyContent="between">
             {popupContent}
-            <XMarkIcon
-              className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0 cursor-pointer"
-              aria-hidden="true"
-              onClick={closePopup}
-            />
+            <Flex className="w-8 self-baseline">
+              <XMarkIcon
+                className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0 cursor-pointer"
+                aria-hidden="true"
+                onClick={closePopup}
+              />
+            </Flex>
           </Flex>
         </Card>
       </div>
     </div>
   );
-};
+}
