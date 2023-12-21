@@ -1,12 +1,7 @@
-import { Card, Table, Text, Title } from '@tremor/react';
+import { Card, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow, Text, Title } from '@tremor/react';
 import { sql } from '@vercel/postgres';
 import Search from '../components/search';
-import { TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
-
-interface User {
-  name: string;
-  address: string;
-}
+import { User } from '../hooks/useUser';
 
 export default async function IndexPage({ searchParams }: { searchParams: { q: string } }) {
   const search = searchParams.q ?? '';
@@ -23,7 +18,6 @@ export default async function IndexPage({ searchParams }: { searchParams: { q: s
       <Text>A list of users retrieved from a Postgres database.</Text>
       <Search />
       <Card className="mt-6">
-        {/* <UsersTable users={users} /> */}
         <Table>
           <TableHead>
             <TableRow>
