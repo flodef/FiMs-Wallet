@@ -185,7 +185,7 @@ function checkColumn(item: any[], minCol: number) {
 async function convertDashboardData(response: void | Response) {
   if (typeof response === 'undefined') return;
   return await response.json().then((data: { values: string[][]; error: { message: string } }) => {
-    checkData(data, 4, 4, 14, 14);
+    checkData(data, 4);
 
     return data.values
       .filter((_, i) => i !== 0)
@@ -204,11 +204,11 @@ async function convertDashboardData(response: void | Response) {
 async function convertTokenData(response: void | Response) {
   if (typeof response === 'undefined') return;
   return await response.json().then((data: { values: string[][]; error: { message: string } }) => {
-    checkData(data, 9, 9, 6, 6);
+    checkData(data, 9);
 
     return data.values
       .filter((_, i) => i !== 0)
-      .filter((item) => item.at(0) !== '€') // TODO : remove this line when Euro is removed from the spreadsheet
+      .filter((item) => item.at(0) !== '€' && item.at(0) !== 'SOL') // TODO : remove this line when Euro is removed from the spreadsheet
       .map((item) => {
         checkColumn(item, 4);
         return {
