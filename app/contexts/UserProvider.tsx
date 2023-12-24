@@ -13,16 +13,33 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
   const pathname = usePathname();
 
   const [user, setUser] = useState<User | undefined>();
+
   const connect = useCallback(
-    (user: User) => {
-      setUser(user);
+    async (userName: string) => {
+      if (userName === '') return;
 
-      const params = new URLSearchParams(window.location.search);
-      params.set('user', user?.name);
+      return await fetch(`./api/database?user=${userName}`)
+        .then(async (result) => {
+          return await result.json().then((data: User[]) => {
+            console.log(data);
+            if (data.length === 1) {
+              setUser(data[0]);
 
-      // startTransition(() => {
-      replace(`${pathname}?${params.toString()}`);
-      // });
+              const params = new URLSearchParams(window.location.search);
+              params.set('user', userName);
+              replace(`${pathname}?${params.toString()}`);
+
+              return data[0];
+            } else {
+              console.log('No user found');
+              return undefined;
+            }
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+          return undefined;
+        });
     },
     [pathname, replace]
   );

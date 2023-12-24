@@ -33,26 +33,16 @@ export default function Connect() {
 
     setIsConnecting(true);
     setUserName(currentUserName);
-    fetch(`./api/database?user=${currentUserName}`)
-      .then((result) =>
-        result.json().then((data) => {
-          console.log(data);
-          setIsConnecting(false);
-          if (data.error || data.length !== 1) {
-            setHasConnectionError(true);
-            setFocus();
-          } else {
-            connect(data[0]);
-            closePopup();
-          }
-        })
-      )
-      .catch((error) => {
-        console.log(error);
-        setIsConnecting(false);
-        setHasConnectionError(true);
+
+    connect(currentUserName).then((user) => {
+      setIsConnecting(false);
+      setHasConnectionError(user === undefined);
+      if (user) {
+        closePopup();
+      } else {
         setFocus();
-      });
+      }
+    });
   }, [currentUserName, closePopup, connect, setFocus, isConnecting, isValidationDisabled]);
 
   const changeUserName = useCallback(

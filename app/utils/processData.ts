@@ -1,7 +1,7 @@
 import { Keypair } from '@solana/web3.js';
 // import { Parameters } from '../contexts/ConfigProvider';
 // import { InventoryItem, Mercurial, Role } from '../hooks/useConfig';
-import { EMAIL } from './constants';
+// import { EMAIL } from './constants';
 
 class MissingDataError extends Error {
   name = 'MissingDataError';
@@ -238,7 +238,7 @@ async function convertHistoricData(response: void | Response) {
         return {
           date: Number(item.at(0)),
           stringDate: new Date(Math.round((Number(item.at(0)) - 25569) * 86400 * 1000)).toLocaleDateString(),
-          'Total Investi': Number(item.at(1)),
+          Investi: Number(item.at(1)),
           // transferCost: Number(item.at(2)), //not used
           // strategyCost: Number(item.at(3)), //not used
           // priceChange: Number(item.at(4)), //not used

@@ -7,7 +7,7 @@ export interface User {
 
 export interface UserContextState {
   user: User | undefined;
-  connect: (user: User) => void;
+  connect: (userName: string) => Promise<User | undefined>;
   disconnect: () => void;
 }
 
