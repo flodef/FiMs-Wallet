@@ -13,8 +13,8 @@ export default {
     extend: {
       animation: {
         blink: 'blink 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        display: 'display .3s cubic-bezier(0.4, 0, 0.6, 1) forwards',
-        hide: 'display .3s cubic-bezier(0.4, 0, 0.6, 1) reverse forwards',
+        display: 'display .5s cubic-bezier(0.4, 0, 0.6, 1) forwards',
+        hide: 'display .5s cubic-bezier(0.4, 0, 0.6, 1) reverse forwards',
         strokeCircle: 'stroke .6s cubic-bezier(0.65, 0, 0.45, 1) forwards',
         strokeCircleSlow: 'stroke 3s cubic-bezier(0.65, 0, 0.45, 1) forwards',
         strokeCheck: 'stroke .3s cubic-bezier(0.65, 0, 0.45, 1) .8s forwards',
