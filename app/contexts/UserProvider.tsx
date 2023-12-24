@@ -47,12 +47,14 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
               return data[0];
             } else {
               console.log('No user found');
+              disconnect();
               return undefined;
             }
           });
         })
         .catch((error) => {
           console.log(error);
+          disconnect();
           return undefined;
         });
     },
