@@ -1,22 +1,36 @@
 'use client';
 
-import { FC, ReactNode, startTransition, useCallback, useState } from 'react';
-import { User, UserContext } from '../hooks/useUser';
 import { usePathname, useRouter } from 'next/navigation';
+import { FC, ReactNode, useCallback, useState } from 'react';
+import { Page, useNavigation } from '../hooks/useNavigation';
+import { User, UserContext } from '../hooks/useUser';
 
 export interface UserProviderProps {
   children: ReactNode;
 }
 
 export const UserProvider: FC<UserProviderProps> = ({ children }) => {
+  const { setPage } = useNavigation();
   const { replace } = useRouter();
   const pathname = usePathname();
 
   const [user, setUser] = useState<User | undefined>();
 
+  const disconnect = useCallback(() => {
+    setUser(undefined);
+    setPage(Page.Dashboard);
+
+    const params = new URLSearchParams(window.location.search);
+    params.delete('user');
+    replace(`${pathname}?${params.toString()}`);
+  }, [pathname, replace, setPage]);
+
   const connect = useCallback(
     async (userName: string) => {
-      if (userName === '') return;
+      if (userName === '') {
+        disconnect();
+        return;
+      }
 
       return await fetch(`./api/database?user=${userName}`)
         .then(async (result) => {
@@ -24,6 +38,7 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
             console.log(data);
             if (data.length === 1) {
               setUser(data[0]);
+              setPage(Page.Portfolio);
 
               const params = new URLSearchParams(window.location.search);
               params.set('user', userName);
@@ -41,16 +56,8 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
           return undefined;
         });
     },
-    [pathname, replace]
+    [pathname, replace, setPage, disconnect]
   );
-
-  const disconnect = useCallback(() => {
-    setUser(undefined);
-
-    const params = new URLSearchParams(window.location.search);
-    params.delete('user');
-    replace(`${pathname}?${params.toString()}`);
-  }, [pathname, replace]);
 
   return (
     <UserContext.Provider

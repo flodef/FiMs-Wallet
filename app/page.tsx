@@ -13,17 +13,15 @@ import Transactions from './pages/transactions';
 export default function IndexPage() {
   const { isPopupOpen } = usePopup();
   const { connect } = useUser();
-  const { page, setPage } = useNavigation();
+  const { page } = useNavigation();
   const isWindowReady = useIsWindowReady();
 
   useEffect(() => {
     if (!isWindowReady) return;
 
     const params = new URLSearchParams(window.location.search);
-    connect(params.get('user') ?? '').then((user) => {
-      setPage(user ? Page.Dashboard : Page.Portfolio);
-    });
-  }, [isWindowReady, connect, setPage]);
+    connect(params.get('user') ?? '');
+  }, [isWindowReady, connect]);
 
   console.log('IndexPage', page);
 

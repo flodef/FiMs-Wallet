@@ -49,6 +49,7 @@ export default function Navbar() {
                     className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8"
                     style={{ marginTop: '15px' }}
                     defaultIndex={pages.indexOf(currentPage ?? Page.Dashboard)}
+                    index={pages.indexOf(currentPage ?? Page.Dashboard)}
                     onIndexChange={(i) => setPage(pages[i])}
                   >
                     <TabList>
