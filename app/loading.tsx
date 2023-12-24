@@ -1,12 +1,5 @@
-import { FC } from 'react';
-
-interface LoadingTextProps {
-  text: string;
-  fullscreen?: boolean;
-}
-
 // inspired by https://codepen.io/42EG4M1/pen/bVMzze/
-export const LoadingText: FC<LoadingTextProps> = ({ text, fullscreen = true }) => {
+export function LoadingText(text: string, fullscreen = true) {
   const phrase = text
     .toUpperCase()
     .split('')
@@ -40,14 +33,10 @@ export const LoadingText: FC<LoadingTextProps> = ({ text, fullscreen = true }) =
       ))}
     </div>
   );
-};
-
-interface LoadingDotProps {
-  fullscreen?: boolean;
 }
 
 // inspired by https://codepen.io/sudeepgumaste/pen/abdrorB
-export const LoadingDot: FC<LoadingDotProps> = ({ fullscreen = true }) => {
+export function LoadingDot(fullscreen = true) {
   const circleClassName = ' h-4 w-4 rounded-full bg-tremor-brand dark:bg-tremor-brand-dark ';
   return (
     <div
@@ -62,14 +51,10 @@ export const LoadingDot: FC<LoadingDotProps> = ({ fullscreen = true }) => {
       </div>
     </div>
   );
-};
-
-interface LoadingSpinnerProps {
-  fullscreen?: boolean;
 }
 
 // inspired by https://codepen.io/jkantner/pen/mdKOpbe
-export const LoadingSpinner: FC<LoadingSpinnerProps> = ({ fullscreen = true }) => {
+export function LoadingSpinner(fullscreen = true) {
   return (
     <div
       className={
@@ -115,7 +100,7 @@ export const LoadingSpinner: FC<LoadingSpinnerProps> = ({ fullscreen = true }) =
       </svg>
     </div>
   );
-};
+}
 
 export enum LoadingType {
   Text,
@@ -127,12 +112,12 @@ export default function Loading(type = LoadingType.Dot, fullscreen = true) {
   // You can add any UI inside Loading, including a Skeleton.
   switch (type) {
     case LoadingType.Text:
-      return <LoadingText text="Chargement" fullscreen={fullscreen} />;
+      return LoadingText('Chargement', fullscreen);
     case LoadingType.Dot:
-      return <LoadingDot fullscreen={fullscreen} />;
+      return LoadingDot(fullscreen);
     case LoadingType.Spinner:
-      return <LoadingSpinner fullscreen={fullscreen} />;
+      return LoadingSpinner(fullscreen);
     default:
-      return <LoadingSpinner fullscreen={fullscreen} />;
+      return LoadingSpinner(fullscreen);
   }
 }
