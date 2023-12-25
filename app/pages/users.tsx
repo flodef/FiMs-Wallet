@@ -3,7 +3,7 @@ import { sql } from '@vercel/postgres';
 import Search from '../components/search';
 import { User } from '../hooks/useUser';
 
-export default async function IndexPage({ searchParams }: { searchParams: { q: string } }) {
+export default async function Users({ searchParams }: { searchParams: { q: string } }) {
   const search = searchParams.q ?? '';
   const result = await sql`
     SELECT name, address

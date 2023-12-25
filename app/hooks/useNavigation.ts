@@ -3,7 +3,8 @@ import { createContext, useContext } from 'react';
 export enum Page {
   Portfolio = 'Portfolio',
   Transactions = 'Transactions',
-  Dashboard = 'Dashboard',
+  Users = 'Utilisateurs',
+  Dashboard = 'Dashboard', // Should stay at the end
 }
 
 export interface NavigationContextState {
