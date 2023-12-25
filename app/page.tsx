@@ -24,8 +24,6 @@ export default function IndexPage() {
     connect(params.get('user') ?? '');
   }, [isWindowReady, connect]);
 
-  console.log('IndexPage', page);
-
   return (
     <main className={'space-y-6 p-4 md:p-10 mx-auto max-w-7xl ' + (isPopupOpen ? 'blur-sm' : '')}>
       {page === Page.Dashboard ? (
