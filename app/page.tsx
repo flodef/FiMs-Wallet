@@ -9,6 +9,7 @@ import Loading from './loading';
 import Dashboard from './pages/dashboard';
 import Portfolio from './pages/portfolio';
 import Transactions from './pages/transactions';
+import Users from './pages/users';
 
 export default function IndexPage() {
   const { isPopupOpen } = usePopup();
@@ -31,6 +32,8 @@ export default function IndexPage() {
         <Portfolio />
       ) : page === Page.Transactions ? (
         <Transactions />
+      ) : page === Page.Users ? (
+        <Users searchParams={{ q: '' }} />
       ) : (
         Loading()
       )}
