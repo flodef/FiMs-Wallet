@@ -371,7 +371,7 @@ export default function Dashboard() {
               categories={[t['total']]}
               index={'stringDate'}
               colors={['emerald']}
-              className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:hidden"
+              className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
               curveType="monotone"
               noDataText={t['loading']}
             />
