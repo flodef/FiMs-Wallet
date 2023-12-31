@@ -13,15 +13,16 @@ import Users from './pages/users';
 
 export default function IndexPage({ searchParams }: { searchParams: { user: string; q: string } }) {
   const { isPopupOpen } = usePopup();
-  const { connect } = useUser();
+  const { connect, disconnect } = useUser();
   const { page } = useNavigation();
-  const isWindowReady = useIsWindowReady();
 
   useEffect(() => {
-    if (!isWindowReady) return;
-
-    connect(searchParams.user ?? '');
-  }, [isWindowReady, connect, searchParams.user]);
+    if (searchParams.user) {
+      connect(searchParams.user);
+    } else {
+      disconnect();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <main className={'space-y-6 p-4 md:p-10 mx-auto max-w-7xl ' + (isPopupOpen ? 'blur-sm' : '')}>
