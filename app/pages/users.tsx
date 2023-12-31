@@ -1,42 +1,81 @@
+import { DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 import { Card, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow, Text, Title } from '@tremor/react';
-import { sql } from '@vercel/postgres';
+import { useEffect, useMemo, useState } from 'react';
 import Search from '../components/search';
-import { User } from '../hooks/useUser';
+import { User, useUser } from '../hooks/useUser';
+import { getShortAddress } from '../utils/constants';
+import { dataset } from '../utils/types';
+
+const t: dataset = {
+  usersList: 'Liste des utilisateurs',
+  name: 'Nom',
+  address: 'Adresse',
+  copy: 'Copier',
+};
 
 export default async function Users({ searchParams }: { searchParams: { q: string } }) {
+  const { user: currentUser } = useUser();
+
   const search = searchParams.q ?? '';
-  const result = await sql`
-    SELECT name, address
-    FROM users
-    WHERE name ILIKE ${'%' + search + '%'};
-  `;
-  const users = result.rows as User[];
+
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    fetch(`./api/database`)
+      .then(async (result) => {
+        return await result.json().then((data: User[]) => {
+          setUsers(data);
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        setUsers([]);
+      });
+  }, []);
+
+  const result = useMemo(() => {
+    return users
+      .filter((user) => user.name.toLowerCase().includes(search.toLowerCase()) && user.address)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)); // Put the current user on top
+  }, [search, users, currentUser?.name]);
 
   return (
-    <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      <Title>Users</Title>
-      <Text>A list of users retrieved from a Postgres database.</Text>
-      <Search />
+    <>
+      <Title>{t['usersList']}</Title>
+      <Search defaultValue={search} />
       <Card className="mt-6">
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeaderCell>Name</TableHeaderCell>
-              <TableHeaderCell>Address</TableHeaderCell>
+              <TableHeaderCell>{t['name']}</TableHeaderCell>
+              <TableHeaderCell>{t['address']}</TableHeaderCell>
+              <TableHeaderCell>{t['copy']}</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.name}>
+            {result.map((user) => (
+              <TableRow
+                key={user.name}
+                className={'hover:bg-gray-50 cursor-pointer' + (user.name === currentUser?.name ? ' bg-gray-100' : '')}
+              >
                 <TableCell>{user.name}</TableCell>
                 <TableCell>
-                  <Text>{user.address}</Text>
+                  <Text>{getShortAddress(user.address)}</Text>
+                </TableCell>
+                <TableCell>
+                  <DocumentDuplicateIcon
+                    className="h-5 w-5 ml-3 text-gray-400 hover:text-gray-500 cursor-pointer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(user.address);
+                    }}
+                  />
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </Card>
-    </main>
+    </>
   );
 }

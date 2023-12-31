@@ -1,10 +1,13 @@
-'use client';
-
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTransition } from 'react';
+import { dataset } from '../utils/types';
 
-export default function Search({ disabled }: { disabled?: boolean }) {
+const t: dataset = {
+  searchByName: 'Rechercher par nom...',
+};
+
+export default function Search({ disabled, defaultValue }: { disabled?: boolean; defaultValue: string }) {
   const { replace } = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -28,14 +31,8 @@ export default function Search({ disabled }: { disabled?: boolean }) {
         Search
       </label>
       <div className="rounded-md shadow-sm">
-        <div
-          className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
-          aria-hidden="true"
-        >
-          <MagnifyingGlassIcon
-            className="mr-3 h-4 w-4 text-gray-400"
-            aria-hidden="true"
-          />
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3" aria-hidden="true">
+          <MagnifyingGlassIcon className="mr-3 h-4 w-4 text-gray-400" aria-hidden="true" />
         </div>
         <input
           type="text"
@@ -43,8 +40,9 @@ export default function Search({ disabled }: { disabled?: boolean }) {
           id="search"
           disabled={disabled}
           className="h-10 block w-full rounded-md border border-gray-200 pl-9 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          placeholder="Search by name..."
+          placeholder={t.searchByName}
           spellCheck={false}
+          value={defaultValue}
           onChange={(e) => handleSearch(e.target.value)}
         />
       </div>
@@ -57,14 +55,7 @@ export default function Search({ disabled }: { disabled?: boolean }) {
             fill="none"
             viewBox="0 0 24 24"
           >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path
               className="opacity-75"
               fill="currentColor"
