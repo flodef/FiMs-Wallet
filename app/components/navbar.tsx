@@ -43,7 +43,6 @@ export default function Navbar() {
                 <a className="flex flex-shrink-0 items-center" href={!user || pathname === '/' ? undefined : '/'}>
                   <FiMsLogo />
                 </a>
-                {/* {user && ( */}
                 <div className={(user ? 'animate-display' : 'hidden') + ' contents'}>
                   <TabGroup
                     className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8"
