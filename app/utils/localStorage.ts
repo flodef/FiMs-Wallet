@@ -1,15 +1,6 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type Dispatch,
-  type SetStateAction
-} from 'react';
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 
-export function useLocalStorage<T>(
-  key: string,
-  defaultState: T
-): [T, Dispatch<SetStateAction<T>>] {
+export function useLocalStorage<T>(key: string, defaultState: T): [T, Dispatch<SetStateAction<T>>] {
   const state = useState<T>(() => {
     try {
       const value = localStorage.getItem(key);
@@ -26,7 +17,10 @@ export function useLocalStorage<T>(
 
   const isFirstRenderRef = useRef(true);
   useEffect(() => {
-    if (!key) return;
+    if (!key) {
+      console.warn('useLocalStorage: key is not defined');
+      return;
+    }
 
     if (isFirstRenderRef.current) {
       isFirstRenderRef.current = false;
