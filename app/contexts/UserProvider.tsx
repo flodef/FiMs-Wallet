@@ -27,7 +27,8 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
 
   const connect = useCallback(
     async (userName: string) => {
-      if (userName === '') {
+      if (userName === user?.name) return user;
+      if (!userName) {
         disconnect();
         return;
       }
@@ -35,7 +36,6 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
       return await fetch(`./api/database?user=${userName}`)
         .then(async (result) => {
           return await result.json().then((data: User[]) => {
-            console.log(data);
             if (data.length === 1) {
               setUser(data[0]);
               setPage(Page.Portfolio);
@@ -58,7 +58,7 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
           return undefined;
         });
     },
-    [pathname, replace, setPage, disconnect]
+    [pathname, replace, setPage, disconnect, user]
   );
 
   return (
