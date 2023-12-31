@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { FC, ReactNode, useCallback, useState } from 'react';
+import { FC, ReactNode, useCallback, useRef, useState } from 'react';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, UserContext } from '../hooks/useUser';
 
@@ -14,11 +14,13 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
   const { replace } = useRouter();
   const pathname = usePathname();
 
+  const connecting = useRef(false);
   const [user, setUser] = useState<User | undefined>();
 
   const disconnect = useCallback(() => {
     setUser(undefined);
     setPage(Page.Dashboard);
+    connecting.current = false;
 
     const params = new URLSearchParams(window.location.search);
     params.delete('user');
@@ -27,16 +29,15 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
 
   const connect = useCallback(
     async (userName: string) => {
-      if (userName === user?.name) return user;
-      if (!userName) {
-        disconnect();
-        return;
-      }
+      if (!userName || userName.toLowerCase() === user?.name.toLowerCase() || connecting.current) return user;
+
+      connecting.current = true;
 
       return await fetch(`./api/database?user=${userName}`)
         .then(async (result) => {
           return await result.json().then((data: User[]) => {
             if (data.length === 1) {
+              connecting.current = false;
               setUser(data[0]);
               setPage(Page.Portfolio);
 
