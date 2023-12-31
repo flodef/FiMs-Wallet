@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react';
 export enum Page {
   Portfolio = 'Portfolio',
   Transactions = 'Transactions',
-  Users = 'Utilisateurs',
+  Users = 'Users',
   Dashboard = 'Dashboard', // Should stay at the end
 }
 
