@@ -8,17 +8,19 @@ import { dataset } from '../utils/types';
 
 const t: dataset = {
   usersList: 'Liste des utilisateurs',
+  noUserFound: 'Aucun utilisateur trouvé',
+  userLoading: 'Chargement des utilisateurs...',
   name: 'Nom',
   address: 'Adresse',
   copy: 'Copier',
 };
 
-export default async function Users({ searchParams }: { searchParams: { q: string } }) {
+export default function Users({ searchParams }: { searchParams: { q: string } }) {
   const { user: currentUser } = useUser();
 
   const search = searchParams.q ?? '';
 
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[] | undefined>();
 
   useEffect(() => {
     fetch(`./api/database`)
@@ -35,9 +37,11 @@ export default async function Users({ searchParams }: { searchParams: { q: strin
 
   const result = useMemo(() => {
     return users
-      .filter((user) => user.name.toLowerCase().includes(search.toLowerCase()) && user.address)
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)); // Put the current user on top
+      ? users
+          .filter((user) => user.name.toLowerCase().includes(search.toLowerCase()) && user.address)
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
+      : undefined;
   }, [search, users, currentUser?.name]);
 
   return (
@@ -48,31 +52,44 @@ export default async function Users({ searchParams }: { searchParams: { q: strin
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeaderCell>{t['name']}</TableHeaderCell>
-              <TableHeaderCell>{t['address']}</TableHeaderCell>
-              <TableHeaderCell>{t['copy']}</TableHeaderCell>
+              <TableHeaderCell className="w-1/3">{t['name']}</TableHeaderCell>
+              <TableHeaderCell className="w-1/3">{t['address']}</TableHeaderCell>
+              <TableHeaderCell className="w-1/3">{t['copy']}</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {result.map((user) => (
-              <TableRow
-                key={user.name}
-                className={'hover:bg-gray-50 cursor-pointer' + (user.name === currentUser?.name ? ' bg-gray-100' : '')}
-              >
-                <TableCell>{user.name}</TableCell>
-                <TableCell>
-                  <Text>{getShortAddress(user.address)}</Text>
-                </TableCell>
-                <TableCell>
-                  <DocumentDuplicateIcon
-                    className="h-5 w-5 ml-3 text-gray-400 hover:text-gray-500 cursor-pointer"
-                    onClick={() => {
-                      navigator.clipboard.writeText(user.address);
-                    }}
-                  />
+            {result && result.length ? (
+              result.map((user) => (
+                <TableRow
+                  key={user.name}
+                  className={
+                    'hover:bg-gray-50 cursor-pointer' + (user.name === currentUser?.name ? ' bg-gray-100' : '')
+                  }
+                  onClick={() => {
+                    navigator.clipboard.writeText(user.address);
+                  }}
+                >
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>
+                    <Text>{getShortAddress(user.address)}</Text>
+                  </TableCell>
+                  <TableCell>
+                    <DocumentDuplicateIcon
+                      className="h-5 w-5 ml-3 text-gray-400 hover:text-gray-500 cursor-pointer"
+                      onClick={() => {
+                        navigator.clipboard.writeText(user.address);
+                      }}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center">
+                  {t[result ? 'noUserFound' : 'userLoading']}
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </Card>
