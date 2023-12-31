@@ -21,9 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <NavigationProvider>
           <UserProvider>
             <PopupProvider>
-              <Suspense>
-                <Navbar />
-              </Suspense>
+              <Navbar />
               {children}
               <SpeedInsights />
               <Toast />

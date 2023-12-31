@@ -4,8 +4,7 @@ import { useEffect } from 'react';
 import { Page, useNavigation } from './hooks/useNavigation';
 import { usePopup } from './hooks/usePopup';
 import { useUser } from './hooks/useUser';
-import { useIsWindowReady } from './hooks/useWindowParam';
-import Loading from './loading';
+import { LoadingDot } from './loading';
 import Dashboard from './pages/dashboard';
 import Portfolio from './pages/portfolio';
 import Transactions from './pages/transactions';
@@ -35,7 +34,7 @@ export default function IndexPage({ searchParams }: { searchParams: { user: stri
       ) : page === Page.Users ? (
         <Users searchParams={searchParams} />
       ) : (
-        Loading()
+        LoadingDot()
       )}
     </main>
   );

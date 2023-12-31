@@ -142,13 +142,11 @@ export default function Dashboard() {
         .then(() => {
           loadData(DataName.token)
             .then((data: token[]) => {
-              console.log(data);
               setToken(data);
               generateTokenHisto(data);
             })
             .then(() => {
               loadData(DataName.historic).then((data: historic[]) => {
-                console.log(data);
                 setHistoric(data);
               });
             });
