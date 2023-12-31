@@ -118,6 +118,6 @@ export default function Loading(type = LoadingType.Dot, fullscreen = true) {
     case LoadingType.Spinner:
       return LoadingSpinner(fullscreen);
     default:
-      return LoadingSpinner(fullscreen);
+      return LoadingDot(fullscreen);
   }
 }
