@@ -23,7 +23,7 @@ export default function Users({ searchParams }: { searchParams: { q: string } })
   const [users, setUsers] = useState<User[] | undefined>();
 
   useEffect(() => {
-    fetch(`./api/database`)
+    fetch(`./api/database?getUsers`)
       .then(async (result) => {
         return await result.json().then((data: User[]) => {
           setUsers(data);

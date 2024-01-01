@@ -33,7 +33,7 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
 
       connecting.current = true;
 
-      return await fetch(`./api/database?user=${userName}`)
+      return await fetch(`./api/database?getUsers&user=${userName}`)
         .then(async (result) => {
           return await result.json().then((data: User[]) => {
             if (data.length === 1) {
