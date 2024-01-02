@@ -4,14 +4,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'avatars.githubusercontent.com'
+        hostname: 'raw.githubusercontent.com',
       },
-      {
-        protocol: 'https',
-        hostname: 'avatar.vercel.sh'
-      }
-    ]
-  }
+    ],
+  },
 };
 
 module.exports = nextConfig;
