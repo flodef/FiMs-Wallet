@@ -11,6 +11,7 @@ declare global {
   }
   interface String {
     fromCurrency(locale?: string): number;
+    Normalize(value: any): string;
   }
 }
 
@@ -43,4 +44,9 @@ String.prototype.fromCurrency = function (locale?: string) {
     ? this.replace(/,/g, '.')
     : this.replace(/,/g, '');
   return parseFloat(number.replace(/[^0-9\.\-]/g, ''));
+};
+
+String.prototype.Normalize = function (value: any) {
+  const label = String(value).trim();
+  return label.charAt(0).toUpperCase() + label.slice(1);
 };

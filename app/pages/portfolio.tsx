@@ -15,7 +15,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useUser } from '../hooks/useUser';
 import { isMobileSize } from '../utils/mobile';
-import {} from '../utils/number';
+import {} from '../utils/extensions';
 import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
 import Image from 'next/image';

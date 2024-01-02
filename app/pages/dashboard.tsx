@@ -22,7 +22,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';
 import { isMobileSize, useIsMobile } from '../utils/mobile';
-import {} from '../utils/number';
+import {} from '../utils/extensions';
 import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
 
