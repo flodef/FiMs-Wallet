@@ -8,11 +8,11 @@ import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
 import { FiMsLogo } from '../images/FiMsLogo';
-import { dataset } from '../utils/types';
+import { Dataset } from '../utils/types';
 import Connect from './connect';
 import Disconnect from './disconnect';
 
-const t: dataset = {
+const t: Dataset = {
   connect: 'Se connecter',
   disconnect: 'Se déconnecter',
   dashboard: 'FiMs',
@@ -76,7 +76,6 @@ export default function Navbar() {
                     </Disclosure.Button>
                   </div>
                 </div>
-                {/* )} */}
               </div>
 
               <div className={(currentPage ? 'animate-display' : 'hidden') + ' ml-6 flex items-center'}>

@@ -2,9 +2,9 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { TextInput } from '@tremor/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
-import { dataset } from '../utils/types';
+import { Dataset } from '../utils/types';
 
-const t: dataset = {
+const t: Dataset = {
   searchByName: 'Rechercher par nom...',
 };
 

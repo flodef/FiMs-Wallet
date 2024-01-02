@@ -24,11 +24,11 @@ import { getBarData } from '../utils/chart';
 import { isMobileSize, useIsMobile } from '../utils/mobile';
 import {} from '../utils/number';
 import { DataName, loadData } from '../utils/processData';
-import { dataset } from '../utils/types';
+import { Data, Dataset } from '../utils/types';
 
 const tokenValueStart = 100;
 
-const t: dataset = {
+const t: Dataset = {
   price: 'Prix',
   result: 'Résultats FiMs',
   total: 'Trésorerie',
@@ -46,24 +46,18 @@ const t: dataset = {
   amount: 'Montant',
 };
 
-interface data {
-  label: string;
-  value: number;
-  ratio: number;
-}
-
-interface token extends data {
+interface Token extends Data {
   duration: number;
 }
 
-interface historic {
+interface Historic {
   date: number;
   stringDate: string;
   Investi: number;
   Trésorerie: number;
 }
 
-interface tokenHisto {
+interface TokenHisto {
   date: string;
   Montant: number;
 }
@@ -71,33 +65,33 @@ interface tokenHisto {
 const today = new Date();
 
 export default function Dashboard() {
-  const [dashboard, setDashboard] = useState<data[]>([]);
-  const [token, setToken] = useState<token[]>([]);
-  const [historic, setHistoric] = useState<historic[]>([]);
-  const [tokenHisto, setTokenHisto] = useState<tokenHisto[][]>([]);
+  const [dashboard, setDashboard] = useState<Data[]>([]);
+  const [token, setToken] = useState<Token[]>([]);
+  const [historic, setHistoric] = useState<Historic[]>([]);
+  const [tokenHisto, setTokenHisto] = useState<TokenHisto[][]>([]);
   const [tokenHistoLimit, setTokenHistoLimit] = useState<{ min: number; max: number }>();
 
-  const findValue = useCallback((data: data[], label: string | undefined) => {
+  const findValue = useCallback((data: Data[], label: string | undefined) => {
     return label ? data.find((d) => d.label.toLowerCase().includes(label.toLowerCase())) : undefined;
   }, []);
   const getValue = useCallback(
-    (data: data[], label: string | undefined, defaultValue = 0) => {
+    (data: Data[], label: string | undefined, defaultValue = 0) => {
       return (findValue(data, label)?.value ?? defaultValue).toLocaleCurrency();
     },
     [findValue]
   );
   const getRatio = useCallback(
-    (data: data[], label: string | undefined, defaultValue = 0) => {
+    (data: Data[], label: string | undefined, defaultValue = 0) => {
       return (findValue(data, label)?.ratio ?? defaultValue).toRatio();
     },
     [findValue]
   );
 
   const generateTokenHisto = useCallback(
-    (token: token[]) => {
+    (token: Token[]) => {
       let min = tokenValueStart;
       let max = tokenValueStart;
-      const tokenHisto: tokenHisto[][] = [];
+      const tokenHisto: TokenHisto[][] = [];
       token.forEach((t) => {
         const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(token, t.label)) / 100);
         tokenHisto.push([
@@ -127,7 +121,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!loaded.current || refresh) {
       loadData(DataName.dashboard)
-        .then((data: data[]) => {
+        .then((data: Data[]) => {
           loaded.current = true;
 
           // Refresh data every minute
@@ -141,12 +135,12 @@ export default function Dashboard() {
         })
         .then(() => {
           loadData(DataName.token)
-            .then((data: token[]) => {
+            .then((data: Token[]) => {
               setToken(data);
               generateTokenHisto(data);
             })
             .then(() => {
-              loadData(DataName.historic).then((data: historic[]) => {
+              loadData(DataName.historic).then((data: Historic[]) => {
                 setHistoric(data);
               });
             });

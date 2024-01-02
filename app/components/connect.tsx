@@ -2,9 +2,9 @@ import { Button, Flex, TextInput, Title } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
-import { dataset } from '../utils/types';
+import { Dataset } from '../utils/types';
 
-const t: dataset = {
+const t: Dataset = {
   connect: 'Se connecter',
   userName: "Nom d'utilisateur",
   wrongUserName: "Nom d'utilisateur incorrect",

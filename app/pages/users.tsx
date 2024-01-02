@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from 'react';
 import Search from '../components/search';
 import { User, useUser } from '../hooks/useUser';
 import { getShortAddress } from '../utils/constants';
-import { dataset } from '../utils/types';
+import { Dataset } from '../utils/types';
 
-const t: dataset = {
+const t: Dataset = {
   usersList: 'Liste des utilisateurs',
   noUserFound: 'Aucun utilisateur trouvé',
   userLoading: 'Chargement des utilisateurs...',
@@ -58,7 +58,7 @@ export default function Users({ searchParams }: { searchParams: { q: string } })
             </TableRow>
           </TableHead>
           <TableBody>
-            {result && result.length ? (
+            {result?.length ? (
               result.map((user) => (
                 <TableRow
                   key={user.name}
