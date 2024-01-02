@@ -171,16 +171,16 @@ export default function Dashboard() {
                       ></Image>
                     </TableCell>
                     <TableCell>
-                      <Text>{asset.name}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>{`${asset.balance} ${asset.symbol}`}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>{asset.value ? asset.value.toCurrency() : ''}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text className="font-bold">{asset.total.toCurrency()}</Text>
+                      <Text>
+                        <Flex justifyContent="between">
+                          <div className="text-xl">{asset.name}</div>
+                          <div>{`${asset.balance} ${asset.symbol}`}</div>
+                        </Flex>
+                        <Flex justifyContent="between">
+                          <div>{asset.value ? asset.value.toCurrency() : ''}</div>
+                          <div className="font-bold text-lg">{asset.total.toCurrency()}</div>
+                        </Flex>
+                      </Text>
                     </TableCell>
                   </TableRow>
                 ))
