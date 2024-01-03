@@ -136,8 +136,9 @@ export default function Dashboard() {
         .then(() => {
           loadData(DataName.token)
             .then((data: Token[]) => {
-              setToken(data);
-              generateTokenHisto(data);
+              const d = data.filter(({ label }) => label !== 'Euro' && label !== 'Solana'); // TODO : remove this line when Euro is removed from the spreadsheet
+              setToken(d);
+              generateTokenHisto(d);
             })
             .then(() => {
               loadData(DataName.historic).then((data: Historic[]) => {
