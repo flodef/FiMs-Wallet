@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
-import { FiMsLogo } from '../images/FiMsLogo';
+import { FiMsLogo } from '../../public/FiMsLogo';
 import { Dataset } from '../utils/types';
 import Connect from './connect';
 import Disconnect from './disconnect';
