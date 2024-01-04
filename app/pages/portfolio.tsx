@@ -88,20 +88,26 @@ export default function Dashboard() {
           fetch(
             `./api/solana/getAssets?address=${user.address}&creator=CCLcWAJX6fubUqGyZWz8dyUGEddRj8h4XZZCNSDzMVx4`
           ).then((response) => {
-            response.json().then((data: TokenData[]) => {
-              setPortfolio(
-                data
-                  .map((d) => {
-                    const value = findValue(token, d.name)?.value ?? 0;
-                    return {
-                      ...d,
-                      value: value,
-                      total: d.balance * (value || 1),
-                    };
-                  })
-                  .sort((a, b) => b.total - a.total)
-              );
-            });
+            response
+              .json()
+              .then((data: TokenData[]) => {
+                setPortfolio(
+                  data
+                    .map((d) => {
+                      const value = findValue(token, d.name)?.value ?? 0;
+                      return {
+                        ...d,
+                        value: value,
+                        total: d.balance * (value || 1),
+                      };
+                    })
+                    .sort((a, b) => b.total - a.total)
+                );
+              })
+              .catch((error) => {
+                console.error(error);
+                setPortfolio([]);
+              });
           });
         });
     }
