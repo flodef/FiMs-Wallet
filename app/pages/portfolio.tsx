@@ -2,6 +2,7 @@ import {
   Accordion,
   AccordionBody,
   AccordionHeader,
+  Card,
   Flex,
   Metric,
   Table,
@@ -27,20 +28,11 @@ const t: Dataset = {
   tokenLogo: 'Logo du token',
 };
 
-const tokenImage: Dataset = {
-  '6hoGUYo5VengrsRtyyvs2y7KPf4mwWdv7V8C7GJg6Uy': 'https://raw.githubusercontent.com/flodef/FiMs-Token/main/FiMsSOL.png',
-  D84wZMJRoievKkRaquXXrYSMuU5mA46RznCSrJ9HSK1u:
-    'https://raw.githubusercontent.com/flodef/FiMs-Token/main/FiMsToken.png',
-  Pnsjp9dbenPeFZWqqPHDygzkCZ4Gr37G8mgdRK2KjQp: 'https://raw.githubusercontent.com/flodef/FiMs-Token/main/Euro.png',
-};
-
-interface HeliusData {
-  items: {
-    id: string;
-    content: { metadata: { name: string; symbol: string } };
-    token_info: { balance: number; decimals: number };
-    creators: { address: string }[];
-  }[];
+interface TokenData {
+  image: string;
+  name: string;
+  symbol: string;
+  balance: number;
 }
 
 interface Portfolio {
@@ -93,22 +85,18 @@ export default function Dashboard() {
           return data;
         })
         .then((token) => {
-          fetch(`./api/solana/getAssets?address=${user.address}`).then((response) => {
-            response.json().then((data: HeliusData) => {
+          fetch(
+            `./api/solana/getAssets?address=${user.address}&creator=CCLcWAJX6fubUqGyZWz8dyUGEddRj8h4XZZCNSDzMVx4`
+          ).then((response) => {
+            response.json().then((data: TokenData[]) => {
               setPortfolio(
-                data.items
-                  .filter((d) => d.creators.some((c) => c.address === 'CCLcWAJX6fubUqGyZWz8dyUGEddRj8h4XZZCNSDzMVx4'))
+                data
                   .map((d) => {
-                    const name = d.content.metadata.name;
-                    const balance = d.token_info.balance / Math.pow(10, d.token_info.decimals);
-                    const value = findValue(token, name)?.value ?? 0;
+                    const value = findValue(token, d.name)?.value ?? 0;
                     return {
-                      image: tokenImage[d.id],
-                      name: name,
-                      symbol: d.content.metadata.symbol,
-                      balance: balance,
+                      ...d,
                       value: value,
-                      total: balance * (value || 1),
+                      total: d.balance * (value || 1),
                     };
                   })
                   .sort((a, b) => b.total - a.total)
@@ -121,8 +109,8 @@ export default function Dashboard() {
 
   return (
     <>
-      <Accordion defaultOpen={!isMobileSize()}>
-        {portfolio?.length ? (
+      {portfolio?.length ? (
+        <Accordion defaultOpen={true}>
           <AccordionHeader>
             <Flex alignItems="start">
               <div>
@@ -147,19 +135,17 @@ export default function Dashboard() {
             </BadgeDelta> */}
             </Flex>
           </AccordionHeader>
-        ) : null}
-        <AccordionBody>
-          <Table>
-            {/* <TableHead>
+          <AccordionBody>
+            <Table>
+              {/* <TableHead>
               <TableRow>
                 <TableHeaderCell className="w-1/3">{t['name']}</TableHeaderCell>
                 <TableHeaderCell className="w-1/3">{t['address']}</TableHeaderCell>
                 <TableHeaderCell className="w-1/3">{t['copy']}</TableHeaderCell>
               </TableRow>
             </TableHead> */}
-            <TableBody>
-              {portfolio?.length ? (
-                portfolio.map((asset) => (
+              <TableBody>
+                {portfolio.map((asset) => (
                   <TableRow key={asset.name} className={'hover:bg-gray-50'}>
                     <TableCell>
                       <Image
@@ -173,7 +159,7 @@ export default function Dashboard() {
                     <TableCell>
                       <Text>
                         <Flex justifyContent="between">
-                          <div className="text-xl">{asset.name}</div>
+                          <div className="text-xl truncate">{asset.name}</div>
                           <div>{`${asset.balance} ${asset.symbol}`}</div>
                         </Flex>
                         <Flex justifyContent="between">
@@ -183,18 +169,14 @@ export default function Dashboard() {
                       </Text>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={3} className="text-center">
-                    {t[portfolio ? 'emptyPortfolio' : 'dataLoading']}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </AccordionBody>
-      </Accordion>
+                ))}
+              </TableBody>
+            </Table>
+          </AccordionBody>
+        </Accordion>
+      ) : (
+        <Card className="text-center">{t[portfolio ? 'emptyPortfolio' : 'dataLoading']}</Card>
+      )}
     </>
   );
 }
