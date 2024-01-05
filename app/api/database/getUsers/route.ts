@@ -6,7 +6,9 @@ export async function GET(request: Request) {
   const user = searchParams.get('user');
 
   try {
-    const { rows } = await (user ? sql`SELECT * FROM users WHERE name ILIKE ${user}` : sql`SELECT * FROM users`);
+    const { rows } = await (user
+      ? sql`SELECT * FROM users WHERE name ILIKE ${user}`
+      : sql`SELECT * FROM users ORDER BY id ASC`);
 
     return NextResponse.json(rows);
   } catch (error) {
