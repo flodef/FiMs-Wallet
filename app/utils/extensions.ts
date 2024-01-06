@@ -8,6 +8,7 @@ declare global {
     toShortCurrency(maxDecimals?: number, symbol?: string): string;
     toCurrency(maxDecimals?: number, symbol?: string): string;
     toRatio(maxDecimals?: number): string;
+    toLocaleDate(): string;
   }
   interface String {
     fromCurrency(locale?: string): number;
@@ -36,9 +37,15 @@ Number.prototype.toShortCurrency = function (maxDecimals = 0, symbol = '€') {
 Number.prototype.toCurrency = function (maxDecimals = 2, symbol = '€') {
   return `${this.toFixed(maxDecimals)} ${symbol}`;
 };
+
 Number.prototype.toRatio = function (maxDecimals = 2) {
   return `${(Number(this) * 100).toFixed(maxDecimals)}%`;
 };
+
+Number.prototype.toLocaleDate = function () {
+  return new Date(Math.round((Number(this) - 25569) * 86400 * 1000)).toLocaleDateString();
+};
+
 String.prototype.fromCurrency = function (locale?: string) {
   const number = (locale ?? Intl.NumberFormat().resolvedOptions().locale).startsWith('fr')
     ? this.replace(/,/g, '.')
