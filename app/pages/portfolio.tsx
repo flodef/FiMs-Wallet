@@ -2,9 +2,12 @@ import {
   Accordion,
   AccordionBody,
   AccordionHeader,
+  AreaChart,
+  BadgeDelta,
   Card,
   Flex,
   Metric,
+  SparkAreaChart,
   Table,
   TableBody,
   TableCell,
@@ -13,29 +16,41 @@ import {
   Title,
 } from '@tremor/react';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 import { useUser } from '../hooks/useUser';
-import { isMobileSize } from '../utils/mobile';
+import { TOKEN_PATH } from '../utils/constants';
 import {} from '../utils/extensions';
+import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
-import Image from 'next/image';
 
 const t: Dataset = {
   assets: 'Valeur totale',
   emptyPortfolio: 'Aucun actif trouvé',
   dataLoading: 'Chargement des données...',
   tokenLogo: 'Logo du token',
+  total: 'Total',
+  transfered: 'Investi',
+  loading: 'Chargement...',
 };
 
-interface TokenData {
-  image: string;
-  name: string;
+interface Token extends Data {
   symbol: string;
-  balance: number;
 }
 
 interface Portfolio {
+  address: string;
+  token: number[];
+  total: number;
+  invested: number;
+  profitValue: number;
+  profitRatio: number;
+  yearlyYield: number;
+  solProfitPrice: number;
+}
+
+interface Wallet {
   image: string;
   name: string;
   symbol: string;
@@ -44,36 +59,26 @@ interface Portfolio {
   total: number;
 }
 
-const today = new Date();
+interface Historic {
+  date: number;
+  stringDate: string;
+  Investi: number;
+  Total: number;
+}
 
-export default function Dashboard() {
+export default function Portfolio() {
   const { user } = useUser();
 
-  const [portfolio, setPortfolio] = useState<Portfolio[]>();
-
-  //TODO: Refactor this
-  const findValue = useCallback((data: Data[], label: string | undefined) => {
-    return label ? data.find((d) => d.label.toLowerCase().includes(label.toLowerCase())) : undefined;
-  }, []);
-  const getValue = useCallback(
-    (data: Data[], label: string | undefined, defaultValue = 0) => {
-      return (findValue(data, label)?.value ?? defaultValue).toLocaleCurrency();
-    },
-    [findValue]
-  );
-  const getRatio = useCallback(
-    (data: Data[], label: string | undefined, defaultValue = 0) => {
-      return (findValue(data, label)?.ratio ?? defaultValue).toRatio();
-    },
-    [findValue]
-  );
+  const [wallet, setWallet] = useState<Wallet[]>();
+  const [portfolio, setPortfolio] = useState<Portfolio>();
+  const [historic, setHistoric] = useState<Historic[]>([]);
 
   const loaded = useRef(false);
   const [refresh, setRefresh] = useState(false);
   useEffect(() => {
     if (user && (!loaded.current || refresh)) {
       loadData(DataName.token)
-        .then((data: Data[]) => {
+        .then((data: Token[]) => {
           loaded.current = true;
 
           // Refresh data every minute
@@ -85,73 +90,62 @@ export default function Dashboard() {
           return data;
         })
         .then((token) => {
-          fetch(
-            `./api/solana/getAssets?address=${user.address}&creator=CCLcWAJX6fubUqGyZWz8dyUGEddRj8h4XZZCNSDzMVx4`
-          ).then((response) => {
-            response
-              .json()
-              .then((data: TokenData[]) => {
-                setPortfolio(
-                  data
-                    .map((d) => {
-                      const value = findValue(token, d.name)?.value ?? 0;
-                      return {
-                        ...d,
-                        value: value,
-                        total: d.balance * (value || 1),
-                      };
-                    })
-                    .sort((a, b) => b.total - a.total)
-                );
-              })
-              .catch((error) => {
-                console.error(error);
-                setPortfolio([]);
+          loadData(DataName.portfolio)
+            .then((data: Portfolio[]) => {
+              const p = data.filter((d) => d.address === user.address)[0];
+              console.log(p);
+
+              setPortfolio(p);
+
+              const wallet: Wallet[] = [];
+              token.forEach((t, i) => {
+                if (!p.token[i]) return;
+
+                wallet.push({
+                  image: TOKEN_PATH + t.label.replaceAll(' ', '') + '.png',
+                  name: t.label,
+                  symbol: t.symbol,
+                  balance: p.token[i],
+                  value: t.value,
+                  total: p.token[i] * t.value,
+                });
               });
-          });
+              setWallet(wallet.sort((a, b) => b.total - a.total));
+            })
+            .then(() => loadData(user.name).then(setHistoric));
         });
     }
-  }, [refresh, user, findValue]);
+  }, [refresh, user]);
 
   return (
     <>
-      {portfolio?.length ? (
+      {wallet?.length ? (
         <Accordion defaultOpen={true}>
           <AccordionHeader>
             <Flex alignItems="start">
               <div>
                 <Title className="text-left">{t['assets']}</Title>
                 <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
-                  {portfolio
-                    ?.map((asset) => asset.total)
-                    .reduce((a, b) => a + b)
-                    .toCurrency()}
+                  {portfolio?.total.toLocaleCurrency()}
                 </Metric>
               </div>
-              {/* <BadgeDelta
-              deltaType={
-                parseFloat(getRatio(dashboard, 'price @')) < 0
-                  ? 'moderateDecrease'
-                  : parseFloat(getRatio(dashboard, 'price @')) > 0
-                    ? 'moderateIncrease'
-                    : 'unchanged'
-              }
-            >
-              {getRatio(dashboard, 'price @')}
-            </BadgeDelta> */}
+              <BadgeDelta
+                deltaType={
+                  portfolio && portfolio?.profitRatio < 0
+                    ? 'moderateDecrease'
+                    : portfolio && portfolio?.profitRatio > 0
+                      ? 'moderateIncrease'
+                      : 'unchanged'
+                }
+              >
+                {portfolio?.profitRatio.toRatio()}
+              </BadgeDelta>
             </Flex>
           </AccordionHeader>
           <AccordionBody>
             <Table>
-              {/* <TableHead>
-              <TableRow>
-                <TableHeaderCell className="w-1/3">{t['name']}</TableHeaderCell>
-                <TableHeaderCell className="w-1/3">{t['address']}</TableHeaderCell>
-                <TableHeaderCell className="w-1/3">{t['copy']}</TableHeaderCell>
-              </TableRow>
-            </TableHead> */}
               <TableBody>
-                {portfolio.map((asset) => (
+                {wallet.map((asset) => (
                   <TableRow key={asset.name} className={'hover:bg-gray-50'}>
                     <TableCell>
                       <Image
@@ -169,8 +163,8 @@ export default function Dashboard() {
                           <div>{`${asset.balance} ${asset.symbol}`}</div>
                         </Flex>
                         <Flex justifyContent="between">
-                          <div>{asset.value ? asset.value.toCurrency() : ''}</div>
-                          <div className="font-bold text-lg">{asset.total.toCurrency()}</div>
+                          <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
+                          <div className="font-bold text-lg">{asset.total.toLocaleCurrency()}</div>
                         </Flex>
                       </Text>
                     </TableCell>
@@ -183,6 +177,39 @@ export default function Dashboard() {
       ) : (
         <Card className="text-center">{t[portfolio ? 'emptyPortfolio' : 'dataLoading']}</Card>
       )}
+      <Accordion className="group" defaultOpen={!isMobileSize()}>
+        <AccordionHeader>
+          <Title>Performance</Title>
+          <Flex className="w-full" justifyContent="center">
+            <SparkAreaChart
+              data={historic.sort((a, b) => a.date - b.date)}
+              categories={[t['total']]}
+              index={'stringDate'}
+              colors={['emerald']}
+              className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
+              curveType="monotone"
+              noDataText={t['loading']}
+            />
+          </Flex>
+        </AccordionHeader>
+        <AccordionBody>
+          <AreaChart
+            className="h-80"
+            data={historic.sort((a, b) => a.date - b.date)}
+            categories={[t['transfered'], t['total']]}
+            index="stringDate"
+            colors={['indigo', 'fuchsia']}
+            valueFormatter={(number) => number.toShortCurrency()}
+            yAxisWidth={50}
+            showAnimation={true}
+            animationDuration={2000}
+            curveType="monotone"
+            noDataText={t['loading']}
+            minValue={Math.min(...[...historic.map((d) => d.Investi), ...historic.map((d) => d.Total)])}
+            maxValue={Math.max(...[...historic.map((d) => d.Investi), ...historic.map((d) => d.Total)])}
+          />
+        </AccordionBody>
+      </Accordion>
     </>
   );
 }
