@@ -89,6 +89,10 @@ export default function Dashboard() {
 
   const generateTokenHisto = useCallback(
     (token: Token[]) => {
+      token = token.filter(({ label }) => label !== 'Euro' && label !== 'Solana'); // TODO : remove this line when Euro is removed from the spreadsheet
+
+      setToken(token);
+
       let min = tokenValueStart;
       let max = tokenValueStart;
       const tokenHisto: TokenHisto[][] = [];
@@ -133,19 +137,11 @@ export default function Dashboard() {
           // Update data
           setDashboard(data);
         })
-        .then(() => {
+        .then(() =>
           loadData(DataName.token)
-            .then((data: Token[]) => {
-              const d = data.filter(({ label }) => label !== 'Euro' && label !== 'Solana'); // TODO : remove this line when Euro is removed from the spreadsheet
-              setToken(d);
-              generateTokenHisto(d);
-            })
-            .then(() => {
-              loadData(DataName.historic).then((data: Historic[]) => {
-                setHistoric(data);
-              });
-            });
-        });
+            .then(generateTokenHisto)
+            .then(() => loadData(DataName.historic).then(setHistoric))
+        );
     }
   }, [refresh, generateTokenHisto]);
 
