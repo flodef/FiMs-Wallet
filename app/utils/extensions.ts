@@ -9,6 +9,8 @@ declare global {
     toCurrency(maxDecimals?: number, symbol?: string): string;
     toRatio(maxDecimals?: number): string;
     toLocaleDate(): string;
+    toShortFixed(maxDecimals?: number): string;
+    toDecimalPlace(decimalPlace?: number, direction?: RoundingDirection): number;
   }
   interface String {
     fromCurrency(locale?: string): number;
@@ -25,9 +27,8 @@ Number.prototype.toLocaleCurrency = function (currency = 'EUR') {
 
 Number.prototype.toShortCurrency = function (maxDecimals = 0, symbol = '€') {
   return (
-    this.toFixed(maxDecimals)
+    this.toShortFixed(maxDecimals)
       .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-      .replace(/\.00/, '')
       .replace(/ 000/, 'K') +
     ' ' +
     symbol
@@ -44,6 +45,21 @@ Number.prototype.toRatio = function (maxDecimals = 2) {
 
 Number.prototype.toLocaleDate = function () {
   return new Date(Math.round((Number(this) - 25569) * 86400 * 1000)).toLocaleDateString();
+};
+
+Number.prototype.toShortFixed = function (maxDecimals = 2) {
+  return Number.isInteger(this) ? this.toString() : this.toFixed(maxDecimals);
+};
+
+export enum RoundingDirection {
+  up = 'up',
+  down = 'down',
+}
+Number.prototype.toDecimalPlace = function (decimalPlace = 2, direction = RoundingDirection.down) {
+  const multiplier = 10 ** decimalPlace;
+  const roundedValue =
+    direction === 'up' ? Math.ceil(Number(this) / multiplier) : Math.floor(Number(this) / multiplier);
+  return roundedValue * multiplier;
 };
 
 String.prototype.fromCurrency = function (locale?: string) {
