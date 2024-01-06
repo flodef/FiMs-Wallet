@@ -53,7 +53,11 @@ export default function Navbar() {
                   >
                     <TabList>
                       {pages.map((page) => (
-                        <Tab key={page} aria-current={page === currentPage ? 'page' : undefined}>
+                        <Tab
+                          className="text-[20px]"
+                          key={page}
+                          aria-current={page === currentPage ? 'page' : undefined}
+                        >
                           {t[page.toLowerCase()]}
                         </Tab>
                       ))}
