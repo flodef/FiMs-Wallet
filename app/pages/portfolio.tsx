@@ -17,10 +17,10 @@ import {
 } from '@tremor/react';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useUser } from '../hooks/useUser';
 import { TOKEN_PATH } from '../utils/constants';
-import {} from '../utils/extensions';
+import { RoundingDirection } from '../utils/extensions';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
@@ -117,6 +117,19 @@ export default function Portfolio() {
     }
   }, [refresh, user]);
 
+  const { minHisto, maxHisto } = useMemo(() => {
+    const minHisto = Math.min(...[...historic.map((d) => d.Investi), ...historic.map((d) => d.Total)]).toDecimalPlace(
+      3,
+      RoundingDirection.down
+    );
+    const maxHisto = Math.max(...[...historic.map((d) => d.Investi), ...historic.map((d) => d.Total)]).toDecimalPlace(
+      3,
+      RoundingDirection.up
+    );
+
+    return { minHisto, maxHisto };
+  }, [historic]);
+
   return (
     <>
       {wallet?.length ? (
@@ -160,7 +173,7 @@ export default function Portfolio() {
                       <Text>
                         <Flex justifyContent="between">
                           <div className="text-xl truncate">{asset.name}</div>
-                          <div>{`${asset.balance} ${asset.symbol}`}</div>
+                          <div>{`${asset.balance.toShortFixed()} ${asset.symbol}`}</div>
                         </Flex>
                         <Flex justifyContent="between">
                           <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
@@ -205,8 +218,8 @@ export default function Portfolio() {
             animationDuration={2000}
             curveType="monotone"
             noDataText={t['loading']}
-            minValue={Math.min(...[...historic.map((d) => d.Investi), ...historic.map((d) => d.Total)])}
-            maxValue={Math.max(...[...historic.map((d) => d.Investi), ...historic.map((d) => d.Total)])}
+            minValue={minHisto}
+            maxValue={maxHisto}
           />
         </AccordionBody>
       </Accordion>
