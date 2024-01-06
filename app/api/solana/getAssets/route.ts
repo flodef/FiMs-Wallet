@@ -1,12 +1,4 @@
 import { NextResponse } from 'next/server';
-import { Dataset } from '../../../utils/types';
-
-const tokenImage: Dataset = {
-  '6hoGUYo5VengrsRtyyvs2y7KPf4mwWdv7V8C7GJg6Uy': 'https://raw.githubusercontent.com/flodef/FiMs-Token/main/FiMsSOL.png',
-  D84wZMJRoievKkRaquXXrYSMuU5mA46RznCSrJ9HSK1u:
-    'https://raw.githubusercontent.com/flodef/FiMs-Token/main/FiMsToken.png',
-  Pnsjp9dbenPeFZWqqPHDygzkCZ4Gr37G8mgdRK2KjQp: 'https://raw.githubusercontent.com/flodef/FiMs-Token/main/Euro.png',
-};
 
 interface HeliusData {
   items: {
@@ -49,7 +41,6 @@ export async function GET(request: Request) {
       .filter((d) => !token || d.id === token)
       .map((d) => {
         return {
-          image: tokenImage[d.id],
           name: d.content.metadata.name,
           symbol: d.content.metadata.symbol,
           balance: d.token_info.balance / Math.pow(10, d.token_info.decimals),
