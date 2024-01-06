@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Search from '../components/search';
 import { User, useUser } from '../hooks/useUser';
 import { getShortAddress } from '../utils/constants';
+import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
@@ -23,12 +24,8 @@ export default function Users({ searchParams }: { searchParams: { q: string } })
   const [users, setUsers] = useState<User[] | undefined>();
 
   useEffect(() => {
-    fetch(`./api/database/getUsers`)
-      .then(async (result) => {
-        return await result.json().then((data: User[]) => {
-          setUsers(data);
-        });
-      })
+    loadData(DataName.portfolio)
+      .then(setUsers)
       .catch((error) => {
         console.error(error);
         setUsers([]);
