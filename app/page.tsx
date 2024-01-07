@@ -10,6 +10,7 @@ import Portfolio from './pages/portfolio';
 import Transactions from './pages/transactions';
 import Users from './pages/users';
 import { useIsWindowReady } from './hooks/useWindowParam';
+import { isMobileDevice } from './utils/mobile';
 
 export default function IndexPage({ searchParams }: { searchParams: { user: string; q: string } }) {
   const { isPopupOpen } = usePopup();
@@ -19,18 +20,25 @@ export default function IndexPage({ searchParams }: { searchParams: { user: stri
   const isWindowReady = useIsWindowReady();
 
   useEffect(() => {
-    alert('param user :' + searchParams.user);
-    if (isWindowReady) {
-      const urlSearchParams = new URLSearchParams(window.location.search);
-      const userValue = urlSearchParams.get('user');
-      alert('window user :' + userValue);
+    let user: string | undefined;
+    if (isMobileDevice()) {
+      if (isWindowReady) {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        user = urlSearchParams.get('user') ?? '';
+      }
+    } else {
+      user = searchParams.user;
     }
 
-    // if (searchParams.user) {
-    //   connect(searchParams.user);
-    // } else {
-    //   disconnect();
-    // }
+    alert('user: ' + user);
+
+    if (user !== undefined) {
+      if (user) {
+        connect(searchParams.user);
+      } else {
+        disconnect();
+      }
+    }
   }, [isWindowReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
