@@ -4,6 +4,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { FC, ReactNode, useCallback, useRef, useState } from 'react';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, UserContext } from '../hooks/useUser';
+import { DataName, loadData } from '../utils/processData';
+// import { useLocalStorage } from '../utils/localStorage';
 
 export interface UserProviderProps {
   children: ReactNode;
@@ -16,6 +18,7 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
 
   const connecting = useRef(false);
   const [user, setUser] = useState<User | undefined>();
+  // const [user, setUser] = useLocalStorage<User | undefined>('user', undefined);
 
   const disconnect = useCallback(() => {
     setUser(undefined);
@@ -25,7 +28,7 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
     const params = new URLSearchParams(window.location.search);
     params.delete('user');
     replace(`${pathname}?${params.toString()}`);
-  }, [pathname, replace, setPage]);
+  }, [pathname, replace, setPage, setUser]);
 
   const connect = useCallback(
     async (userName: string) => {
@@ -33,25 +36,24 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
 
       connecting.current = true;
 
-      return await fetch(`./api/database/getUsers?user=${userName}`)
-        .then(async (result) => {
-          return await result.json().then((data: User[]) => {
-            if (data.length === 1) {
-              connecting.current = false;
-              setUser(data[0]);
-              setPage(Page.Portfolio);
+      return await loadData(DataName.portfolio)
+        .then((users: User[]) => {
+          const newUser = users.filter((u) => u.name.toLowerCase() === userName.toLowerCase());
+          if (newUser.length === 1) {
+            connecting.current = false;
+            setUser(newUser[0]);
+            setPage(Page.Portfolio);
 
-              const params = new URLSearchParams(window.location.search);
-              params.set('user', userName);
-              replace(`${pathname}?${params.toString()}`);
+            const params = new URLSearchParams(window.location.search);
+            params.set('user', userName);
+            replace(`${pathname}?${params.toString()}`);
 
-              return data[0];
-            } else {
-              console.error('No user found');
-              disconnect();
-              return undefined;
-            }
-          });
+            return newUser[0];
+          } else {
+            console.error('No user found');
+            disconnect();
+            return undefined;
+          }
         })
         .catch((error) => {
           console.error(error);
@@ -59,7 +61,7 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
           return undefined;
         });
     },
-    [pathname, replace, setPage, disconnect, user]
+    [pathname, replace, setPage, disconnect, user, setUser]
   );
 
   return (
