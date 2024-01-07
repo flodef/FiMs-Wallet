@@ -17,12 +17,10 @@ const t: Dataset = {
   copy: 'Copier',
 };
 
-export default function Users() {
+export default function Users({ searchParams }: { searchParams: { q: string } }) {
   const { user: currentUser } = useUser();
 
-  const isWindowReady = useIsWindowReady();
-
-  const [search, setSearch] = useState('');
+  const search = searchParams.q ?? '';
   const [users, setUsers] = useState<User[] | undefined>();
 
   useEffect(() => {
@@ -31,14 +29,8 @@ export default function Users() {
       .catch((error) => {
         console.error(error);
         setUsers([]);
-      })
-      .then(() => {
-        if (!isWindowReady) return;
-
-        const urlSearchParams = new URLSearchParams(window.location.search);
-        setSearch(urlSearchParams.get('q') ?? '');
       });
-  }, [isWindowReady]);
+  }, []);
 
   const result = useMemo(() => {
     return users

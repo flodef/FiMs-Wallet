@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { TextInput } from '@tremor/react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
@@ -12,16 +12,23 @@ export default function Search({ disabled, defaultValue }: { disabled?: boolean;
   const { replace } = useRouter();
   const pathname = usePathname();
 
-  function handleSearch(term: string) {
-    const params = new URLSearchParams(window.location.search);
-    if (term) {
-      params.set('q', term);
-    } else {
-      params.delete('q');
-    }
+  const [value, setValue] = useState(defaultValue);
 
-    replace(`${pathname}?${params.toString()}`);
-  }
+  const handleSearch = useCallback(
+    (term: string) => {
+      setValue(term);
+
+      const params = new URLSearchParams(window.location.search);
+      if (term) {
+        params.set('q', term);
+      } else {
+        params.delete('q');
+      }
+
+      replace(`${pathname}?${params.toString()}`);
+    },
+    [pathname, replace]
+  );
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
@@ -46,7 +53,7 @@ export default function Search({ disabled, defaultValue }: { disabled?: boolean;
         placeholder={t.searchByName}
         spellCheck={false}
         autoComplete="off"
-        value={defaultValue}
+        value={value}
         onChange={(e) => handleSearch(e.target.value)}
       />
     </div>
