@@ -21,6 +21,7 @@ export default function Users({ searchParams }: { searchParams: { q: string } })
   const { user: currentUser } = useUser();
 
   const search = searchParams.q ?? '';
+  // const search = new URLSearchParams(window.location.search).get('q') ?? '';
   const [users, setUsers] = useState<User[] | undefined>();
 
   useEffect(() => {
@@ -35,7 +36,9 @@ export default function Users({ searchParams }: { searchParams: { q: string } })
   const result = useMemo(() => {
     return users
       ? users
-          .filter((user) => user.name.toLowerCase().includes(search.toLowerCase()) && user.address)
+          .filter(
+            (user) => (!search || user.name.toLowerCase().includes(search.toLowerCase())) && user.address !== user.name
+          )
           .sort((a, b) => a.name.localeCompare(b.name))
           .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
       : undefined;
