@@ -21,20 +21,20 @@ export default function IndexPage({ searchParams }: { searchParams: { user: stri
 
   useEffect(() => {
     let user: string | undefined;
-    if (isMobileDevice()) {
-      if (isWindowReady) {
+    if (isWindowReady) {
+      if (isMobileDevice()) {
         const urlSearchParams = new URLSearchParams(window.location.search);
         user = urlSearchParams.get('user') ?? '';
+      } else {
+        user = searchParams.user;
       }
-    } else {
-      user = searchParams.user;
     }
 
     alert('user: ' + user);
 
     if (user !== undefined) {
       if (user) {
-        connect(searchParams.user);
+        connect(user);
       } else {
         disconnect();
       }
