@@ -29,7 +29,7 @@ export default function IndexPage() {
     } else {
       disconnect();
     }
-  }, [isWindowReady, connect, disconnect]);
+  }, [isWindowReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <main className={'space-y-6 p-4 md:p-10 mx-auto max-w-7xl ' + (isPopupOpen ? 'blur-sm' : '')}>
