@@ -19,18 +19,18 @@ export default function IndexPage({ searchParams }: { searchParams: { user: stri
   const isWindowReady = useIsWindowReady();
 
   useEffect(() => {
-    alert(searchParams.user);
+    alert('param user :' + searchParams.user);
     if (isWindowReady) {
       const urlSearchParams = new URLSearchParams(window.location.search);
       const userValue = urlSearchParams.get('user');
-      alert(userValue);
+      alert('window user :' + userValue);
     }
 
-    if (searchParams.user) {
-      connect(searchParams.user);
-    } else {
-      disconnect();
-    }
+    // if (searchParams.user) {
+    //   connect(searchParams.user);
+    // } else {
+    //   disconnect();
+    // }
   }, [isWindowReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
