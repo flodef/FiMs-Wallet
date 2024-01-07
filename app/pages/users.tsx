@@ -3,6 +3,7 @@ import { Card, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow
 import { useEffect, useMemo, useState } from 'react';
 import Search from '../components/search';
 import { User, useUser } from '../hooks/useUser';
+import { useIsWindowReady } from '../hooks/useWindowParam';
 import { getShortAddress } from '../utils/constants';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
@@ -16,11 +17,12 @@ const t: Dataset = {
   copy: 'Copier',
 };
 
-export default function Users({ searchParams }: { searchParams: { q: string } }) {
+export default function Users() {
   const { user: currentUser } = useUser();
 
-  const search = searchParams.q ?? '';
+  const isWindowReady = useIsWindowReady();
 
+  const [search, setSearch] = useState('');
   const [users, setUsers] = useState<User[] | undefined>();
 
   useEffect(() => {
@@ -29,8 +31,14 @@ export default function Users({ searchParams }: { searchParams: { q: string } })
       .catch((error) => {
         console.error(error);
         setUsers([]);
+      })
+      .then(() => {
+        if (!isWindowReady) return;
+
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        setSearch(urlSearchParams.get('q') ?? '');
       });
-  }, []);
+  }, [isWindowReady]);
 
   const result = useMemo(() => {
     return users

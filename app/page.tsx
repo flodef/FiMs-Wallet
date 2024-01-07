@@ -11,7 +11,7 @@ import Portfolio from './pages/portfolio';
 import Transactions from './pages/transactions';
 import Users from './pages/users';
 
-export default function IndexPage({ searchParams }: { searchParams: { user: string; q: string } }) {
+export default function IndexPage() {
   const { isPopupOpen } = usePopup();
   const { connect, disconnect } = useUser();
   const { page } = useNavigation();
@@ -19,17 +19,15 @@ export default function IndexPage({ searchParams }: { searchParams: { user: stri
   const isWindowReady = useIsWindowReady();
 
   useEffect(() => {
-    if (isWindowReady) {
-      const urlSearchParams = new URLSearchParams(window.location.search);
-      const user = urlSearchParams.get('user') ?? '';
+    if (!isWindowReady) return;
 
-      alert('user: ' + user);
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const user = urlSearchParams.get('user');
 
-      if (user) {
-        connect(user);
-      } else {
-        disconnect();
-      }
+    if (user) {
+      connect(user);
+    } else {
+      disconnect();
     }
   }, [isWindowReady, connect, disconnect]);
 
@@ -42,7 +40,7 @@ export default function IndexPage({ searchParams }: { searchParams: { user: stri
       ) : page === Page.Transactions ? (
         <Transactions />
       ) : page === Page.Users ? (
-        <Users searchParams={searchParams} />
+        <Users />
       ) : (
         LoadingDot()
       )}
