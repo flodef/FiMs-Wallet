@@ -16,6 +16,7 @@ export default function IndexPage({ searchParams }: { searchParams: { user: stri
   const { page } = useNavigation();
 
   useEffect(() => {
+    alert(searchParams.user);
     if (searchParams.user) {
       connect(searchParams.user);
     } else {
