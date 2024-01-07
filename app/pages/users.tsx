@@ -1,9 +1,19 @@
-import { DocumentDuplicateIcon } from '@heroicons/react/24/outline';
-import { Card, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow, Text, Title } from '@tremor/react';
-import { useEffect, useMemo, useState } from 'react';
-import Search from '../components/search';
+import { DocumentDuplicateIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import {
+  Card,
+  Flex,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+  Text,
+  TextInput,
+  Title,
+} from '@tremor/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { User, useUser } from '../hooks/useUser';
-import { useIsWindowReady } from '../hooks/useWindowParam';
 import { getShortAddress } from '../utils/constants';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
@@ -17,11 +27,9 @@ const t: Dataset = {
   copy: 'Copier',
 };
 
-export default function Users({ searchParams }: { searchParams: { q: string } }) {
+export default function Users() {
   const { user: currentUser } = useUser();
 
-  const search = searchParams.q ?? '';
-  // const search = new URLSearchParams(window.location.search).get('q') ?? '';
   const [users, setUsers] = useState<User[] | undefined>();
 
   useEffect(() => {
@@ -33,6 +41,14 @@ export default function Users({ searchParams }: { searchParams: { q: string } })
       });
   }, []);
 
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    if (inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, []);
+
+  const [search, setSearch] = useState('');
   const result = useMemo(() => {
     return users
       ? users
@@ -42,12 +58,29 @@ export default function Users({ searchParams }: { searchParams: { q: string } })
           .sort((a, b) => a.name.localeCompare(b.name))
           .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
       : undefined;
-  }, [search, users, currentUser?.name]);
+  }, [currentUser, search, users]);
 
   return (
     <>
       <Title>{t['usersList']}</Title>
-      <Search defaultValue={search} />
+      <Flex className="relative mt-5 max-w-md">
+        <label htmlFor="search" className="sr-only">
+          {t.searchByName}
+        </label>
+        <TextInput
+          autoFocus
+          ref={inputRef}
+          icon={MagnifyingGlassIcon}
+          type="text"
+          name="search"
+          id="search"
+          placeholder={t.searchByName}
+          spellCheck={false}
+          autoComplete="off"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </Flex>
       <Card className="mt-6">
         <Table>
           <TableHead>
