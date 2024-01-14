@@ -137,7 +137,7 @@ export default function Portfolio() {
           <AccordionHeader>
             <Flex alignItems="start">
               <div>
-                <Title className="text-left">{t['assets']}</Title>
+                <Title className="text-left">{t.assets}</Title>
                 <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
                   {portfolio?.total.toLocaleCurrency()}
                 </Metric>
@@ -164,7 +164,7 @@ export default function Portfolio() {
                       <Image
                         className="rounded-full"
                         src={asset.image}
-                        alt={t['tokenLogo']}
+                        alt={t.tokenLogo}
                         width={50}
                         height={50}
                       ></Image>
@@ -188,7 +188,7 @@ export default function Portfolio() {
           </AccordionBody>
         </Accordion>
       ) : (
-        <Card className="text-center">{t[portfolio ? 'emptyPortfolio' : 'dataLoading']}</Card>
+        <Card className="text-center">{portfolio ? t.emptyPortfolio : t.dataLoading}</Card>
       )}
       <Accordion className="group" defaultOpen={!isMobileSize()}>
         <AccordionHeader>
@@ -196,12 +196,12 @@ export default function Portfolio() {
           <Flex className="w-full" justifyContent="center">
             <SparkAreaChart
               data={historic.sort((a, b) => a.date - b.date)}
-              categories={[t['total']]}
+              categories={[t.total]}
               index={'stringDate'}
               colors={['emerald']}
               className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
               curveType="monotone"
-              noDataText={t['loading']}
+              noDataText={t.loading}
             />
           </Flex>
         </AccordionHeader>
@@ -209,7 +209,7 @@ export default function Portfolio() {
           <AreaChart
             className="h-80"
             data={historic.sort((a, b) => a.date - b.date)}
-            categories={[t['transfered'], t['total']]}
+            categories={[t.transfered, t.total]}
             index="stringDate"
             colors={['indigo', 'fuchsia']}
             valueFormatter={(number) => number.toShortCurrency()}
@@ -217,7 +217,7 @@ export default function Portfolio() {
             showAnimation={true}
             animationDuration={2000}
             curveType="monotone"
-            noDataText={t['loading']}
+            noDataText={t.loading}
             minValue={minHisto}
             maxValue={maxHisto}
           />

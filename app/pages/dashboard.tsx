@@ -149,7 +149,7 @@ export default function Dashboard() {
     (labels: string[]) => {
       return labels
         .map((label) => {
-          return getBarData(t[label] ?? label, getValue(dashboard, label).fromCurrency());
+          return getBarData(t.label ?? label, getValue(dashboard, label).fromCurrency());
         })
         .sort((a, b) => b.value - a.value);
     },
@@ -158,12 +158,12 @@ export default function Dashboard() {
 
   const result = [
     {
-      category: t['total'],
+      category: t.total,
       total: getValue(dashboard, 'total', 100000),
       data: getBarList(['Solana', 'Bitcoin', 'Nexo', 'FiMs']),
     },
     {
-      category: t['profit'],
+      category: t.profit,
       total: getValue(dashboard, 'profit', 10000),
       data: getBarList(['transfer cost', 'strategy cost', 'price change', 'charity']),
     },
@@ -190,7 +190,7 @@ export default function Dashboard() {
         <AccordionHeader>
           <Flex alignItems="start">
             <div>
-              <Title className="text-left">{t['assets']}</Title>
+              <Title className="text-left">{t.assets}</Title>
               <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
                 {getValue(dashboard, 'assets', 500000)}
               </Metric>
@@ -211,10 +211,10 @@ export default function Dashboard() {
         <AccordionBody>
           <Flex className="mt-4">
             <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-              {`${t['gains']} : ${getValue(dashboard, 'gains')} (${getRatio(dashboard, 'gains')})`}
+              {`${t.gains} : ${getValue(dashboard, 'gains')} (${getRatio(dashboard, 'gains')})`}
             </Subtitle>
             <Subtitle className={'truncate hidden sm:block ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-              {`${t['transfered']} : ${getValue(dashboard, 'transfered')}`}
+              {`${t.transfered} : ${getValue(dashboard, 'transfered')}`}
             </Subtitle>
           </Flex>
           <DeltaBar value={parseFloat(getRatio(dashboard, 'gains'))} className="mt-2" />
@@ -226,15 +226,15 @@ export default function Dashboard() {
           <AccordionHeader>
             <Flex alignItems="start" flexDirection="col">
               <Flex alignItems="start" flexDirection={!isTablet ? 'row' : 'col'}>
-                <Title className="text-left whitespace-nowrap">{t['result']}</Title>
+                <Title className="text-left whitespace-nowrap">{t.result}</Title>
                 <TabGroup index={resultIndex} onIndexChange={setResultIndex} className={'mb-4 lg:mb-0 lg:text-right'}>
                   <TabList
                     className="float-left lg:float-right"
                     variant={!isTablet ? 'solid' : 'line'}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Tab icon={ChartPieIcon}>{t['total']}</Tab>
-                    <Tab icon={ListBulletIcon}>{t['profit']}</Tab>
+                    <Tab icon={ChartPieIcon}>{t.total}</Tab>
+                    <Tab icon={ListBulletIcon}>{t.profit}</Tab>
                   </TabList>
                 </TabGroup>
               </Flex>
@@ -276,7 +276,7 @@ export default function Dashboard() {
           <AccordionHeader>
             <Flex alignItems="start" flexDirection="col">
               <Flex alignItems="start" flexDirection={!isTablet ? 'row' : 'col'}>
-                <Title className="text-left">{t['price']}</Title>
+                <Title className="text-left">{t.price}</Title>
                 <TabGroup
                   index={priceIndex}
                   onIndexChange={isTokenListExpanded ? setPriceIndex : undefined}
@@ -330,7 +330,7 @@ export default function Dashboard() {
             <AreaChart
               className="h-44"
               data={tokenHisto[priceIndex]}
-              categories={[t['amount']]}
+              categories={[t.amount]}
               index="date"
               colors={[
                 tokenHisto.length && tokenHisto[priceIndex][0].Montant < tokenHisto[priceIndex][1].Montant
@@ -342,7 +342,7 @@ export default function Dashboard() {
               showAnimation={true}
               animationDuration={2000}
               curveType="monotone"
-              noDataText={t['loading']}
+              noDataText={t.loading}
               minValue={tokenHistoLimit?.min ?? 0}
               maxValue={tokenHistoLimit?.max ?? 0}
               showLegend={false}
@@ -357,12 +357,12 @@ export default function Dashboard() {
           <Flex className="w-full" justifyContent="center">
             <SparkAreaChart
               data={historic.sort((a, b) => a.date - b.date)}
-              categories={[t['total']]}
+              categories={[t.total]}
               index={'stringDate'}
               colors={['emerald']}
               className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
               curveType="monotone"
-              noDataText={t['loading']}
+              noDataText={t.loading}
             />
           </Flex>
         </AccordionHeader>
@@ -370,7 +370,7 @@ export default function Dashboard() {
           <AreaChart
             className="h-80"
             data={historic.sort((a, b) => a.date - b.date)}
-            categories={[t['transfered'], t['total']]}
+            categories={[t.transfered, t.total]}
             index="stringDate"
             colors={['indigo', 'fuchsia']}
             valueFormatter={(number) => number.toShortCurrency()}
@@ -378,7 +378,7 @@ export default function Dashboard() {
             showAnimation={true}
             animationDuration={2000}
             curveType="monotone"
-            noDataText={t['loading']}
+            noDataText={t.loading}
           />
         </AccordionBody>
       </Accordion>

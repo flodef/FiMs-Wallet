@@ -28,9 +28,9 @@ export default function Disconnect() {
 
   return (
     <Flex flexDirection="col">
-      <Title className="mb-6">{t['disconnect']}</Title>
+      <Title className="mb-6">{t.disconnect}</Title>
       <Button ref={buttonRef} className="flex font-bold" style={{ borderRadius: 24 }} onClick={handleDisconnect}>
-        {t['goodBye']}
+        {t.goodBye}
       </Button>
     </Flex>
   );

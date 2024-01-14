@@ -39,15 +39,15 @@ export default function Transactions() {
 
   return (
     <>
-      <Title>{t['transactionList']}</Title>
+      <Title>{t.transactionList}</Title>
       {/* <Search defaultValue={search} />  // TODO : Search by date */}
       <Card className="mt-6">
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeaderCell className="w-1/3">{t['date']}</TableHeaderCell>
-              <TableHeaderCell className="w-1/3">{t['movement']}</TableHeaderCell>
-              <TableHeaderCell className="w-1/3">{t['cost']}</TableHeaderCell>
+              <TableHeaderCell className="w-1/3">{t.date}</TableHeaderCell>
+              <TableHeaderCell className="w-1/3">{t.movement}</TableHeaderCell>
+              <TableHeaderCell className="w-1/3">{t.cost}</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -74,7 +74,7 @@ export default function Transactions() {
             ) : (
               <TableRow>
                 <TableCell colSpan={3} className="text-center">
-                  {t[transactions ? 'noTransactionFound' : 'transactionLoading']}
+                  {transactions ? t.noTransactionFound : t.transactionLoading}
                 </TableCell>
               </TableRow>
             )}

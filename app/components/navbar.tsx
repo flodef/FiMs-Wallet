@@ -88,7 +88,7 @@ export default function Navbar() {
                   style={{ borderRadius: 24 }}
                   onClick={() => openPopup(!user ? <Connect /> : <Disconnect />, !user)}
                 >
-                  {!user ? t['connect'] : user.name}
+                  {!user ? t.connect : user.name}
                 </Button>
               </div>
             </div>

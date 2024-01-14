@@ -62,7 +62,7 @@ export default function Users() {
 
   return (
     <>
-      <Title>{t['usersList']}</Title>
+      <Title>{t.usersList}</Title>
       <Flex className="relative mt-5 max-w-md">
         <label htmlFor="search" className="sr-only">
           {t.searchByName}
@@ -85,9 +85,9 @@ export default function Users() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeaderCell className="w-1/3">{t['name']}</TableHeaderCell>
-              <TableHeaderCell className="w-1/3">{t['address']}</TableHeaderCell>
-              <TableHeaderCell className="w-1/3">{t['copy']}</TableHeaderCell>
+              <TableHeaderCell className="w-1/3">{t.name}</TableHeaderCell>
+              <TableHeaderCell className="w-1/3">{t.address}</TableHeaderCell>
+              <TableHeaderCell className="w-1/3">{t.copy}</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -119,7 +119,7 @@ export default function Users() {
             ) : (
               <TableRow>
                 <TableCell colSpan={3} className="text-center">
-                  {t[result ? 'noUserFound' : 'userLoading']}
+                  {result ? t.noUserFound : t.userLoading}
                 </TableCell>
               </TableRow>
             )}
