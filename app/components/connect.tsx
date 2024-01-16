@@ -63,13 +63,13 @@ export default function Connect() {
 
   return (
     <Flex flexDirection="col">
-      <Title className="mb-6">{t['connect']}</Title>
+      <Title className="mb-6">{t.connect}</Title>
       <TextInput
         autoFocus
         ref={inputRef}
         error={hasConnectionError}
-        errorMessage={t['wrongUserName']}
-        placeholder={t['userName']}
+        errorMessage={t.wrongUserName}
+        placeholder={t.userName}
         defaultValue={currentUserName}
         onValueChange={changeUserName}
         onKeyDown={(event) => {
@@ -83,7 +83,7 @@ export default function Connect() {
         style={{ borderRadius: 24 }}
         onClick={handleConnect}
       >
-        {t['letsGo']}
+        {t.letsGo}
       </Button>
     </Flex>
   );
