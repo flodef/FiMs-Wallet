@@ -154,7 +154,7 @@ function convertPortfolioData(item: string[]) {
     name: String(item.at(1)).trim(),
     address: String(item.at(2)).trim(),
     isPublic: String(item.at(3)).trim() === 'true',
-    token: [Number(item.at(4)), Number(item.at(4)), Number(item.at(5))],
+    token: [Number(item.at(4)), Number(item.at(5)), Number(item.at(6))],
     total: Number(item.at(7)),
     invested: Number(item.at(8)),
     profitValue: Number(item.at(9)),
