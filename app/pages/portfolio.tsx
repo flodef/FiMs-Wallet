@@ -5,9 +5,12 @@ import {
   AreaChart,
   BadgeDelta,
   Card,
+  DeltaBar,
+  Divider,
   Flex,
   Metric,
   SparkAreaChart,
+  Subtitle,
   Table,
   TableBody,
   TableCell,
@@ -26,12 +29,14 @@ import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
 
 const t: Dataset = {
-  assets: 'Valeur totale',
+  totalValue: 'Valeur totale',
+  assets: 'Actifs',
   emptyPortfolio: 'Aucun actif trouvé',
   dataLoading: 'Chargement des données...',
   tokenLogo: 'Logo du token',
   total: 'Total',
   transfered: 'Investi',
+  gains: 'Gains',
   loading: 'Chargement...',
 };
 
@@ -137,25 +142,37 @@ export default function Portfolio() {
           <AccordionHeader>
             <Flex alignItems="start">
               <div>
-                <Title className="text-left">{t['assets']}</Title>
+                <Title className="text-left">{t.totalValue}</Title>
                 <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
                   {portfolio?.total.toLocaleCurrency()}
                 </Metric>
               </div>
               <BadgeDelta
                 deltaType={
-                  portfolio && portfolio?.profitRatio < 0
+                  portfolio && portfolio?.yearlyYield < 0
                     ? 'moderateDecrease'
-                    : portfolio && portfolio?.profitRatio > 0
+                    : portfolio && portfolio?.yearlyYield > 0
                       ? 'moderateIncrease'
                       : 'unchanged'
                 }
               >
-                {portfolio?.profitRatio.toRatio()}
+                {portfolio?.yearlyYield.toRatio()}
               </BadgeDelta>
             </Flex>
           </AccordionHeader>
           <AccordionBody>
+            <Flex className="mt-4">
+              <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
+                {`${t.gains} : ${portfolio?.profitValue.toLocaleCurrency()} (${portfolio?.profitRatio.toRatio()})`}
+              </Subtitle>
+              <Subtitle className={'truncate hidden sm:block ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
+                {`${t.transfered} : ${portfolio?.invested.toLocaleCurrency()}`}
+              </Subtitle>
+            </Flex>
+            <DeltaBar className="mt-2 mb-10" value={parseFloat(portfolio?.profitRatio.toRatio() ?? '')} />
+
+            <Divider className="text-[22px]">{t.assets}</Divider>
+
             <Table>
               <TableBody>
                 {wallet.map((asset) => (
@@ -164,7 +181,7 @@ export default function Portfolio() {
                       <Image
                         className="rounded-full"
                         src={asset.image}
-                        alt={t['tokenLogo']}
+                        alt={t.tokenLogo}
                         width={50}
                         height={50}
                       ></Image>
@@ -197,12 +214,12 @@ export default function Portfolio() {
             <Flex className="w-full" justifyContent="center">
               <SparkAreaChart
                 data={historic.sort((a, b) => a.date - b.date)}
-                categories={[t['total']]}
+                categories={[t.total]}
                 index={'stringDate'}
                 colors={['emerald']}
                 className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
                 curveType="monotone"
-                noDataText={t['loading']}
+                noDataText={t.loading}
               />
             </Flex>
           )}
@@ -211,7 +228,7 @@ export default function Portfolio() {
           <AreaChart
             className="h-80"
             data={historic.sort((a, b) => a.date - b.date)}
-            categories={[t['transfered'], t['total']]}
+            categories={[t.transfered, t.total]}
             index="stringDate"
             colors={['indigo', 'fuchsia']}
             valueFormatter={(number) => number.toShortCurrency()}
@@ -219,7 +236,7 @@ export default function Portfolio() {
             showAnimation={true}
             animationDuration={2000}
             curveType="monotone"
-            noDataText={t['loading']}
+            noDataText={t.loading}
             minValue={minHisto}
             maxValue={maxHisto}
           />
