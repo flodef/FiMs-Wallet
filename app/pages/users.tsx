@@ -53,7 +53,10 @@ export default function Users() {
     return users
       ? users
           .filter(
-            (user) => (!search || user.name.toLowerCase().includes(search.toLowerCase())) && user.address !== user.name
+            (user) =>
+              (!search || user.name.toLowerCase().includes(search.toLowerCase())) &&
+              (user.isPublic || user.name === currentUser?.name) &&
+              user.address !== user.name
           )
           .sort((a, b) => a.name.localeCompare(b.name))
           .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
