@@ -12,6 +12,7 @@ import {
   TableRow,
   Text,
   Title,
+  Switch,
 } from '@tremor/react';
 import { useEffect, useRef, useState } from 'react';
 import { User, useUser } from '../hooks/useUser';
@@ -28,12 +29,16 @@ const t: Dataset = {
   name: 'Nom',
   address: 'Adresse',
   copy: 'Copier',
+  private: 'Privé',
+  public: 'Public',
+  appearance: 'Etre visible des autres utilisateurs FiMs ?',
 };
 
 export default function Users() {
   const { user: currentUser } = useUser();
 
   const [users, setUsers] = useState<User[] | undefined>();
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   useEffect(() => {
     loadData(DataName.portfolio)
@@ -53,6 +58,12 @@ export default function Users() {
       });
   }, [currentUser?.name]);
 
+  const isUserSelected = (user: User) => selectedUsers.includes(user.name) || selectedUsers.length === 0;
+
+  const handleSwitchChange = () => {
+    //TODO : update user isPublic status in the DB
+  };
+
   const inputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     if (inputRef.current && users?.length) {
@@ -60,12 +71,21 @@ export default function Users() {
     }
   }, [users]);
 
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const isUserSelected = (user: User) => selectedUsers.includes(user.name) || selectedUsers.length === 0;
-
   return (
     <>
-      <Title>{t.usersList}</Title>
+      <Flex justifyContent="around">
+        <Title className="whitespace-nowrap">{t.usersList}</Title>
+        <Flex justifyContent="end">
+          <Text className="mr-2">{currentUser?.isPublic ? t.public : t.private}</Text>
+          <Switch
+            id="switch"
+            name="switch"
+            tooltip={t.appearance}
+            checked={currentUser?.isPublic}
+            onChange={handleSwitchChange}
+          />
+        </Flex>
+      </Flex>
       {users?.length && (
         <Flex className="relative mt-5 max-w-md">
           <label htmlFor="search" className="sr-only">
