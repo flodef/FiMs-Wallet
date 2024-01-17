@@ -3,6 +3,7 @@ import { createContext, useContext } from 'react';
 export interface User {
   name: string;
   address: string;
+  isPublic: boolean;
 }
 
 export interface UserContextState {

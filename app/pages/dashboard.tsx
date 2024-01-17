@@ -217,7 +217,7 @@ export default function Dashboard() {
               {`${t.transfered} : ${getValue(dashboard, 'transfered')}`}
             </Subtitle>
           </Flex>
-          <DeltaBar value={parseFloat(getRatio(dashboard, 'gains'))} className="mt-2" />
+          <DeltaBar className="mt-2" value={parseFloat(getRatio(dashboard, 'gains'))} />
         </AccordionBody>
       </Accordion>
 
@@ -354,17 +354,19 @@ export default function Dashboard() {
       <Accordion className="group" defaultOpen={!isMobileSize()}>
         <AccordionHeader>
           <Title>Performance</Title>
-          <Flex className="w-full" justifyContent="center">
-            <SparkAreaChart
-              data={historic.sort((a, b) => a.date - b.date)}
-              categories={[t.total]}
-              index={'stringDate'}
-              colors={['emerald']}
-              className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
-              curveType="monotone"
-              noDataText={t.loading}
-            />
-          </Flex>
+          {historic.length > 1 && (
+            <Flex className="w-full" justifyContent="center">
+              <SparkAreaChart
+                data={historic.sort((a, b) => a.date - b.date)}
+                categories={[t.total]}
+                index={'stringDate'}
+                colors={['emerald']}
+                className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
+                curveType="monotone"
+                noDataText={t.loading}
+              />
+            </Flex>
+          )}
         </AccordionHeader>
         <AccordionBody>
           <AreaChart

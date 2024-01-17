@@ -35,7 +35,7 @@ const dataNameParameters = new Map<
   [DataName.dashboard, { convert: convertDashboardData, hasHeader: true, minColInRow: 4, minColInHeader: 4 }],
   [DataName.historic, { convert: convertHistoricData, hasHeader: false, minColInRow: 12, minColInHeader: 12 }],
   [DataName.token, { convert: convertTokenData, hasHeader: true, minColInRow: 4, minColInHeader: 9 }],
-  [DataName.portfolio, { convert: convertPortfolioData, hasHeader: true, minColInRow: 12, minColInHeader: 13 }],
+  [DataName.portfolio, { convert: convertPortfolioData, hasHeader: true, minColInRow: 13, minColInHeader: 14 }],
   [DataName.userHistoric, { convert: convertUserHistoricData, hasHeader: true, minColInRow: 10, minColInHeader: 10 }],
   [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, minColInRow: 8, minColInHeader: 8 }],
 ]);
@@ -153,13 +153,14 @@ function convertPortfolioData(item: string[]) {
   return {
     name: String(item.at(1)).trim(),
     address: String(item.at(2)).trim(),
-    token: [Number(item.at(3)), Number(item.at(4)), Number(item.at(5))],
-    total: Number(item.at(6)),
-    invested: Number(item.at(7)),
-    profitValue: Number(item.at(8)),
-    profitRatio: Number(item.at(9)),
-    yearlyYield: Number(item.at(10)),
-    solProfitPrice: Number(item.at(11)),
+    isPublic: String(item.at(3)).trim() === 'true',
+    token: [Number(item.at(4)), Number(item.at(5)), Number(item.at(6))],
+    total: Number(item.at(7)),
+    invested: Number(item.at(8)),
+    profitValue: Number(item.at(9)),
+    profitRatio: Number(item.at(10)),
+    yearlyYield: Number(item.at(11)),
+    solProfitPrice: Number(item.at(12)),
   };
 }
 
