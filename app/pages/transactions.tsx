@@ -52,8 +52,8 @@ export default function Transactions() {
           </TableHead>
           <TableBody>
             {transactions?.length ? (
-              transactions.map((transaction) => (
-                <TableRow key={transaction.date} className={'hover:bg-gray-50'}>
+              transactions.map((transaction, index) => (
+                <TableRow key={index} className={'hover:bg-gray-50'}>
                   <TableCell>{transaction.date}</TableCell>
                   <TableCell className={(transaction.movement > 0 ? 'text-green-400' : 'text-red-400') + ' font-bold'}>
                     {transaction.movement.toLocaleCurrency()}
@@ -74,7 +74,7 @@ export default function Transactions() {
             ) : (
               <TableRow>
                 <TableCell colSpan={3} className="text-center">
-                  {t[transactions ? 'noTransactionFound' : 'transactionLoading']}
+                  {transactions ? t.noTransactionFound : t.transactionLoading}
                 </TableCell>
               </TableRow>
             )}
