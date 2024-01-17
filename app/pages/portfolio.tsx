@@ -4,8 +4,6 @@ import {
   AccordionHeader,
   AreaChart,
   BadgeDelta,
-  Card,
-  DeltaBar,
   Divider,
   Flex,
   Metric,
@@ -21,6 +19,7 @@ import {
 
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import GainsBar from '../components/gainsBar';
 import { useUser } from '../hooks/useUser';
 import { TOKEN_PATH } from '../utils/constants';
 import { RoundingDirection } from '../utils/extensions';
@@ -36,7 +35,6 @@ const t: Dataset = {
   tokenLogo: 'Logo du token',
   total: 'Total',
   transfered: 'Investi',
-  gains: 'Gains',
   loading: 'Chargement...',
 };
 
@@ -160,15 +158,7 @@ export default function Portfolio() {
           </Flex>
         </AccordionHeader>
         <AccordionBody>
-          <Flex className="mt-4">
-            <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-              {`${t.gains} : ${portfolio?.profitValue.toLocaleCurrency()} (${portfolio?.profitRatio.toRatio()})`}
-            </Subtitle>
-            <Subtitle className={'truncate hidden sm:block ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-              {`${t.transfered} : ${portfolio?.invested.toLocaleCurrency()}`}
-            </Subtitle>
-          </Flex>
-          <DeltaBar className="mt-2 mb-10" value={parseFloat(portfolio?.profitRatio.toRatio() ?? '')} />
+          <GainsBar values={portfolio} loaded={loaded.current} />
 
           <Divider style={{ fontSize: 18 }}>{t.assets}</Divider>
 
