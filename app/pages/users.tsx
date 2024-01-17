@@ -2,6 +2,8 @@ import { DocumentDuplicateIcon, MagnifyingGlassIcon } from '@heroicons/react/24/
 import {
   Card,
   Flex,
+  MultiSelect,
+  MultiSelectItem,
   Table,
   TableBody,
   TableCell,
@@ -9,10 +11,9 @@ import {
   TableHeaderCell,
   TableRow,
   Text,
-  TextInput,
   Title,
 } from '@tremor/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { User, useUser } from '../hooks/useUser';
 import { getShortAddress } from '../utils/constants';
 import { DataName, loadData } from '../utils/processData';
@@ -22,6 +23,8 @@ const t: Dataset = {
   usersList: 'Liste des utilisateurs',
   noUserFound: 'Aucun utilisateur trouvé',
   userLoading: 'Chargement des utilisateurs...',
+  selectUser: 'Sélectionner un utilisateur',
+  search: 'Rechercher',
   name: 'Nom',
   address: 'Adresse',
   copy: 'Copier',
@@ -34,56 +37,60 @@ export default function Users() {
 
   useEffect(() => {
     loadData(DataName.portfolio)
-      .then(setUsers)
+      .then((users) => {
+        setUsers(
+          users
+            ? users
+                .filter((user) => (user.isPublic || user.name === currentUser?.name) && user.address !== user.name)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
+            : undefined
+        );
+      })
       .catch((error) => {
         console.error(error);
         setUsers([]);
       });
-  }, []);
+  }, [currentUser?.name]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && users?.length) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, []);
+  }, [users]);
 
-  const [search, setSearch] = useState('');
-  const result = useMemo(() => {
-    return users
-      ? users
-          .filter(
-            (user) =>
-              (!search || user.name.toLowerCase().includes(search.toLowerCase())) &&
-              (user.isPublic || user.name === currentUser?.name) &&
-              user.address !== user.name
-          )
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
-      : undefined;
-  }, [currentUser, search, users]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const isUserSelected = (user: User) => selectedUsers.includes(user.name) || selectedUsers.length === 0;
 
   return (
     <>
       <Title>{t.usersList}</Title>
-      <Flex className="relative mt-5 max-w-md">
-        <label htmlFor="search" className="sr-only">
-          {t.searchByName}
-        </label>
-        <TextInput
-          autoFocus
-          ref={inputRef}
-          icon={MagnifyingGlassIcon}
-          type="text"
-          name="search"
-          id="search"
-          placeholder={t.searchByName}
-          spellCheck={false}
-          autoComplete="off"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </Flex>
+      {users?.length && (
+        <Flex className="relative mt-5 max-w-md">
+          <label htmlFor="search" className="sr-only">
+            {t.searchByName}
+          </label>
+          <MultiSelect
+            autoFocus
+            ref={inputRef}
+            icon={MagnifyingGlassIcon}
+            id="search"
+            className="max-w-full sm:max-w-xs"
+            placeholder={t.selectUser}
+            placeholderSearch={t.search}
+            spellCheck={false}
+            value={selectedUsers}
+            onValueChange={setSelectedUsers}
+          >
+            {users?.map((item) => (
+              <MultiSelectItem key={item.name} value={item.name}>
+                {item.name}
+              </MultiSelectItem>
+            ))}
+          </MultiSelect>
+        </Flex>
+      )}
       <Card className="mt-6">
         <Table>
           <TableHead>
@@ -94,8 +101,8 @@ export default function Users() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {result?.length ? (
-              result.map((user) => (
+            {users?.length ? (
+              users.filter(isUserSelected).map((user) => (
                 <TableRow
                   key={user.name}
                   className={
@@ -122,7 +129,7 @@ export default function Users() {
             ) : (
               <TableRow>
                 <TableCell colSpan={3} className="text-center">
-                  {t[result ? 'noUserFound' : 'userLoading']}
+                  {users ? t.noUserFound : t.userLoading}
                 </TableCell>
               </TableRow>
             )}
