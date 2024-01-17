@@ -137,42 +137,42 @@ export default function Portfolio() {
 
   return (
     <>
-      {wallet?.length ? (
-        <Accordion defaultOpen={true}>
-          <AccordionHeader>
-            <Flex alignItems="start">
-              <div>
-                <Title className="text-left">{t.totalValue}</Title>
-                <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
-                  {portfolio?.total.toLocaleCurrency()}
-                </Metric>
-              </div>
-              <BadgeDelta
-                deltaType={
-                  portfolio && portfolio?.yearlyYield < 0
-                    ? 'moderateDecrease'
-                    : portfolio && portfolio?.yearlyYield > 0
-                      ? 'moderateIncrease'
-                      : 'unchanged'
-                }
-              >
-                {portfolio?.yearlyYield.toRatio()}
-              </BadgeDelta>
-            </Flex>
-          </AccordionHeader>
-          <AccordionBody>
-            <Flex className="mt-4">
-              <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-                {`${t.gains} : ${portfolio?.profitValue.toLocaleCurrency()} (${portfolio?.profitRatio.toRatio()})`}
-              </Subtitle>
-              <Subtitle className={'truncate hidden sm:block ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-                {`${t.transfered} : ${portfolio?.invested.toLocaleCurrency()}`}
-              </Subtitle>
-            </Flex>
-            <DeltaBar className="mt-2 mb-10" value={parseFloat(portfolio?.profitRatio.toRatio() ?? '')} />
+      <Accordion defaultOpen={true}>
+        <AccordionHeader>
+          <Flex alignItems="start">
+            <div>
+              <Title className="text-left">{t.totalValue}</Title>
+              <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
+                {(portfolio?.total ?? 0).toLocaleCurrency()}
+              </Metric>
+            </div>
+            <BadgeDelta
+              deltaType={
+                portfolio && portfolio?.yearlyYield < 0
+                  ? 'moderateDecrease'
+                  : portfolio && portfolio?.yearlyYield > 0
+                    ? 'moderateIncrease'
+                    : 'unchanged'
+              }
+            >
+              {(portfolio?.yearlyYield ?? 0).toRatio()}
+            </BadgeDelta>
+          </Flex>
+        </AccordionHeader>
+        <AccordionBody>
+          <Flex className="mt-4">
+            <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
+              {`${t.gains} : ${portfolio?.profitValue.toLocaleCurrency()} (${portfolio?.profitRatio.toRatio()})`}
+            </Subtitle>
+            <Subtitle className={'truncate hidden sm:block ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
+              {`${t.transfered} : ${portfolio?.invested.toLocaleCurrency()}`}
+            </Subtitle>
+          </Flex>
+          <DeltaBar className="mt-2 mb-10" value={parseFloat(portfolio?.profitRatio.toRatio() ?? '')} />
 
-            <Divider className="text-[22px]">{t.assets}</Divider>
+          <Divider className="text-[22px]">{t.assets}</Divider>
 
+          {wallet?.length ? (
             <Table>
               <TableBody>
                 {wallet.map((asset) => (
@@ -202,11 +202,31 @@ export default function Portfolio() {
                 ))}
               </TableBody>
             </Table>
-          </AccordionBody>
-        </Accordion>
-      ) : (
-        <Card className="text-center">{t[portfolio ? 'emptyPortfolio' : 'dataLoading']}</Card>
-      )}
+          ) : (
+            <Table>
+              <TableBody>
+                <TableRow className={'animate-pulse'}>
+                  <TableCell>
+                    <div className="rounded-full w-[50px] h-[50px] bg-slate-200"></div>
+                  </TableCell>
+                  <TableCell>
+                    <Text>
+                      <Flex justifyContent="between">
+                        <div className="bg-slate-200 w-24 h-7 mb-1 rounded-md"></div>
+                        <div className="bg-slate-200 w-10 h-5 mb-1 rounded-md"></div>
+                      </Flex>
+                      <Flex justifyContent="between">
+                        <div className="bg-slate-200 w-16 h-5 mb-1 rounded-md"></div>
+                        <div className="bg-slate-200 w-24 h-7 mb-1 rounded-md"></div>
+                      </Flex>
+                    </Text>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          )}
+        </AccordionBody>
+      </Accordion>
       <Accordion className="group" defaultOpen={!isMobileSize()}>
         <AccordionHeader>
           <Title>Performance</Title>
