@@ -170,7 +170,7 @@ export default function Portfolio() {
           </Flex>
           <DeltaBar className="mt-2 mb-10" value={parseFloat(portfolio?.profitRatio.toRatio() ?? '')} />
 
-          <Divider className="text-[22px]">{t.assets}</Divider>
+          <Divider style={{ fontSize: 18 }}>{t.assets}</Divider>
 
           {wallet?.length ? (
             <Table>
