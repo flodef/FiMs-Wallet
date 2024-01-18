@@ -8,13 +8,12 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
-  TableHeaderCell,
   TableRow,
   Text,
   Title,
 } from '@tremor/react';
 import { useEffect, useRef, useState } from 'react';
+import SortTableHead from '../components/sortTableHead';
 import { User, useUser } from '../hooks/useUser';
 import { getShortAddress } from '../utils/constants';
 import { Dataset } from '../utils/types';
@@ -56,6 +55,7 @@ export default function Users() {
                     .filter((user) => (user.ispublic || user.name === currentUser?.name) && user.address !== user.name)
                     .sort((a, b) => a.name.localeCompare(b.name))
                     .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
+                    .map((user) => ({ name: user.name, address: user.address }))
                 : undefined
             );
           });
@@ -145,13 +145,7 @@ export default function Users() {
       )}
       <Card className="mt-6">
         <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell className="w-1/3">{t.name}</TableHeaderCell>
-              <TableHeaderCell className="w-1/3">{t.address}</TableHeaderCell>
-              <TableHeaderCell className="w-1/3">{t.copy}</TableHeaderCell>
-            </TableRow>
-          </TableHead>
+          <SortTableHead labels={[t.name, t.address, t.copy]} table={users} setTable={setUsers} />
           <TableBody>
             {users?.length ? (
               users.filter(isUserSelected).map((user) => (

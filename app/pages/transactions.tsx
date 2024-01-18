@@ -1,23 +1,12 @@
-import { HeartIcon, ArrowDownRightIcon, ArrowUpRightIcon, ExclamationCircleIcon } from '@heroicons/react/24/solid';
-import {
-  Card,
-  Flex,
-  Icon,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-  Text,
-  Title,
-} from '@tremor/react';
+import { ArrowDownRightIcon, ArrowUpRightIcon, ExclamationCircleIcon, HeartIcon } from '@heroicons/react/24/solid';
+import { Card, Flex, Icon, Table, TableBody, TableCell, TableRow, Text, Title } from '@tremor/react';
 import { useEffect, useRef, useState } from 'react';
+import SortTableHead from '../components/sortTableHead';
 import { useUser } from '../hooks/useUser';
 import {} from '../utils/extensions';
+import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
-import { isMobileSize } from '../utils/mobile';
 
 const t: Dataset = {
   transactionList: 'Liste des transactions',
@@ -32,13 +21,15 @@ const t: Dataset = {
   withdrawalCost: 'Frais de retrait',
 };
 
-interface Transaction {
+type Transaction = {
+  [key: string]: number | string | undefined;
   date: number;
-  user: string;
   movement: number;
-  cost: number;
   type: TransactionType;
-}
+  stringDate: string;
+  cost: number;
+  user?: string;
+};
 
 enum TransactionType {
   deposit,
@@ -57,17 +48,21 @@ export default function Transactions() {
       loadData(DataName.transactions).then((data: Transaction[]) => {
         loaded.current = true;
 
+        // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
         setTransactions(
           data
             .filter((d) => d.user === user.name)
             .map((d) => ({
-              ...d,
+              date: d.date,
+              movement: d.movement,
               type:
                 d.movement > 0
                   ? TransactionType.deposit
                   : d.cost <= 0
                     ? TransactionType.withdrawal
                     : TransactionType.donation,
+              stringDate: d.stringDate,
+              cost: d.cost,
             }))
         );
       });
@@ -80,18 +75,12 @@ export default function Transactions() {
       {/* <Search defaultValue={search} />  // TODO : Search by date */}
       <Card className="mt-6">
         <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell className="w-1/3">{t.date}</TableHeaderCell>
-              <TableHeaderCell className="w-1/3">{t.movement}</TableHeaderCell>
-              <TableHeaderCell className="w-1/3">{t.type}</TableHeaderCell>
-            </TableRow>
-          </TableHead>
+          <SortTableHead labels={[t.date, t.movement, t.type]} table={transactions} setTable={setTransactions} />
           <TableBody>
             {transactions?.length ? (
               transactions.map((transaction, index) => (
                 <TableRow key={index} className={'hover:bg-gray-50'}>
-                  <TableCell>{transaction.date}</TableCell>
+                  <TableCell>{transaction.stringDate}</TableCell>
                   <TableCell className={(transaction.movement > 0 ? 'text-green-400' : 'text-red-400') + ' font-bold'}>
                     <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
                       {transaction.movement.toLocaleCurrency()}
