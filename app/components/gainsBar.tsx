@@ -39,9 +39,9 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
       <MarkerBar
         title="Gains"
         color={isPositive ? 'green' : 'red'}
-        value={isOverKill ? overKillValue : isPositive ? 100 - profitRatio * 100 : 100}
-        minValue={isOverKill ? overKillValue : 100 - Math.abs(profitRatio) * 100}
-        maxValue={100}
+        value={isOverKill ? overKillValue : isPositive ? 0 : 100}
+        minValue={isOverKill ? overKillValue : isPositive ? 0 : 100 - Math.abs(profitRatio) * 100}
+        maxValue={isOverKill ? 100 : isPositive ? profitRatio * 100 : 100}
       />
     </>
   );
