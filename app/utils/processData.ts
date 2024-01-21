@@ -152,7 +152,7 @@ function convertPortfolioData(item: string[]) {
   return {
     name: String(item.at(1)).trim(),
     address: String(item.at(2)).trim(),
-    isPublic: String(item.at(3)).trim() === 'true',
+    // isPublic: String(item.at(3)).trim() === 'true', // not used
     token: [Number(item.at(4)), Number(item.at(5)), Number(item.at(6))],
     total: Number(item.at(7)),
     invested: Number(item.at(8)),
@@ -180,7 +180,8 @@ function convertUserHistoricData(item: string[]) {
 
 function convertTransactionsData(item: string[]) {
   return {
-    date: Number(item.at(0)).toLocaleDate(),
+    date: item.at(0),
+    stringDate: Number(item.at(0)).toLocaleDate(),
     user: String(item.at(1)).trim(),
     movement: Number(item.at(2)),
     cost: Number(item.at(3)),

@@ -25,6 +25,7 @@ import { isMobileSize, useIsMobile } from '../utils/mobile';
 import {} from '../utils/extensions';
 import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
+import GainsBar from '../components/gainsBar';
 
 const tokenValueStart = 100;
 
@@ -209,15 +210,14 @@ export default function Dashboard() {
           </Flex>
         </AccordionHeader>
         <AccordionBody>
-          <Flex className="mt-4">
-            <Subtitle className={'truncate ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-              {`${t.gains} : ${getValue(dashboard, 'gains')} (${getRatio(dashboard, 'gains')})`}
-            </Subtitle>
-            <Subtitle className={'truncate hidden sm:block ' + (!loaded.current ? 'blur-sm' : 'animate-unblur')}>
-              {`${t.transfered} : ${getValue(dashboard, 'transfered')}`}
-            </Subtitle>
-          </Flex>
-          <DeltaBar className="mt-2" value={parseFloat(getRatio(dashboard, 'gains'))} />
+          <GainsBar
+            values={{
+              invested: getValue(dashboard, 'transfered').fromCurrency(),
+              profitValue: getValue(dashboard, 'gains').fromCurrency(),
+              profitRatio: parseFloat(getRatio(dashboard, 'gains')) / 100,
+            }}
+            loaded={loaded.current}
+          />
         </AccordionBody>
       </Accordion>
 

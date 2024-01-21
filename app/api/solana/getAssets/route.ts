@@ -55,5 +55,6 @@ export async function GET(request: Request) {
     return NextResponse.json(data);
   } catch (error) {
     console.error(error);
+    return NextResponse.json(error);
   }
 }

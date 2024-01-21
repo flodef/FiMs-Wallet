@@ -4,20 +4,18 @@ import {
   Flex,
   MultiSelect,
   MultiSelectItem,
+  Switch,
   Table,
   TableBody,
   TableCell,
-  TableHead,
-  TableHeaderCell,
   TableRow,
   Text,
   Title,
-  Switch,
 } from '@tremor/react';
 import { useEffect, useRef, useState } from 'react';
+import SortTableHead from '../components/sortTableHead';
 import { User, useUser } from '../hooks/useUser';
 import { getShortAddress } from '../utils/constants';
-import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
@@ -34,23 +32,34 @@ const t: Dataset = {
   appearance: 'Etre visible des autres utilisateurs FiMs ?',
 };
 
+interface DBUser extends User {
+  ispublic: boolean;
+}
+
 export default function Users() {
   const { user: currentUser } = useUser();
 
   const [users, setUsers] = useState<User[] | undefined>();
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [isPublic, setIsPublic] = useState<boolean>();
 
   useEffect(() => {
-    loadData(DataName.portfolio)
-      .then((users) => {
-        setUsers(
-          users
-            ? users
-                .filter((user) => (user.isPublic || user.name === currentUser?.name) && user.address !== user.name)
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
-            : undefined
-        );
+    fetch('/api/database/getUsers')
+      .then((result) => {
+        if (result.ok) {
+          result.json().then((users: DBUser[]) => {
+            setIsPublic(users.find((user) => user.name === currentUser?.name)?.ispublic);
+            setUsers(
+              users
+                ? users
+                    .filter((user) => (user.ispublic || user.name === currentUser?.name) && user.address !== user.name)
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
+                    .map((user) => ({ name: user.name, address: user.address }))
+                : undefined
+            );
+          });
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -60,8 +69,28 @@ export default function Users() {
 
   const isUserSelected = (user: User) => selectedUsers.includes(user.name) || selectedUsers.length === 0;
 
-  const handleSwitchChange = () => {
-    //TODO : update user isPublic status in the DB
+  const isUpdatingUserPrivacy = useRef(false);
+  const handleSwitchChange = (value: boolean) => {
+    if (!currentUser || isUpdatingUserPrivacy.current) return;
+
+    isUpdatingUserPrivacy.current = true;
+
+    console.log('Updating privacy to', value);
+
+    fetch('/api/database/updatePrivacy', {
+      method: 'POST',
+      body: JSON.stringify({ address: currentUser.address, isPublic: value }),
+    })
+      .then((result) => {
+        console.log(result);
+
+        if (result.ok) {
+          setIsPublic(value);
+        }
+      })
+      .finally(() => {
+        isUpdatingUserPrivacy.current = false;
+      });
   };
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -73,18 +102,21 @@ export default function Users() {
 
   return (
     <>
-      <Flex justifyContent="around">
-        <Title className="whitespace-nowrap">{t.usersList}</Title>
-        <Flex justifyContent="end">
-          <Text className="mr-2">{currentUser?.isPublic ? t.public : t.private}</Text>
-          <Switch
-            id="switch"
-            name="switch"
-            tooltip={t.appearance}
-            checked={currentUser?.isPublic}
-            onChange={handleSwitchChange}
-          />
-        </Flex>
+      <Flex justifyContent="between">
+        <Title className="text-left whitespace-nowrap">{t.usersList}</Title>
+        {isPublic !== undefined && (
+          <Flex justifyContent="end">
+            <Text className="mr-2">{isPublic ? t.public : t.private}</Text>
+            <Switch
+              id="switch"
+              name="switch"
+              disabled={isUpdatingUserPrivacy.current}
+              tooltip={t.appearance}
+              checked={isPublic}
+              onChange={handleSwitchChange}
+            />
+          </Flex>
+        )}
       </Flex>
       {users?.length && (
         <Flex className="relative mt-5 max-w-md">
@@ -113,13 +145,7 @@ export default function Users() {
       )}
       <Card className="mt-6">
         <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell className="w-1/3">{t.name}</TableHeaderCell>
-              <TableHeaderCell className="w-1/3">{t.address}</TableHeaderCell>
-              <TableHeaderCell className="w-1/3">{t.copy}</TableHeaderCell>
-            </TableRow>
-          </TableHead>
+          <SortTableHead labels={[t.name, t.address, t.copy]} table={users} setTable={setUsers} />
           <TableBody>
             {users?.length ? (
               users.filter(isUserSelected).map((user) => (
