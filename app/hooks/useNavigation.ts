@@ -10,6 +10,7 @@ export enum Page {
 export interface NavigationContextState {
   page: Page | undefined;
   setPage: (page: Page) => void;
+  pages: Page[];
 }
 
 export const NavigationContext = createContext<NavigationContextState>({} as NavigationContextState);
