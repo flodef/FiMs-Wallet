@@ -31,6 +31,7 @@
     "prop-types": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "react-swipeable": "latest",
     "server-only": "latest",
     "tailwindcss": "latest"
   },

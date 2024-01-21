@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useSwipeable } from 'react-swipeable';
 import { Page, useNavigation } from './hooks/useNavigation';
 import { usePopup } from './hooks/usePopup';
 import { useUser } from './hooks/useUser';
@@ -13,8 +14,8 @@ import Users from './pages/users';
 
 export default function IndexPage() {
   const { isPopupOpen } = usePopup();
-  const { connect, disconnect } = useUser();
-  const { page } = useNavigation();
+  const { connect, disconnect, user } = useUser();
+  const { page, setPage, pages } = useNavigation();
 
   const isWindowReady = useIsWindowReady();
 
@@ -31,8 +32,22 @@ export default function IndexPage() {
     }
   }, [isWindowReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const currentIndex = pages.indexOf(page ?? Page.Dashboard);
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (!user) return;
+
+      setPage(pages[currentIndex < pages.length - 1 ? currentIndex + 1 : 0]);
+    },
+    onSwipedRight: () => {
+      if (!user) return;
+
+      setPage(pages[currentIndex > 0 ? currentIndex - 1 : pages.length - 1]);
+    },
+  });
+
   return (
-    <main className={'space-y-6 p-4 md:p-10 mx-auto max-w-7xl ' + (isPopupOpen ? 'blur-sm' : '')}>
+    <main className={'space-y-6 p-4 md:p-10 mx-auto max-w-7xl ' + (isPopupOpen ? 'blur-sm' : '')} {...handlers}>
       {page === Page.Dashboard ? (
         <Dashboard />
       ) : page === Page.Portfolio ? (
