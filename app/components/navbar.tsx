@@ -3,14 +3,14 @@
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Button, Tab, TabGroup, TabList } from '@tremor/react';
-import { usePathname } from 'next/navigation';
+import { FiMsLogo } from '../../public/FiMsLogo';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
-import { FiMsLogo } from '../../public/FiMsLogo';
 import { Dataset } from '../utils/types';
 import Connect from './connect';
 import Disconnect from './disconnect';
+import { cls } from '../utils/constants';
 
 const t: Dataset = {
   connect: 'Se connecter',
@@ -21,17 +21,10 @@ const t: Dataset = {
   users: 'Utilisateurs',
 };
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ');
-}
-
 export default function Navbar() {
   const { openPopup, isPopupOpen } = usePopup();
-  const { page: currentPage, setPage } = useNavigation();
+  const { page: currentPage, setPage, pages } = useNavigation();
   const { user } = useUser();
-  const pathname = usePathname();
-
-  const pages = Object.keys(Page).map((page) => Page[page as keyof typeof Page]);
 
   return (
     <Disclosure as="nav" className={'bg-white shadow-sm ' + (isPopupOpen ? 'blur-sm' : '')}>
@@ -40,7 +33,13 @@ export default function Navbar() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex">
-                <a className="flex flex-shrink-0 items-center" href={!user || pathname === '/' ? undefined : '/'}>
+                <a
+                  className={
+                    'flex flex-shrink-0 items-center ' +
+                    (user && currentPage !== Page.Dashboard ? 'cursor-pointer' : '')
+                  }
+                  onClick={user && currentPage !== Page.Dashboard ? () => setPage(Page.Dashboard) : undefined}
+                >
                   <FiMsLogo />
                 </a>
                 <div className={(user ? 'animate-display' : 'hidden') + ' contents'}>
@@ -54,7 +53,7 @@ export default function Navbar() {
                     <TabList>
                       {pages.map((page) => (
                         <Tab
-                          className="text-[20px]"
+                          className={cls('text-[20px]', page === currentPage ? ' cursor-default' : 'cursor-pointer')}
                           key={page}
                           aria-current={page === currentPage ? 'page' : undefined}
                         >
@@ -100,7 +99,7 @@ export default function Navbar() {
                 {pages.map((page) => (
                   <Disclosure.Button
                     key={page}
-                    className={classNames(
+                    className={cls(
                       page === currentPage
                         ? 'bg-slate-50 border-slate-500 text-slate-700'
                         : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800',
