@@ -64,7 +64,7 @@ export async function loadData(name: DataName | string, isOutOfLocalHost = true)
             if (typeof response === 'undefined') return;
             return await response
               .json()
-              .then((data: { values: string[][]; error: { message: string } }) => {
+              .then((data: { values: string[][]; error: string }) => {
                 checkData(data, parameters.minColInHeader);
 
                 return data.values
@@ -75,9 +75,8 @@ export async function loadData(name: DataName | string, isOutOfLocalHost = true)
                   });
               })
               .catch((error) => {
-                console.error(error);
-
                 if (error instanceof WrongDataPatternError) {
+                  console.error(error);
                   return [];
                 }
                 throw error;
@@ -92,7 +91,7 @@ export async function loadData(name: DataName | string, isOutOfLocalHost = true)
 
 function checkData(data: any, minCol: number, maxCol = minCol, minRow = 1, maxRow = 100000) {
   if (!data) throw new Error('data not fetched');
-  if (data.error?.message) throw new Error(data.error.message);
+  if (data.error) throw new Error(data.error);
   if (!data.values?.length) throw new MissingDataError();
   if (
     data.values &&

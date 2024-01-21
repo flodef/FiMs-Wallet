@@ -10,10 +10,15 @@ interface HeliusData {
 }
 
 export async function GET(request: Request) {
+  if (!process.env.HELIUS_API_KEY)
+    return NextResponse.json({ error: 'Missing required environment variables.' }, { status: 500 });
+
   const { searchParams } = new URL(request.url);
   const address = searchParams.get('address');
   const creator = searchParams.get('creator');
   const token = searchParams.get('token');
+
+  if (!address) return NextResponse.json({ error: 'Missing required parameter: address.' }, { status: 500 });
 
   try {
     const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
