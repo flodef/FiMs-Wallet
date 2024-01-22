@@ -29,10 +29,10 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
   `}
       </style>
       <Flex className="mt-4 mb-1">
-        <Subtitle className={cls('truncate invisible sm:visible', !loaded ? 'blur-sm' : 'animate-unblur')}>
+        <Subtitle className={cls('truncate w-0 sm:w-1/2', !loaded ? 'blur-sm' : 'animate-unblur')}>
           {`${t.invested} : ${invested.toLocaleCurrency()}`}
         </Subtitle>
-        <Subtitle className={cls('truncate', !loaded ? 'blur-sm' : 'animate-unblur')}>
+        <Subtitle className={!loaded ? 'blur-sm' : 'animate-unblur'}>
           {`${t.gains} : ${profitValue.toLocaleCurrency()} (${profitRatio.toRatio()})`}
         </Subtitle>
       </Flex>
