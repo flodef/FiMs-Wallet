@@ -1,9 +1,7 @@
 import { cls } from './utils/constants';
 
 // inspired by https://codepen.io/42EG4M1/pen/bVMzze/
-export function LoadingText(
-  { text, fullscreen }: { text: string; fullscreen?: boolean } = { text: '', fullscreen: true }
-) {
+export function LoadingText({ text, fullscreen = true }: { text: string; fullscreen?: boolean }) {
   const phrase = text
     .toUpperCase()
     .split('')
@@ -40,7 +38,7 @@ export function LoadingText(
 }
 
 // inspired by https://codepen.io/sudeepgumaste/pen/abdrorB
-export function LoadingDot({ fullscreen }: { fullscreen?: boolean } = { fullscreen: true }) {
+export function LoadingDot({ fullscreen = true }: { fullscreen?: boolean }) {
   const circleClassName = ' h-4 w-4 rounded-full bg-tremor-brand dark:bg-tremor-brand-dark ';
   return (
     <div
@@ -61,7 +59,7 @@ export function LoadingDot({ fullscreen }: { fullscreen?: boolean } = { fullscre
 }
 
 // inspired by https://codepen.io/jkantner/pen/mdKOpbe
-export function LoadingSpinner({ fullscreen }: { fullscreen?: boolean } = { fullscreen: true }) {
+export function LoadingSpinner({ fullscreen = true }: { fullscreen?: boolean }) {
   return (
     <div
       className={cls(
@@ -116,13 +114,17 @@ export enum LoadingType {
   Spinner,
 }
 
-export default function Loading(
-  { type, fullscreen }: { type?: LoadingType; fullscreen?: boolean } = { type: LoadingType.Dot, fullscreen: true }
-) {
+export default function Loading({
+  type = LoadingType.Dot,
+  fullscreen = true,
+}: {
+  type?: LoadingType;
+  fullscreen?: boolean;
+}) {
   // You can add any UI inside Loading, including a Skeleton.
   switch (type) {
     case LoadingType.Text:
-      return <LoadingText text="Chargement" fullscreen={fullscreen} />;
+      return <LoadingText text="Loading" fullscreen={fullscreen} />;
     case LoadingType.Dot:
       return <LoadingDot fullscreen={fullscreen} />;
     case LoadingType.Spinner:
