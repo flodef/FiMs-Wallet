@@ -1,9 +1,7 @@
 import './globals.css';
 
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { Suspense } from 'react';
 import Navbar from './components/navbar';
-import Popup from './components/popup';
 import Toast from './components/toast';
 import { NavigationProvider } from './contexts/NavigationProvider';
 import { PopupProvider } from './contexts/PopupProvider';
@@ -25,7 +23,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {children}
               <SpeedInsights />
               <Toast />
-              <Popup />
             </PopupProvider>
           </UserProvider>
         </NavigationProvider>

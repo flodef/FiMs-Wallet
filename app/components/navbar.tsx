@@ -2,15 +2,15 @@
 
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { Button, Tab, TabGroup, TabList } from '@tremor/react';
+import { Button, Dialog, DialogPanel, Tab, TabGroup, TabList } from '@tremor/react';
 import { FiMsLogo } from '../../public/FiMsLogo';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
+import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
 import Connect from './connect';
 import Disconnect from './disconnect';
-import { cls } from '../utils/constants';
 
 const t: Dataset = {
   connect: 'Se connecter',
@@ -22,7 +22,7 @@ const t: Dataset = {
 };
 
 export default function Navbar() {
-  const { openPopup, isPopupOpen } = usePopup();
+  const { isPopupOpen, openPopup, closePopup } = usePopup();
   const { page: currentPage, setPage, pages } = useNavigation();
   const { user } = useUser();
 
@@ -30,6 +30,10 @@ export default function Navbar() {
     <Disclosure as="nav" className={cls('bg-white shadow-sm', isPopupOpen ? 'blur-sm' : '')}>
       {({ open }) => (
         <>
+          <Dialog open={isPopupOpen} onClose={closePopup}>
+            <DialogPanel>{!user ? <Connect /> : <Disconnect />}</DialogPanel>
+          </Dialog>
+
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex">
@@ -82,11 +86,7 @@ export default function Navbar() {
               </div>
 
               <div className={cls('ml-6 flex items-center', currentPage ? 'animate-display' : 'hidden')}>
-                <Button
-                  className="flex font-bold"
-                  style={{ borderRadius: 24 }}
-                  onClick={() => openPopup(!user ? <Connect /> : <Disconnect />, !user)}
-                >
+                <Button className="flex font-bold" style={{ borderRadius: 24 }} onClick={openPopup}>
                   {!user ? t.connect : user.name}
                 </Button>
               </div>
