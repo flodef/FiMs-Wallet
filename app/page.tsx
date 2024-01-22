@@ -11,6 +11,7 @@ import Dashboard from './pages/dashboard';
 import Portfolio from './pages/portfolio';
 import Transactions from './pages/transactions';
 import Users from './pages/users';
+import { cls } from './utils/constants';
 
 export default function IndexPage() {
   const { isPopupOpen } = usePopup();
@@ -47,7 +48,7 @@ export default function IndexPage() {
   });
 
   return (
-    <main className={'space-y-6 p-4 md:p-10 mx-auto max-w-7xl ' + (isPopupOpen ? 'blur-sm' : '')} {...handlers}>
+    <main className={cls('space-y-6 p-4 md:p-10 mx-auto max-w-7xl', isPopupOpen ? 'blur-sm' : '')} {...handlers}>
       {page === Page.Dashboard ? (
         <Dashboard />
       ) : page === Page.Portfolio ? (

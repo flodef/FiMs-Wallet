@@ -3,6 +3,7 @@ import { Card, Flex, Icon, Table, TableBody, TableCell, TableRow, Text, Title } 
 import { useEffect, useRef, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
 import { useUser } from '../hooks/useUser';
+import { cls } from '../utils/constants';
 import {} from '../utils/extensions';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
@@ -79,9 +80,9 @@ export default function Transactions() {
           <TableBody>
             {transactions?.length ? (
               transactions.map((transaction, index) => (
-                <TableRow key={index} className={'hover:bg-gray-50'}>
+                <TableRow key={index} className="hover:bg-gray-50">
                   <TableCell>{transaction.stringDate}</TableCell>
-                  <TableCell className={(transaction.movement > 0 ? 'text-green-400' : 'text-red-400') + ' font-bold'}>
+                  <TableCell className={cls('font-bold', transaction.movement > 0 ? 'text-green-400' : 'text-red-400')}>
                     <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
                       {transaction.movement.toLocaleCurrency()}
                       {transaction.type === TransactionType.withdrawal && transaction.cost < 0 && (

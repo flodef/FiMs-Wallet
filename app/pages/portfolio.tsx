@@ -166,7 +166,7 @@ export default function Portfolio() {
             <Table>
               <TableBody>
                 {wallet.map((asset) => (
-                  <TableRow key={asset.name} className={'hover:bg-gray-50'}>
+                  <TableRow key={asset.name} className="hover:bg-gray-50">
                     <TableCell>
                       <Image
                         className="rounded-full"
@@ -195,7 +195,7 @@ export default function Portfolio() {
           ) : (
             <Table>
               <TableBody>
-                <TableRow className={'animate-pulse'}>
+                <TableRow className="animate-pulse">
                   <TableCell>
                     <div className="rounded-full w-[50px] h-[50px] bg-slate-200"></div>
                   </TableCell>

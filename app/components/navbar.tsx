@@ -27,22 +27,22 @@ export default function Navbar() {
   const { user } = useUser();
 
   return (
-    <Disclosure as="nav" className={'bg-white shadow-sm ' + (isPopupOpen ? 'blur-sm' : '')}>
+    <Disclosure as="nav" className={cls('bg-white shadow-sm', isPopupOpen ? 'blur-sm' : '')}>
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex">
                 <a
-                  className={
-                    'flex flex-shrink-0 items-center ' +
-                    (user && currentPage !== Page.Dashboard ? 'cursor-pointer' : '')
-                  }
+                  className={cls(
+                    'flex flex-shrink-0 items-center',
+                    user && currentPage !== Page.Dashboard ? 'cursor-pointer' : ''
+                  )}
                   onClick={user && currentPage !== Page.Dashboard ? () => setPage(Page.Dashboard) : undefined}
                 >
                   <FiMsLogo />
                 </a>
-                <div className={(user ? 'animate-display' : 'hidden') + ' contents'}>
+                <div className={cls('contents', user ? 'animate-display' : 'hidden')}>
                   <TabGroup
                     className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8"
                     style={{ marginTop: '15px' }}
@@ -53,7 +53,7 @@ export default function Navbar() {
                     <TabList>
                       {pages.map((page) => (
                         <Tab
-                          className={cls('text-[20px]', page === currentPage ? ' cursor-default' : 'cursor-pointer')}
+                          className={cls('text-[20px]', page === currentPage ? 'cursor-default' : 'cursor-pointer')}
                           key={page}
                           aria-current={page === currentPage ? 'page' : undefined}
                         >
@@ -81,7 +81,7 @@ export default function Navbar() {
                 </div>
               </div>
 
-              <div className={(currentPage ? 'animate-display' : 'hidden') + ' ml-6 flex items-center'}>
+              <div className={cls('ml-6 flex items-center', currentPage ? 'animate-display' : 'hidden')}>
                 <Button
                   className="flex font-bold"
                   style={{ borderRadius: 24 }}

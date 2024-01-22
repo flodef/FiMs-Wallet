@@ -15,7 +15,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
 import { User, useUser } from '../hooks/useUser';
-import { getShortAddress } from '../utils/constants';
+import { cls, getShortAddress } from '../utils/constants';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
@@ -151,9 +151,10 @@ export default function Users() {
               users.filter(isUserSelected).map((user) => (
                 <TableRow
                   key={user.name}
-                  className={
-                    'hover:bg-gray-50 cursor-pointer' + (user.name === currentUser?.name ? ' bg-gray-100' : '')
-                  }
+                  className={cls(
+                    'hover:bg-gray-50 cursor-pointer',
+                    user.name === currentUser?.name ? 'bg-gray-100' : ''
+                  )}
                   onClick={() => {
                     navigator.clipboard.writeText(user.address);
                   }}

@@ -1,14 +1,15 @@
 import Link from 'next/link';
+import { cls } from './utils/constants';
 
 // inspired by https://codepen.io/uiswarup/pen/dyoyLOp
 export default function NotFound() {
   return (
     <Link className="flex justify-center" href="/">
       <div
-        className={
-          'container mt-10 flex flex-col justify-center font-bold ' +
+        className={cls(
+          'container mt-10 flex flex-col justify-center font-bold',
           'uppercase text-[3vmin] text-center text-secondary-light dark:text-secondary-dark'
-        }
+        )}
       >
         <div className="row">
           <div className="col-sm-12 col-md-12 mt-5 mb-5">

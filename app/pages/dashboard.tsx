@@ -6,12 +6,10 @@ import {
   AreaChart,
   BadgeDelta,
   BarList,
-  DeltaBar,
   Flex,
   Grid,
   Metric,
   SparkAreaChart,
-  Subtitle,
   Tab,
   TabGroup,
   TabList,
@@ -19,13 +17,14 @@ import {
 } from '@tremor/react';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import GainsBar from '../components/gainsBar';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';
-import { isMobileSize, useIsMobile } from '../utils/mobile';
+import { cls } from '../utils/constants';
 import {} from '../utils/extensions';
+import { isMobileSize, useIsMobile } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
-import GainsBar from '../components/gainsBar';
 
 const tokenValueStart = 100;
 
@@ -227,7 +226,7 @@ export default function Dashboard() {
             <Flex alignItems="start" flexDirection="col">
               <Flex alignItems="start" flexDirection={!isTablet ? 'row' : 'col'}>
                 <Title className="text-left whitespace-nowrap">{t.result}</Title>
-                <TabGroup index={resultIndex} onIndexChange={setResultIndex} className={'mb-4 lg:mb-0 lg:text-right'}>
+                <TabGroup index={resultIndex} onIndexChange={setResultIndex} className="mb-4 lg:mb-0 lg:text-right">
                   <TabList
                     className="float-left lg:float-right"
                     variant={!isTablet ? 'solid' : 'line'}
@@ -292,12 +291,12 @@ export default function Dashboard() {
                         <div className={isTokenListExpanded || priceIndex === i ? 'block' : 'hidden'} key={t.label}>
                           <Flex>
                             <ChevronLeftIcon
-                              className={(!isTokenListExpanded ? 'block' : 'hidden') + ' h-4 w-4 mr-2'}
+                              className={cls('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
                               onClick={() => changeToken(false)}
                             />
                             <Tab onClick={!isTokenListExpanded ? () => changeToken() : undefined}>{t.label}</Tab>
                             <ChevronRightIcon
-                              className={(!isTokenListExpanded ? 'block' : 'hidden') + ' h-4 w-4 ml-2'}
+                              className={cls('h-4 w-4 ml-2', !isTokenListExpanded ? 'block' : 'hidden')}
                               onClick={() => changeToken(true)}
                             />
                           </Flex>

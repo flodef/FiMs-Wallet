@@ -4,7 +4,7 @@
 import { Open_Sans } from 'next/font/google';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { EMAIL } from './utils/constants';
+import { EMAIL, cls } from './utils/constants';
 
 const openSans = Open_Sans({ subsets: ['latin'], weight: ['400', '700'] });
 
@@ -34,10 +34,10 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
   return (
     <div className={openSans.className}>
       <div
-        className={
-          'mt-10 overflow-hidden flex flex-col items-center justify-center font-bold ' +
+        className={cls(
+          'mt-10 overflow-hidden flex flex-col items-center justify-center font-bold',
           'uppercase text-[3vmin] text-center text-secondary-light dark:text-secondary-dark'
-        }
+        )}
       >
         <p className="px-6 z-10">
           Oups ! L&apos;appli s&apos;est emmelée les pinceaux ... <br />
@@ -48,12 +48,12 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
         </p>
         <div className="group z-0">
           <h1
-            className={
-              'text-white text-[50vmin] text-center relative mb-[5vmin] mt-[-10vmin] cursor-pointer group-hover:scale-110 ' +
-              "group-hover:before:animate-flipReverse before:content-['('] before:absolute before:-rotate-90 " +
-              'before:right-[25vmin] before:bottom-[-30vmin] before:block before:text-[115%] before:animate-flip ' +
+            className={cls(
+              'text-white text-[50vmin] text-center relative mb-[5vmin] mt-[-10vmin] cursor-pointer group-hover:scale-110',
+              "group-hover:before:animate-flipReverse before:content-['('] before:absolute before:-rotate-90",
+              'before:right-[25vmin] before:bottom-[-30vmin] before:block before:text-[115%] before:animate-flip',
               'transition-transform duration-300'
-            }
+            )}
             style={{ textShadow: '0 1vmin 5vmin rgba(0, 0, 0, 0.5)' }}
             onClick={retry}
           >

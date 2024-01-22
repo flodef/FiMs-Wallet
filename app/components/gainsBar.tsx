@@ -1,4 +1,5 @@
 import { Flex, MarkerBar, Subtitle } from '@tremor/react';
+import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
@@ -28,10 +29,10 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
   `}
       </style>
       <Flex className="mt-4 mb-1">
-        <Subtitle className={'truncate invisible sm:visible ' + (!loaded ? 'blur-sm' : 'animate-unblur')}>
+        <Subtitle className={cls('truncate invisible sm:visible', !loaded ? 'blur-sm' : 'animate-unblur')}>
           {`${t.invested} : ${invested.toLocaleCurrency()}`}
         </Subtitle>
-        <Subtitle className={'truncate ' + (!loaded ? 'blur-sm' : 'animate-unblur')}>
+        <Subtitle className={cls('truncate', !loaded ? 'blur-sm' : 'animate-unblur')}>
           {`${t.gains} : ${profitValue.toLocaleCurrency()} (${profitRatio.toRatio()})`}
         </Subtitle>
       </Flex>
