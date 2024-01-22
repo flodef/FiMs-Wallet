@@ -57,7 +57,7 @@ export default function IndexPage() {
       ) : page === Page.Users ? (
         <Users />
       ) : (
-        LoadingDot()
+        <LoadingDot />
       )}
     </main>
   );

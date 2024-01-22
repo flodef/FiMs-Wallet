@@ -1,5 +1,9 @@
+import { cls } from './utils/constants';
+
 // inspired by https://codepen.io/42EG4M1/pen/bVMzze/
-export function LoadingText(text: string, fullscreen = true) {
+export function LoadingText(
+  { text, fullscreen }: { text: string; fullscreen?: boolean } = { text: '', fullscreen: true }
+) {
   const phrase = text
     .toUpperCase()
     .split('')
@@ -20,14 +24,14 @@ export function LoadingText(text: string, fullscreen = true) {
 
   return (
     <div
-      className={
-        'text-center w-full h-full flex items-center justify-center font-semibold text-2xl ' +
-        (fullscreen ? 'absolute inset-0' : '')
-      }
+      className={cls(
+        'text-center w-full h-full flex items-center justify-center font-semibold text-2xl',
+        fullscreen ? 'absolute inset-0' : ''
+      )}
       style={{ background: 'inherit' }}
     >
       {phrase.map((item, i) => (
-        <span key={i} className={rootClassName + animateClassNames[i]}>
+        <span key={i} className={cls(rootClassName, animateClassNames[i])}>
           {item}
         </span>
       ))}
@@ -36,30 +40,34 @@ export function LoadingText(text: string, fullscreen = true) {
 }
 
 // inspired by https://codepen.io/sudeepgumaste/pen/abdrorB
-export function LoadingDot(fullscreen = true) {
+export function LoadingDot({ fullscreen }: { fullscreen?: boolean } = { fullscreen: true }) {
   const circleClassName = ' h-4 w-4 rounded-full bg-tremor-brand dark:bg-tremor-brand-dark ';
   return (
     <div
-      className={'text-center w-full h-full flex items-center justify-center ' + (fullscreen ? 'absolute inset-0' : '')}
+      className={cls(
+        'text-center w-full h-full flex items-center justify-center',
+        fullscreen ? 'absolute inset-0' : ''
+      )}
       style={{ background: 'inherit' }}
     >
-      <div className={'h-4 w-28 flex relative '}>
-        <span className={circleClassName + 'absolute top-0 left-0 mr-8 animate-grow'}></span>
-        <span className={circleClassName + 'mr-[30px] animate-move'}></span>
-        <span className={circleClassName + 'mr-[30px] animate-move'}></span>
-        <span className={circleClassName + 'absolute top-0 right-0 mr-0 animate-growReverse'}></span>
+      <div className="h-4 w-28 flex relative">
+        <span className={cls(circleClassName, 'absolute top-0 left-0 mr-8 animate-grow')}></span>
+        <span className={cls(circleClassName, 'mr-[30px] animate-move')}></span>
+        <span className={cls(circleClassName, 'mr-[30px] animate-move')}></span>
+        <span className={cls(circleClassName, 'absolute top-0 right-0 mr-0 animate-growReverse')}></span>
       </div>
     </div>
   );
 }
 
 // inspired by https://codepen.io/jkantner/pen/mdKOpbe
-export function LoadingSpinner(fullscreen = true) {
+export function LoadingSpinner({ fullscreen }: { fullscreen?: boolean } = { fullscreen: true }) {
   return (
     <div
-      className={
-        'text-center w-full h-full flex items-center justify-center ' + (fullscreen ? 'absolute inset-0' : ' scale-75')
-      }
+      className={cls(
+        'text-center w-full h-full flex items-center justify-center',
+        fullscreen ? 'absolute inset-0' : ' scale-75'
+      )}
       style={{ background: 'inherit' }}
     >
       <svg className="max-w-[256px] max-h-[128px]" viewBox="0 0 256 128" xmlns="http://www.w3.org/2000/svg">
@@ -108,16 +116,18 @@ export enum LoadingType {
   Spinner,
 }
 
-export default function Loading(type = LoadingType.Dot, fullscreen = true) {
+export default function Loading(
+  { type, fullscreen }: { type?: LoadingType; fullscreen?: boolean } = { type: LoadingType.Dot, fullscreen: true }
+) {
   // You can add any UI inside Loading, including a Skeleton.
   switch (type) {
     case LoadingType.Text:
-      return LoadingText('Chargement', fullscreen);
+      return <LoadingText text="Chargement" fullscreen={fullscreen} />;
     case LoadingType.Dot:
-      return LoadingDot(fullscreen);
+      return <LoadingDot fullscreen={fullscreen} />;
     case LoadingType.Spinner:
-      return LoadingSpinner(fullscreen);
+      return <LoadingSpinner fullscreen={fullscreen} />;
     default:
-      return LoadingDot(fullscreen);
+      return <LoadingDot fullscreen={fullscreen} />;
   }
 }
