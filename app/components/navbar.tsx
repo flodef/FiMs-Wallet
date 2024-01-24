@@ -27,7 +27,7 @@ export default function Navbar() {
   const { user } = useUser();
 
   return (
-    <Disclosure as="nav" className={cls('bg-white shadow-sm', isPopupOpen ? 'blur-sm' : '')}>
+    <Disclosure as="nav" className={cls('bg-white shadow-sm flex-shrink-0 z-10', isPopupOpen ? 'blur-sm' : '')}>
       {({ open }) => (
         <>
           <Dialog open={isPopupOpen} onClose={closePopup}>
@@ -57,7 +57,12 @@ export default function Navbar() {
                     <TabList>
                       {pages.map((page) => (
                         <Tab
-                          className={cls('text-[20px]', page === currentPage ? 'cursor-default' : 'cursor-pointer')}
+                          className={cls(
+                            'text-[20px] hover:text-gray-700 hover:font-bold',
+                            page === currentPage
+                              ? 'cursor-default font-bold border-b-2 mb-0 border-b-blue-500 text-blue-500'
+                              : 'cursor-pointer'
+                          )}
                           key={page}
                           aria-current={page === currentPage ? 'page' : undefined}
                         >
