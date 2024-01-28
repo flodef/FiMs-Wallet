@@ -357,17 +357,15 @@ export default function Dashboard() {
         <AccordionHeader>
           <Title>Performance</Title>
           {historic.length > 1 && (
-            <Flex className="w-full" justifyContent="center">
-              <SparkAreaChart
-                data={historic.sort((a, b) => a.date - b.date)}
-                categories={[t.total]}
-                index={'stringDate'}
-                colors={['emerald']}
-                className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
-                curveType="monotone"
-                noDataText={t.loading}
-              />
-            </Flex>
+            <SparkAreaChart
+              className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
+              data={historic.sort((a, b) => a.date - b.date)}
+              categories={[t.total]}
+              index={'stringDate'}
+              colors={['emerald']}
+              curveType="monotone"
+              noDataText={t.loading}
+            />
           )}
         </AccordionHeader>
         <AccordionBody>

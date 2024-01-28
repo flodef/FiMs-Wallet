@@ -69,11 +69,17 @@ export default function IndexPage() {
       </Swiper>
     ) : (
       <div className={rootClassName}>
-        {pages.map((page) => (
-          <div key={page} className={cls(pageClassName, page === currentPage ? 'visible' : 'hidden')}>
-            <MainPage page={page} />
+        {user !== undefined ? (
+          pages.map((page) => (
+            <div key={page} className={cls(pageClassName, page === currentPage ? 'visible' : 'hidden')}>
+              <MainPage page={page} />
+            </div>
+          ))
+        ) : (
+          <div className={pageClassName}>
+            <MainPage page={Page.Dashboard} />
           </div>
-        ))}
+        )}
       </div>
     )
   ) : (
