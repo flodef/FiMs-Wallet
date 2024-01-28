@@ -122,28 +122,31 @@ export default function Dashboard() {
 
   const loaded = useRef(false);
   const [refresh, setRefresh] = useState(false);
+  const setDataRefreshTimer = useCallback(() => {
+    loaded.current = true;
+
+    setRefresh(false);
+    const timeOut = setTimeout(() => {
+      setRefresh(true);
+    }, 60000);
+
+    return () => {
+      clearTimeout(timeOut);
+    };
+  }, []);
+
   useEffect(() => {
     if (!loaded.current || refresh) {
+      setDataRefreshTimer();
       loadData(DataName.dashboard)
-        .then((data: Data[]) => {
-          loaded.current = true;
-
-          // Refresh data every minute
-          setRefresh(false);
-          setTimeout(() => {
-            setRefresh(true);
-          }, 60000);
-
-          // Update data
-          setDashboard(data);
-        })
+        .then(setDashboard)
         .then(() =>
           loadData(DataName.token)
             .then(generateTokenHisto)
             .then(() => loadData(DataName.historic).then(setHistoric))
         );
     }
-  }, [refresh, generateTokenHisto]);
+  }, [refresh, generateTokenHisto, setDataRefreshTimer]);
 
   const getBarList = useCallback(
     (labels: string[]) => {

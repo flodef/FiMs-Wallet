@@ -78,45 +78,47 @@ export default function Portfolio() {
 
   const loaded = useRef(false);
   const [refresh, setRefresh] = useState(false);
+  const setDataRefreshTimer = () => {
+    loaded.current = true;
+
+    setRefresh(false);
+    const timeOut = setTimeout(() => {
+      setRefresh(true);
+    }, 60000);
+
+    return () => {
+      clearTimeout(timeOut);
+    };
+  };
+
   useEffect(() => {
     if (user && (!loaded.current || refresh)) {
-      loadData(DataName.token)
-        .then((data: Token[]) => {
-          loaded.current = true;
+      setDataRefreshTimer();
+      loadData(DataName.token).then((tokens: Token[]) => {
+        loadData(DataName.portfolio)
+          .then((data: Portfolio[]) => {
+            const p = data.filter((d) => d.address === user.address)[0];
+            console.log(p);
 
-          // Refresh data every minute
-          setRefresh(false);
-          setTimeout(() => {
-            setRefresh(true);
-          }, 60000);
+            setPortfolio(p);
 
-          return data;
-        })
-        .then((token) => {
-          loadData(DataName.portfolio)
-            .then((data: Portfolio[]) => {
-              const p = data.filter((d) => d.address === user.address)[0];
-              console.log(p);
+            const wallet: Wallet[] = [];
+            tokens.forEach((t, i) => {
+              if (!p.token[i]) return;
 
-              setPortfolio(p);
-
-              const wallet: Wallet[] = [];
-              token.forEach((t, i) => {
-                if (!p.token[i]) return;
-
-                wallet.push({
-                  image: TOKEN_PATH + t.label.replaceAll(' ', '') + '.png',
-                  name: t.label,
-                  symbol: t.symbol,
-                  balance: p.token[i],
-                  value: t.value,
-                  total: p.token[i] * t.value,
-                });
+              wallet.push({
+                image: TOKEN_PATH + t.label.replaceAll(' ', '') + '.png',
+                name: t.label,
+                symbol: t.symbol,
+                balance: p.token[i],
+                value: t.value,
+                total: p.token[i] * t.value,
               });
-              setWallet(wallet.sort((a, b) => b.total - a.total));
-            })
-            .then(() => loadData(user.name).then(setHistoric));
-        });
+            });
+            setWallet(wallet.sort((a, b) => b.total - a.total));
+          })
+          .then(() => loadData(user.name).then(setHistoric));
+      });
     }
   }, [refresh, user]);
 
