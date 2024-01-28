@@ -149,7 +149,7 @@ export default function Dashboard() {
     (labels: string[]) => {
       return labels
         .map((label) => {
-          return getBarData(t.label ?? label, getValue(dashboard, label).fromCurrency());
+          return getBarData(t[label] ?? label, getValue(dashboard, label).fromCurrency());
         })
         .sort((a, b) => b.value - a.value);
     },
