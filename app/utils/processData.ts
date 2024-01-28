@@ -35,7 +35,7 @@ const dataNameParameters = new Map<
   [DataName.dashboard, { convert: convertDashboardData, hasHeader: true, minColInRow: 4, minColInHeader: 4 }],
   [DataName.historic, { convert: convertHistoricData, hasHeader: false, minColInRow: 12, minColInHeader: 12 }],
   [DataName.token, { convert: convertTokenData, hasHeader: true, minColInRow: 4, minColInHeader: 9 }],
-  [DataName.portfolio, { convert: convertPortfolioData, hasHeader: true, minColInRow: 13, minColInHeader: 14 }],
+  [DataName.portfolio, { convert: convertPortfolioData, hasHeader: true, minColInRow: 13, minColInHeader: 15 }],
   [DataName.userHistoric, { convert: convertUserHistoricData, hasHeader: true, minColInRow: 10, minColInHeader: 10 }],
   [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, minColInRow: 8, minColInHeader: 8 }],
 ]);
