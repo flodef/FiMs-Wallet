@@ -13,6 +13,7 @@
     "nuke": "shx rm -rf node_modules package-lock.json || true"
   },
   "dependencies": {
+    "@commitlint/config-conventional": "^18.6.0",
     "@headlessui/react": "latest",
     "@heroicons/react": "latest",
     "@solana/wallet-adapter-base": "latest",
