@@ -1,5 +1,30 @@
 import { cls } from './utils/constants';
 
+export enum LoadingType {
+  Text,
+  Dot,
+  Spinner,
+}
+
+export default function Loading({
+  type = LoadingType.Dot,
+  fullscreen = true,
+}: {
+  type?: LoadingType;
+  fullscreen?: boolean;
+}) {
+  switch (type) {
+    case LoadingType.Text:
+      return <LoadingText text="Loading" fullscreen={fullscreen} />;
+    case LoadingType.Dot:
+      return <LoadingDot fullscreen={fullscreen} />;
+    case LoadingType.Spinner:
+      return <LoadingSpinner fullscreen={fullscreen} />;
+    default:
+      return <LoadingDot fullscreen={fullscreen} />;
+  }
+}
+
 // inspired by https://codepen.io/42EG4M1/pen/bVMzze/
 export function LoadingText({ text, fullscreen = true }: { text: string; fullscreen?: boolean }) {
   const phrase = text
@@ -106,30 +131,4 @@ export function LoadingSpinner({ fullscreen = true }: { fullscreen?: boolean }) 
       </svg>
     </div>
   );
-}
-
-export enum LoadingType {
-  Text,
-  Dot,
-  Spinner,
-}
-
-export default function Loading({
-  type = LoadingType.Dot,
-  fullscreen = true,
-}: {
-  type?: LoadingType;
-  fullscreen?: boolean;
-}) {
-  // You can add any UI inside Loading, including a Skeleton.
-  switch (type) {
-    case LoadingType.Text:
-      return <LoadingText text="Loading" fullscreen={fullscreen} />;
-    case LoadingType.Dot:
-      return <LoadingDot fullscreen={fullscreen} />;
-    case LoadingType.Spinner:
-      return <LoadingSpinner fullscreen={fullscreen} />;
-    default:
-      return <LoadingDot fullscreen={fullscreen} />;
-  }
 }
