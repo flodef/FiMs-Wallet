@@ -8,14 +8,15 @@ import { usePopup } from './hooks/usePopup';
 import { useUser } from './hooks/useUser';
 import { useIsWindowReady } from './hooks/useWindowParam';
 import { LoadingDot } from './loading';
+import MainPage from './main';
 import { cls } from './utils/constants';
+import { isMobileDevice } from './utils/mobile';
+import { SwiperEffect, SwipingType } from './utils/swiperEffect';
 
 // import Swiper and modules styles
 import 'swiper/css';
 import 'swiper/css/effect-creative';
 import 'swiper/css/pagination';
-import MainPage from './main';
-import { isMobileDevice } from './utils/mobile';
 
 export default function IndexPage() {
   const { isPopupOpen } = usePopup();
@@ -46,18 +47,7 @@ export default function IndexPage() {
         pagination={true}
         modules={[Pagination, EffectCube, EffectCreative]}
         effect={'creative'}
-        creativeEffect={{
-          prev: {
-            shadow: true,
-            translate: ['-125%', 0, -800],
-            rotate: [0, 0, -90],
-          },
-          next: {
-            shadow: true,
-            translate: ['125%', 0, -800],
-            rotate: [0, 0, 90],
-          },
-        }}
+        creativeEffect={SwiperEffect(SwipingType.Rotate)}
         onSlideChange={(swiper) => setPage(pages[swiper.activeIndex])}
         className={rootClassName}
       >
