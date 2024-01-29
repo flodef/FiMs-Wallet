@@ -49,7 +49,7 @@ export function SortHeader({
   };
 
   return (
-    <Flex justifyContent="start">
+    <Flex justifyContent="start" alignItems="start">
       {label}
       {table?.length && (
         <Icon
@@ -60,7 +60,7 @@ export function SortHeader({
                 ? ChevronDownIcon
                 : ChevronUpDownIcon
           }
-          className="w-6 h-6 p-2 cursor-pointer"
+          className="w-6 h-6 cursor-pointer"
           onClick={() => changeFilter(index)}
         />
       )}
@@ -82,7 +82,7 @@ export default function SortTableHead({
     <TableHead>
       <TableRow>
         {labels.map((label, index) => (
-          <TableHeaderCell key={index} className={`w-[${100 / labels.length}%]`}>
+          <TableHeaderCell key={index} className={`w-[${(100 / labels.length).toFixed(6)}%] px-2.5`}>
             {index < length ? <SortHeader label={label} index={index} table={table} setTable={setTable} /> : label}
           </TableHeaderCell>
         ))}
