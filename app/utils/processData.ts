@@ -40,6 +40,8 @@ const dataNameParameters = new Map<
   [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, range: 'A:D' }],
 ]);
 
+const dataCache = new Map<DataName, { data: any[]; expire: number }>();
+
 export function getPublicKey() {
   let publicKey = localStorage.getItem('PublicKey');
   if (!publicKey) {
@@ -70,9 +72,12 @@ export async function loadData(name: DataName | string, isOutOfLocalHost = true)
   const parameters = dataNameParameters.get(dataName);
   if (!parameters) throw new Error('data name not found');
 
+  const cache = dataCache.get(dataName);
+  if (cache && cache.expire > Date.now()) return cache.data;
+
   const numberOfColumns = getNumberOfColumns(parameters.range);
 
-  return (
+  const data =
     (isOutOfLocalHost
       ? await fetch(`./api/spreadsheet?sheetName=${name}&range=${parameters.range}&isRaw=true`)
           .then(async (response) => {
@@ -100,8 +105,11 @@ export async function loadData(name: DataName | string, isOutOfLocalHost = true)
           .catch((error) => {
             console.error(error);
           })
-      : []) ?? []
-  );
+      : []) ?? [];
+
+  dataCache.set(dataName, { data: data, expire: Date.now() + 1000 * 60 });
+
+  return data;
 }
 
 function checkData(data: any, minCol: number, maxCol = minCol, minRow = 1, maxRow = 100000) {
