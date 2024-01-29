@@ -52,7 +52,7 @@ export default function IndexPage() {
         className={rootClassName}
       >
         {pages.map((page) => (
-          <SwiperSlide key={page} className={pageClassName}>
+          <SwiperSlide key={page} className={pageClassName} style={{ overflowY: 'auto', overflowX: 'hidden' }}>
             <MainPage page={page} />
           </SwiperSlide>
         ))}

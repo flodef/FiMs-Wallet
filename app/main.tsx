@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useSwiper } from 'swiper/react';
 import { Page, useNavigation } from './hooks/useNavigation';
 import { useUser } from './hooks/useUser';
