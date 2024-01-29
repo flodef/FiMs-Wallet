@@ -12,10 +12,11 @@ import {
   Text,
   Title,
 } from '@tremor/react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
 import { User, useUser } from '../hooks/useUser';
 import { cls, getShortAddress } from '../utils/constants';
+import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
@@ -43,29 +44,36 @@ export default function Users() {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState<boolean>();
 
+  const processUsers = useCallback(
+    (users: DBUser[]) => {
+      setIsPublic(users.find((user) => user.name === currentUser?.name)?.ispublic);
+      setUsers(
+        users
+          .filter((user) => (user.ispublic || user.name === currentUser?.name) && user.address !== user.name)
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
+          .map((user) => ({ name: user.name, address: user.address }))
+      );
+    },
+    [currentUser?.name]
+  );
+
   useEffect(() => {
+    loadData(DataName.portfolio).then(processUsers);
     fetch('/api/database/getUsers')
       .then((result) => {
         if (result.ok) {
-          result.json().then((users: DBUser[]) => {
-            setIsPublic(users.find((user) => user.name === currentUser?.name)?.ispublic);
-            setUsers(
-              users
-                ? users
-                    .filter((user) => (user.ispublic || user.name === currentUser?.name) && user.address !== user.name)
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
-                    .map((user) => ({ name: user.name, address: user.address }))
-                : undefined
-            );
+          result.json().then((users: DBUser[] | { sourceError: { cause: { name: string } } }) => {
+            if (!Array.isArray(users)) throw new Error(users.sourceError.cause.name);
+
+            processUsers(users);
           });
         }
       })
       .catch((error) => {
         console.error(error);
-        setUsers([]);
       });
-  }, [currentUser?.name]);
+  }, [processUsers]);
 
   const isUserSelected = (user: User) => selectedUsers.includes(user.name) || selectedUsers.length === 0;
 
