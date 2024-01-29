@@ -18,6 +18,7 @@ import {
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import GainsBar from '../components/gainsBar';
+import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';
 import { cls } from '../utils/constants';
@@ -65,11 +66,13 @@ interface TokenHisto {
 const today = new Date();
 
 export default function Dashboard() {
+  const { page, needRefresh } = useNavigation();
+
   const [dashboard, setDashboard] = useState<Data[]>([]);
   const [token, setToken] = useState<Token[]>([]);
   const [historic, setHistoric] = useState<Historic[]>([]);
-  const [tokenHisto, setTokenHisto] = useState<TokenHisto[][]>([]);
-  const [tokenHistoLimit, setTokenHistoLimit] = useState<{ min: number; max: number }>();
+  const [tokenHistoric, setTokenHistoric] = useState<TokenHisto[][]>([]);
+  const [tokenHistoricLimit, setTokenHistoricLimit] = useState<{ min: number; max: number }>();
 
   const findValue = useCallback((data: Data[], label: string | undefined) => {
     return label ? data.find((d) => d.label.toLowerCase().includes(label.toLowerCase())) : undefined;
@@ -87,7 +90,7 @@ export default function Dashboard() {
     [findValue]
   );
 
-  const generateTokenHisto = useCallback(
+  const generateTokenHistoric = useCallback(
     (token: Token[]) => {
       token = token.filter(({ label }) => label !== 'Euro' && label !== 'Solana'); // TODO : remove this line when Euro is removed from the spreadsheet
 
@@ -111,8 +114,8 @@ export default function Dashboard() {
         min = Math.min(min, tokenValueEnd);
         max = Math.max(max, tokenValueEnd);
       });
-      setTokenHisto(tokenHisto);
-      setTokenHistoLimit({
+      setTokenHistoric(tokenHisto);
+      setTokenHistoricLimit({
         min: min,
         max: max,
       });
@@ -121,32 +124,18 @@ export default function Dashboard() {
   );
 
   const loaded = useRef(false);
-  const [refresh, setRefresh] = useState(false);
-  const setDataRefreshTimer = useCallback(() => {
-    loaded.current = true;
-
-    setRefresh(false);
-    const timeOut = setTimeout(() => {
-      setRefresh(true);
-    }, 60000);
-
-    return () => {
-      clearTimeout(timeOut);
-    };
-  }, []);
-
   useEffect(() => {
-    if (!loaded.current || refresh) {
-      setDataRefreshTimer();
-      loadData(DataName.dashboard)
-        .then(setDashboard)
-        .then(() =>
-          loadData(DataName.token)
-            .then(generateTokenHisto)
-            .then(() => loadData(DataName.historic).then(setHistoric))
-        );
-    }
-  }, [refresh, generateTokenHisto, setDataRefreshTimer]);
+    if (loaded.current && (!needRefresh || page !== Page.Dashboard)) return;
+
+    loaded.current = true;
+    loadData(DataName.dashboard)
+      .then(setDashboard)
+      .then(() =>
+        loadData(DataName.token)
+          .then(generateTokenHistoric)
+          .then(() => loadData(DataName.historic).then(setHistoric))
+      );
+  }, [needRefresh, page, generateTokenHistoric]);
 
   const getBarList = useCallback(
     (labels: string[]) => {
@@ -331,11 +320,11 @@ export default function Dashboard() {
           <AccordionBody>
             <AreaChart
               className="h-44"
-              data={tokenHisto[priceIndex]}
+              data={tokenHistoric[priceIndex]}
               categories={[t.amount]}
               index="date"
               colors={[
-                tokenHisto.length && tokenHisto[priceIndex][0].Montant < tokenHisto[priceIndex][1].Montant
+                tokenHistoric.length && tokenHistoric[priceIndex][0].Montant < tokenHistoric[priceIndex][1].Montant
                   ? 'green'
                   : 'red',
               ]}
@@ -345,8 +334,8 @@ export default function Dashboard() {
               animationDuration={2000}
               curveType="monotone"
               noDataText={t.loading}
-              minValue={tokenHistoLimit?.min ?? 0}
-              maxValue={tokenHistoLimit?.max ?? 0}
+              minValue={tokenHistoricLimit?.min ?? 0}
+              maxValue={tokenHistoricLimit?.max ?? 0}
               showLegend={false}
               startEndOnly={true}
             />

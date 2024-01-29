@@ -8,7 +8,6 @@ import {
   Flex,
   Metric,
   SparkAreaChart,
-  Subtitle,
   Table,
   TableBody,
   TableCell,
@@ -20,6 +19,7 @@ import {
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import GainsBar from '../components/gainsBar';
+import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { TOKEN_PATH } from '../utils/constants';
 import { RoundingDirection } from '../utils/extensions';
@@ -71,56 +71,42 @@ interface Historic {
 
 export default function Portfolio() {
   const { user } = useUser();
+  const { page, needRefresh } = useNavigation();
 
   const [wallet, setWallet] = useState<Wallet[]>();
   const [portfolio, setPortfolio] = useState<Portfolio>();
   const [historic, setHistoric] = useState<Historic[]>([]);
 
   const loaded = useRef(false);
-  const [refresh, setRefresh] = useState(false);
-  const setDataRefreshTimer = () => {
-    loaded.current = true;
-
-    setRefresh(false);
-    const timeOut = setTimeout(() => {
-      setRefresh(true);
-    }, 60000);
-
-    return () => {
-      clearTimeout(timeOut);
-    };
-  };
-
   useEffect(() => {
-    if (user && (!loaded.current || refresh)) {
-      setDataRefreshTimer();
-      loadData(DataName.token).then((tokens: Token[]) => {
-        loadData(DataName.portfolio)
-          .then((data: Portfolio[]) => {
-            const p = data.filter((d) => d.address === user.address)[0];
-            console.log(p);
+    if (!user || (loaded.current && (!needRefresh || page !== Page.Portfolio))) return;
 
-            setPortfolio(p);
+    loaded.current = true;
+    loadData(DataName.token).then((tokens: Token[]) => {
+      loadData(DataName.portfolio)
+        .then((data: Portfolio[]) => {
+          const p = data.filter((d) => d.address === user.address)[0];
 
-            const wallet: Wallet[] = [];
-            tokens.forEach((t, i) => {
-              if (!p.token[i]) return;
+          setPortfolio(p);
 
-              wallet.push({
-                image: TOKEN_PATH + t.label.replaceAll(' ', '') + '.png',
-                name: t.label,
-                symbol: t.symbol,
-                balance: p.token[i],
-                value: t.value,
-                total: p.token[i] * t.value,
-              });
+          const wallet: Wallet[] = [];
+          tokens.forEach((t, i) => {
+            if (!p.token[i]) return;
+
+            wallet.push({
+              image: TOKEN_PATH + t.label.replaceAll(' ', '') + '.png',
+              name: t.label,
+              symbol: t.symbol,
+              balance: p.token[i],
+              value: t.value,
+              total: p.token[i] * t.value,
             });
-            setWallet(wallet.sort((a, b) => b.total - a.total));
-          })
-          .then(() => loadData(user.name).then(setHistoric));
-      });
-    }
-  }, [refresh, user]);
+          });
+          setWallet(wallet.sort((a, b) => b.total - a.total));
+        })
+        .then(() => loadData(user.name).then(setHistoric));
+    });
+  }, [needRefresh, page, user]);
 
   const { minHisto, maxHisto } = useMemo(() => {
     const minHisto = Math.min(...[...historic.map((d) => d.Investi), ...historic.map((d) => d.Total)]).toDecimalPlace(

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ReactNode, useState } from 'react';
+import { FC, ReactNode, useEffect, useState } from 'react';
 import { NavigationContext, Page } from '../hooks/useNavigation';
 
 const pages = Object.keys(Page).map((page) => Page[page as keyof typeof Page]);
@@ -11,6 +11,17 @@ export interface NavigationProviderProps {
 
 export const NavigationProvider: FC<NavigationProviderProps> = ({ children }) => {
   const [page, setPage] = useState<Page>();
+  const [needRefresh, setNeedRefresh] = useState(false);
+  useEffect(() => {
+    setNeedRefresh(false);
+    const timeOut = setTimeout(() => {
+      setNeedRefresh(true);
+    }, 60000);
+
+    return () => {
+      clearTimeout(timeOut);
+    };
+  }, []);
 
   return (
     <NavigationContext.Provider
@@ -18,6 +29,7 @@ export const NavigationProvider: FC<NavigationProviderProps> = ({ children }) =>
         page,
         setPage,
         pages,
+        needRefresh,
       }}
     >
       {children}
