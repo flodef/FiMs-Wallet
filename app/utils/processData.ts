@@ -30,14 +30,14 @@ export enum DataName {
 // Set a value that return all parameters needed to process data (convertFunction, hasFilter, minColInRow, minColInHeader)
 const dataNameParameters = new Map<
   DataName,
-  { convert: (item: string[]) => any; hasHeader: boolean; minColInRow: number; minColInHeader: number }
+  { convert: (item: string[]) => any; hasHeader: boolean; range: string; minColInRow?: number }
 >([
-  [DataName.dashboard, { convert: convertDashboardData, hasHeader: true, minColInRow: 4, minColInHeader: 4 }],
-  [DataName.historic, { convert: convertHistoricData, hasHeader: false, minColInRow: 12, minColInHeader: 12 }],
-  [DataName.token, { convert: convertTokenData, hasHeader: true, minColInRow: 4, minColInHeader: 9 }],
-  [DataName.portfolio, { convert: convertPortfolioData, hasHeader: true, minColInRow: 13, minColInHeader: 15 }],
-  [DataName.userHistoric, { convert: convertUserHistoricData, hasHeader: true, minColInRow: 10, minColInHeader: 10 }],
-  [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, minColInRow: 8, minColInHeader: 8 }],
+  [DataName.dashboard, { convert: convertDashboardData, hasHeader: true, range: 'A:D' }],
+  [DataName.historic, { convert: convertHistoricData, hasHeader: false, range: 'A:L' }],
+  [DataName.token, { convert: convertTokenData, hasHeader: true, range: 'A:I', minColInRow: 4 }],
+  [DataName.portfolio, { convert: convertPortfolioData, hasHeader: true, range: 'A:M' }],
+  [DataName.userHistoric, { convert: convertUserHistoricData, hasHeader: true, range: 'A:I' }],
+  [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, range: 'A:D' }],
 ]);
 
 export function getPublicKey() {
@@ -49,6 +49,19 @@ export function getPublicKey() {
   return publicKey;
 }
 
+function getNumberOfColumns(range: string): number {
+  const [start, end] = range.split(':').map(columnNameToNumber);
+  return end - start + 1;
+}
+
+function columnNameToNumber(columnName: string): number {
+  let number = 0;
+  for (let i = 0; i < columnName.length; i++) {
+    number = number * 26 + (columnName.charCodeAt(i) - 64);
+  }
+  return number;
+}
+
 export async function loadData(name: DataName | string, isOutOfLocalHost = true) {
   if (isOutOfLocalHost && !navigator.onLine) throw new Error('The web app is offline');
 
@@ -57,20 +70,22 @@ export async function loadData(name: DataName | string, isOutOfLocalHost = true)
   const parameters = dataNameParameters.get(dataName);
   if (!parameters) throw new Error('data name not found');
 
+  const numberOfColumns = getNumberOfColumns(parameters.range);
+
   return (
     (isOutOfLocalHost
-      ? await fetch(`./api/spreadsheet?sheetName=${name}&isRaw=true`)
+      ? await fetch(`./api/spreadsheet?sheetName=${name}&range=${parameters.range}&isRaw=true`)
           .then(async (response) => {
             if (typeof response === 'undefined') return;
             return await response
               .json()
               .then((data: { values: string[][]; error: string }) => {
-                checkData(data, parameters.minColInHeader);
+                checkData(data, numberOfColumns);
 
                 return data.values
                   .filter((_, i) => (parameters.hasHeader ? i !== 0 : true))
                   .map((item) => {
-                    checkColumn(item, parameters.minColInRow);
+                    checkColumn(item, parameters.minColInRow ?? numberOfColumns);
                     return parameters.convert(item);
                   });
               })
