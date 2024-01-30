@@ -12,7 +12,6 @@ import {
   TableBody,
   TableCell,
   TableRow,
-  Text,
   Title,
 } from '@tremor/react';
 
@@ -40,6 +39,12 @@ const t: Dataset = {
 
 interface Token extends Data {
   symbol: string;
+}
+
+interface Asset {
+  name: string;
+  symbol: string;
+  balance: number;
 }
 
 interface Portfolio {
@@ -77,6 +82,16 @@ export default function Portfolio() {
   const [portfolio, setPortfolio] = useState<Portfolio>();
   const [historic, setHistoric] = useState<Historic[]>([]);
 
+  const loadAssets = async (address: string) => {
+    return await fetch(
+      `/api/solana/getAssets?address=${address}&creator=CCLcWAJX6fubUqGyZWz8dyUGEddRj8h4XZZCNSDzMVx4`,
+    ).then(async value => {
+      return await value.json().then((tokens: Asset[]) => {
+        return tokens;
+      });
+    });
+  };
+
   const loaded = useRef(false);
   useEffect(() => {
     if (!user || (loaded.current && !needRefresh && page !== Page.Portfolio)) return;
@@ -86,22 +101,28 @@ export default function Portfolio() {
 
     loadData(DataName.token).then((tokens: Token[]) => {
       loadData(DataName.portfolio)
-        .then((data: Portfolio[]) => {
+        .then(async (data: Portfolio[]) => {
+          const assets = await loadAssets(user.address);
           const p = data.filter(d => d.address === user.address)[0];
-
+          p.total = assets.reduce(
+            (a, b) => a + (b.balance ?? 0) * (tokens.find(t => t.label === b.name)?.value ?? 0),
+            0,
+          );
+          p.profitValue = p.total - p.invested;
           setPortfolio(p);
 
           const wallet: Wallet[] = [];
           tokens.forEach((t, i) => {
-            if (!p.token[i]) return;
+            const balance = assets.find(a => a.name === t.label)?.balance ?? p.token[i];
+            if (!balance) return;
 
             wallet.push({
               image: TOKEN_PATH + t.label.replaceAll(' ', '') + '.png',
               name: t.label,
               symbol: t.symbol,
-              balance: p.token[i],
+              balance: balance,
               value: t.value,
-              total: p.token[i] * t.value,
+              total: balance * t.value,
             });
           });
           setWallet(wallet.sort((a, b) => b.total - a.total));
