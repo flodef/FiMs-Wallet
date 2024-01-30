@@ -14,12 +14,12 @@ export const NavigationProvider: FC<NavigationProviderProps> = ({ children }) =>
   const [needRefresh, setNeedRefresh] = useState(false);
   useEffect(() => {
     setNeedRefresh(false);
-    const timeOut = setTimeout(() => {
+    const interval = setInterval(() => {
       setNeedRefresh(true);
     }, 60000);
 
     return () => {
-      clearTimeout(timeOut);
+      clearInterval(interval);
     };
   }, []);
 
