@@ -24,7 +24,8 @@ export async function GET(request: Request) {
     const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        Referer: 'https://www.fims.fi',
+        ContentType: 'application/json',
       },
       body: JSON.stringify({
         jsonrpc: '2.0',
@@ -41,16 +42,18 @@ export async function GET(request: Request) {
       }),
     });
     const { result } = (await response.json()) as { result: HeliusData };
-    const data = result.items
-      .filter((d) => !creator || d.creators.some((c) => c.address === creator))
-      .filter((d) => !token || d.id === token)
-      .map((d) => {
-        return {
-          name: d.content.metadata.name,
-          symbol: d.content.metadata.symbol,
-          balance: d.token_info.balance / Math.pow(10, d.token_info.decimals),
-        };
-      });
+
+    const data =
+      result?.items
+        .filter(d => !creator || d.creators.some(c => c.address === creator))
+        .filter(d => !token || d.id === token)
+        .map(d => {
+          return {
+            name: d.content.metadata.name,
+            symbol: d.content.metadata.symbol,
+            balance: d.token_info.balance / Math.pow(10, d.token_info.decimals),
+          };
+        }) ?? [];
 
     return NextResponse.json(data);
   } catch (error) {
