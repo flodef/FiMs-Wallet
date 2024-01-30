@@ -12,6 +12,7 @@ export interface NavigationContextState {
   setPage: (page: Page) => void;
   pages: Page[];
   needRefresh: boolean;
+  setNeedRefresh: (needRefresh: boolean) => void;
 }
 
 export const NavigationContext = createContext<NavigationContextState>({} as NavigationContextState);

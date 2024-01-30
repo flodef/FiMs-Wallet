@@ -66,7 +66,7 @@ interface TokenHisto {
 const today = new Date();
 
 export default function Dashboard() {
-  const { page, needRefresh } = useNavigation();
+  const { page, needRefresh, setNeedRefresh } = useNavigation();
 
   const [dashboard, setDashboard] = useState<Data[]>([]);
   const [token, setToken] = useState<Token[]>([]);
@@ -75,19 +75,19 @@ export default function Dashboard() {
   const [tokenHistoricLimit, setTokenHistoricLimit] = useState<{ min: number; max: number }>();
 
   const findValue = useCallback((data: Data[], label: string | undefined) => {
-    return label ? data.find((d) => d.label.toLowerCase().includes(label.toLowerCase())) : undefined;
+    return label ? data.find(d => d.label.toLowerCase().includes(label.toLowerCase())) : undefined;
   }, []);
   const getValue = useCallback(
     (data: Data[], label: string | undefined, defaultValue = 0) => {
       return (findValue(data, label)?.value ?? defaultValue).toLocaleCurrency();
     },
-    [findValue]
+    [findValue],
   );
   const getRatio = useCallback(
     (data: Data[], label: string | undefined, defaultValue = 0) => {
       return (findValue(data, label)?.ratio ?? defaultValue).toRatio();
     },
-    [findValue]
+    [findValue],
   );
 
   const generateTokenHistoric = useCallback(
@@ -99,7 +99,7 @@ export default function Dashboard() {
       let min = tokenValueStart;
       let max = tokenValueStart;
       const tokenHisto: TokenHisto[][] = [];
-      token.forEach((t) => {
+      token.forEach(t => {
         const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(token, t.label)) / 100);
         tokenHisto.push([
           {
@@ -120,7 +120,7 @@ export default function Dashboard() {
         max: max,
       });
     },
-    [getRatio]
+    [getRatio],
   );
 
   const loaded = useRef(false);
@@ -128,24 +128,26 @@ export default function Dashboard() {
     if (loaded.current && !needRefresh && page !== Page.Dashboard) return;
 
     loaded.current = true;
+    setNeedRefresh(false);
+
     loadData(DataName.dashboard)
       .then(setDashboard)
       .then(() =>
         loadData(DataName.token)
           .then(generateTokenHistoric)
-          .then(() => loadData(DataName.historic).then(setHistoric))
+          .then(() => loadData(DataName.historic).then(setHistoric)),
       );
-  }, [needRefresh, page, generateTokenHistoric]);
+  }, [needRefresh, setNeedRefresh, page, generateTokenHistoric]);
 
   const getBarList = useCallback(
     (labels: string[]) => {
       return labels
-        .map((label) => {
+        .map(label => {
           return getBarData(t[label] ?? label, getValue(dashboard, label).fromCurrency());
         })
         .sort((a, b) => b.value - a.value);
     },
-    [getValue, dashboard]
+    [getValue, dashboard],
   );
 
   const result = [
@@ -173,7 +175,7 @@ export default function Dashboard() {
         setPriceIndex(((priceIndex ? priceIndex : token.length) + (increment ? 1 : -1)) % token.length);
       }, 100); // Wait for indexChange event to be triggered
     },
-    [priceIndex, token.length]
+    [priceIndex, token.length],
   );
 
   return (
@@ -222,7 +224,7 @@ export default function Dashboard() {
                   <TabList
                     className="float-left lg:float-right"
                     variant={!isTablet ? 'solid' : 'line'}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={e => e.stopPropagation()}
                   >
                     <Tab icon={ChartPieIcon}>{t.total}</Tab>
                     <Tab icon={ListBulletIcon}>{t.profit}</Tab>
@@ -257,7 +259,7 @@ export default function Dashboard() {
               data={result[resultIndex].data}
               showAnimation={true}
               valueFormatter={(number: number) =>
-                (result[resultIndex].data.find((d) => d.value === number)?.amount ?? number).toLocaleCurrency()
+                (result[resultIndex].data.find(d => d.value === number)?.amount ?? number).toLocaleCurrency()
               }
               className="mt-2"
             />
@@ -276,7 +278,7 @@ export default function Dashboard() {
                   <TabList
                     className="float-left lg:float-right"
                     variant={!isTablet ? 'solid' : 'line'}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={e => e.stopPropagation()}
                   >
                     <Flex>
                       {token.map((t, i) => (
@@ -328,7 +330,7 @@ export default function Dashboard() {
                   ? 'green'
                   : 'red',
               ]}
-              valueFormatter={(number) => number.toFixed(0)}
+              valueFormatter={number => number.toFixed(0)}
               yAxisWidth={50}
               showAnimation={true}
               animationDuration={2000}
@@ -364,7 +366,7 @@ export default function Dashboard() {
             categories={[t.transfered, t.total]}
             index="stringDate"
             colors={['indigo', 'fuchsia']}
-            valueFormatter={(number) => number.toShortCurrency()}
+            valueFormatter={number => number.toShortCurrency()}
             yAxisWidth={50}
             showAnimation={true}
             animationDuration={2000}

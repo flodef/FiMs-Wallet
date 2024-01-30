@@ -80,7 +80,7 @@ export async function loadData(name: DataName | string, isOutOfLocalHost = true)
   const data =
     (isOutOfLocalHost
       ? await fetch(`./api/spreadsheet?sheetName=${name}&range=${parameters.range}&isRaw=true`)
-          .then(async (response) => {
+          .then(async response => {
             if (typeof response === 'undefined') return;
             return await response
               .json()
@@ -89,12 +89,12 @@ export async function loadData(name: DataName | string, isOutOfLocalHost = true)
 
                 return data.values
                   .filter((_, i) => (parameters.hasHeader ? i !== 0 : true))
-                  .map((item) => {
+                  .map(item => {
                     checkColumn(item, parameters.minColInRow ?? numberOfColumns);
                     return parameters.convert(item);
                   });
               })
-              .catch((error) => {
+              .catch(error => {
                 if (error instanceof WrongDataPatternError) {
                   console.error(error);
                   return [];
@@ -102,7 +102,7 @@ export async function loadData(name: DataName | string, isOutOfLocalHost = true)
                 throw error;
               });
           })
-          .catch((error) => {
+          .catch(error => {
             console.error(error);
           })
       : []) ?? [];

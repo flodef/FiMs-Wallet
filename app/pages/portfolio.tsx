@@ -71,7 +71,7 @@ interface Historic {
 
 export default function Portfolio() {
   const { user } = useUser();
-  const { page, needRefresh } = useNavigation();
+  const { page, needRefresh, setNeedRefresh } = useNavigation();
 
   const [wallet, setWallet] = useState<Wallet[]>();
   const [portfolio, setPortfolio] = useState<Portfolio>();
@@ -82,10 +82,12 @@ export default function Portfolio() {
     if (!user || (loaded.current && !needRefresh && page !== Page.Portfolio)) return;
 
     loaded.current = true;
+    setNeedRefresh(false);
+
     loadData(DataName.token).then((tokens: Token[]) => {
       loadData(DataName.portfolio)
         .then((data: Portfolio[]) => {
-          const p = data.filter((d) => d.address === user.address)[0];
+          const p = data.filter(d => d.address === user.address)[0];
 
           setPortfolio(p);
 
@@ -106,16 +108,16 @@ export default function Portfolio() {
         })
         .then(() => loadData(user.name).then(setHistoric));
     });
-  }, [needRefresh, page, user]);
+  }, [needRefresh, setNeedRefresh, page, user]);
 
   const { minHisto, maxHisto } = useMemo(() => {
-    const minHisto = Math.min(...[...historic.map((d) => d.Investi), ...historic.map((d) => d.Total)]).toDecimalPlace(
+    const minHisto = Math.min(...[...historic.map(d => d.Investi), ...historic.map(d => d.Total)]).toDecimalPlace(
       3,
-      RoundingDirection.down
+      RoundingDirection.down,
     );
-    const maxHisto = Math.max(...[...historic.map((d) => d.Investi), ...historic.map((d) => d.Total)]).toDecimalPlace(
+    const maxHisto = Math.max(...[...historic.map(d => d.Investi), ...historic.map(d => d.Total)]).toDecimalPlace(
       3,
-      RoundingDirection.up
+      RoundingDirection.up,
     );
 
     return { minHisto, maxHisto };
@@ -153,7 +155,7 @@ export default function Portfolio() {
           {wallet?.length ? (
             <Table>
               <TableBody>
-                {wallet.map((asset) => (
+                {wallet.map(asset => (
                   <TableRow key={asset.name} className="hover:bg-gray-50">
                     <TableCell>
                       <Image
@@ -165,16 +167,14 @@ export default function Portfolio() {
                       ></Image>
                     </TableCell>
                     <TableCell>
-                      <Text>
-                        <Flex justifyContent="between">
-                          <div className="text-xl truncate">{asset.name}</div>
-                          <div>{`${asset.balance.toShortFixed()} ${asset.symbol}`}</div>
-                        </Flex>
-                        <Flex justifyContent="between">
-                          <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
-                          <div className="font-bold text-lg">{asset.total.toLocaleCurrency()}</div>
-                        </Flex>
-                      </Text>
+                      <Flex justifyContent="between">
+                        <div className="text-xl truncate">{asset.name}</div>
+                        <div>{`${asset.balance.toShortFixed()} ${asset.symbol}`}</div>
+                      </Flex>
+                      <Flex justifyContent="between">
+                        <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
+                        <div className="font-bold text-lg">{asset.total.toLocaleCurrency()}</div>
+                      </Flex>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -188,16 +188,14 @@ export default function Portfolio() {
                     <div className="rounded-full w-[50px] h-[50px] bg-slate-200"></div>
                   </TableCell>
                   <TableCell>
-                    <Text>
-                      <Flex justifyContent="between">
-                        <div className="bg-slate-200 w-24 h-7 mb-1 rounded-md"></div>
-                        <div className="bg-slate-200 w-10 h-5 mb-1 rounded-md"></div>
-                      </Flex>
-                      <Flex justifyContent="between">
-                        <div className="bg-slate-200 w-16 h-5 mb-1 rounded-md"></div>
-                        <div className="bg-slate-200 w-24 h-7 mb-1 rounded-md"></div>
-                      </Flex>
-                    </Text>
+                    <Flex justifyContent="between">
+                      <div className="bg-slate-200 w-24 h-7 mb-1 rounded-md"></div>
+                      <div className="bg-slate-200 w-10 h-5 mb-1 rounded-md"></div>
+                    </Flex>
+                    <Flex justifyContent="between">
+                      <div className="bg-slate-200 w-16 h-5 mb-1 rounded-md"></div>
+                      <div className="bg-slate-200 w-24 h-7 mb-1 rounded-md"></div>
+                    </Flex>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -229,7 +227,7 @@ export default function Portfolio() {
             categories={[t.transfered, t.total]}
             index="stringDate"
             colors={['indigo', 'fuchsia']}
-            valueFormatter={(number) => number.toShortCurrency()}
+            valueFormatter={number => number.toShortCurrency()}
             yAxisWidth={50}
             showAnimation={true}
             animationDuration={2000}
