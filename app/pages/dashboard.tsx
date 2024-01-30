@@ -125,7 +125,7 @@ export default function Dashboard() {
 
   const loaded = useRef(false);
   useEffect(() => {
-    if (loaded.current && (!needRefresh || page !== Page.Dashboard)) return;
+    if (loaded.current && !needRefresh && page !== Page.Dashboard) return;
 
     loaded.current = true;
     loadData(DataName.dashboard)

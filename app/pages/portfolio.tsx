@@ -79,7 +79,7 @@ export default function Portfolio() {
 
   const loaded = useRef(false);
   useEffect(() => {
-    if (!user || (loaded.current && (!needRefresh || page !== Page.Portfolio))) return;
+    if (!user || (loaded.current && !needRefresh && page !== Page.Portfolio)) return;
 
     loaded.current = true;
     loadData(DataName.token).then((tokens: Token[]) => {
