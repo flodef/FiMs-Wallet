@@ -127,7 +127,6 @@ export default function Dashboard() {
   useEffect(() => {
     if (loaded.current && !needRefresh && page !== Page.Dashboard) return;
 
-    loaded.current = true;
     setNeedRefresh(false);
 
     loadData(DataName.dashboard)
@@ -135,6 +134,7 @@ export default function Dashboard() {
       .then(() =>
         loadData(DataName.token)
           .then(generateTokenHistoric)
+          .then(() => (loaded.current = true))
           .then(() => loadData(DataName.historic).then(setHistoric)),
       );
   }, [needRefresh, setNeedRefresh, page, generateTokenHistoric]);

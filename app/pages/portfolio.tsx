@@ -96,7 +96,6 @@ export default function Portfolio() {
   useEffect(() => {
     if (!user || (loaded.current && !needRefresh && page !== Page.Portfolio)) return;
 
-    loaded.current = true;
     setNeedRefresh(false);
 
     loadData(DataName.token).then((tokens: Token[]) => {
@@ -126,6 +125,7 @@ export default function Portfolio() {
           });
           setWallet(wallet.sort((a, b) => b.total - a.total));
         })
+        .then(() => (loaded.current = true))
         .then(() => loadData(user.name).then(setHistoric));
     });
   }, [needRefresh, setNeedRefresh, page, user]);
