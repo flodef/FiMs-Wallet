@@ -12,6 +12,7 @@ export interface NavigationProviderProps {
 export const NavigationProvider: FC<NavigationProviderProps> = ({ children }) => {
   const [page, setPage] = useState<Page>();
   const [needRefresh, setNeedRefresh] = useState(false);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setNeedRefresh(true);

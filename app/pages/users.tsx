@@ -46,22 +46,22 @@ export default function Users() {
 
   const processUsers = useCallback(
     (users: DBUser[]) => {
-      setIsPublic(users.find((user) => user.name === currentUser?.name)?.ispublic);
+      setIsPublic(users.find(user => user.name === currentUser?.name)?.ispublic);
       setUsers(
         users
-          .filter((user) => (user.ispublic || user.name === currentUser?.name) && user.address !== user.name)
+          .filter(user => (user.ispublic || user.name === currentUser?.name) && user.address !== user.name)
           .sort((a, b) => a.name.localeCompare(b.name))
           .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
-          .map((user) => ({ name: user.name, address: user.address }))
+          .map(user => ({ name: user.name, address: user.address })),
       );
     },
-    [currentUser?.name]
+    [currentUser?.name],
   );
 
   useEffect(() => {
     loadData(DataName.portfolio).then(processUsers);
     fetch('/api/database/getUsers')
-      .then((result) => {
+      .then(result => {
         if (result.ok) {
           result.json().then((users: DBUser[] | { sourceError: { cause: { name: string } } }) => {
             if (!Array.isArray(users)) throw new Error(users.sourceError.cause.name);
@@ -70,7 +70,7 @@ export default function Users() {
           });
         }
       })
-      .catch((error) => {
+      .catch(error => {
         console.error(error);
       });
   }, [processUsers]);
@@ -83,15 +83,11 @@ export default function Users() {
 
     isUpdatingUserPrivacy.current = true;
 
-    console.log('Updating privacy to', value);
-
     fetch('/api/database/updatePrivacy', {
       method: 'POST',
       body: JSON.stringify({ address: currentUser.address, isPublic: value }),
     })
-      .then((result) => {
-        console.log(result);
-
+      .then(result => {
         if (result.ok) {
           setIsPublic(value);
         }
@@ -143,7 +139,7 @@ export default function Users() {
             value={selectedUsers}
             onValueChange={setSelectedUsers}
           >
-            {users?.map((item) => (
+            {users?.map(item => (
               <MultiSelectItem key={item.name} value={item.name}>
                 {item.name}
               </MultiSelectItem>
@@ -156,12 +152,12 @@ export default function Users() {
           <SortTableHead labels={[t.name, t.address, t.copy]} table={users} setTable={setUsers} />
           <TableBody>
             {users?.length ? (
-              users.filter(isUserSelected).map((user) => (
+              users.filter(isUserSelected).map(user => (
                 <TableRow
                   key={user.name}
                   className={cls(
                     'hover:bg-gray-50 cursor-pointer',
-                    user.name === currentUser?.name ? 'bg-gray-100' : ''
+                    user.name === currentUser?.name ? 'bg-gray-100' : '',
                   )}
                   onClick={() => {
                     navigator.clipboard.writeText(user.address);

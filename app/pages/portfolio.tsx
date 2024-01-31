@@ -104,10 +104,9 @@ export default function Portfolio() {
         .then(async (data: Portfolio[]) => {
           const assets = await loadAssets(user.address);
           const p = data.filter(d => d.address === user.address)[0];
-          p.total = assets.reduce(
-            (a, b) => a + (b.balance ?? 0) * (tokens.find(t => t.label === b.name)?.value ?? 0),
-            0,
-          );
+          p.total =
+            assets?.reduce((a, b) => a + (b.balance ?? 0) * (tokens.find(t => t.label === b.name)?.value ?? 0), 0) ??
+            p.total;
           p.profitValue = p.total - p.invested;
           setPortfolio(p);
 
