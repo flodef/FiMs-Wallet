@@ -92,7 +92,7 @@ export default function Dashboard() {
 
   const generateTokenHistoric = useCallback(
     (token: Token[]) => {
-      token = token.filter(({ label }) => label !== 'Euro' && label !== 'Solana'); // TODO : remove this line when Euro is removed from the spreadsheet
+      token = token.filter(({ label }) => label !== 'Euro'); // TODO : remove this line when Euro is removed from the spreadsheet
 
       setToken(token);
 
@@ -163,9 +163,9 @@ export default function Dashboard() {
     },
   ];
 
-  const isTablet = useIsMobile(1024);
+  const isDesktop = useIsMobile(1280); // xl for tailwindcss breakpoints
   const width = useWindowParam().width;
-  const isTokenListExpanded = (width > 400 && width < 640) || width > 830;
+  const isTokenListExpanded = (width > 400 && width < 640) || width > 970;
 
   const [resultIndex, setResultIndex] = useState(0);
   const [priceIndex, setPriceIndex] = useState(0);
@@ -218,12 +218,12 @@ export default function Dashboard() {
         <Accordion defaultOpen={!isMobileSize()}>
           <AccordionHeader>
             <Flex alignItems="start" flexDirection="col">
-              <Flex alignItems="start" flexDirection={!isTablet ? 'row' : 'col'}>
+              <Flex alignItems="start" flexDirection={!isDesktop ? 'row' : 'col'}>
                 <Title className="text-left whitespace-nowrap">{t.result}</Title>
-                <TabGroup index={resultIndex} onIndexChange={setResultIndex} className="mb-4 lg:mb-0 lg:text-right">
+                <TabGroup index={resultIndex} onIndexChange={setResultIndex} className="mb-4 xl:mb-0 xl:text-right">
                   <TabList
-                    className="float-left lg:float-right"
-                    variant={!isTablet ? 'solid' : 'line'}
+                    className="float-left xl:float-right"
+                    variant={!isDesktop ? 'solid' : 'line'}
                     onClick={e => e.stopPropagation()}
                   >
                     <Tab icon={ChartPieIcon}>{t.total}</Tab>
@@ -268,16 +268,16 @@ export default function Dashboard() {
         <Accordion defaultOpen={!isMobileSize()}>
           <AccordionHeader>
             <Flex alignItems="start" flexDirection="col">
-              <Flex alignItems="start" flexDirection={!isTablet ? 'row' : 'col'}>
+              <Flex alignItems="start" flexDirection={!isDesktop ? 'row' : 'col'}>
                 <Title className="text-left">{t.price}</Title>
                 <TabGroup
                   index={priceIndex}
                   onIndexChange={isTokenListExpanded ? setPriceIndex : undefined}
-                  className="mb-4 lg:mb-0 lg:text-right max-w-[200px]"
+                  className="mb-4 xl:mb-0 xl:text-right max-w-[200px]"
                 >
                   <TabList
-                    className="float-left lg:float-right"
-                    variant={!isTablet ? 'solid' : 'line'}
+                    className="float-left xl:float-right"
+                    variant={!isDesktop ? 'solid' : 'line'}
                     onClick={e => e.stopPropagation()}
                   >
                     <Flex>
