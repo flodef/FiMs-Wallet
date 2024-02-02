@@ -38,8 +38,11 @@ export default function IndexPage() {
     }
   }, [isWindowReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const rootClassName = cls('flex-grow overflow-auto w-full h-screen', isPopupOpen ? 'blur-sm' : '');
-  const pageClassName = 'space-y-6 p-4 md:p-10 md:px-[10%] mx-auto text-center w-full center overflow-auto bg-gray-50';
+  const rootClassName = cls(
+    'flex-grow overflow-auto w-full h-screen max-w-7xl self-center',
+    isPopupOpen ? 'blur-sm' : '',
+  );
+  const pageClassName = 'space-y-6 p-4 md:p-10 mx-auto text-center w-full center overflow-auto bg-gray-50';
 
   return currentPage ? (
     user !== undefined && isMobileDevice() ? (
@@ -48,10 +51,10 @@ export default function IndexPage() {
         modules={[Pagination, EffectCube, EffectCreative]}
         effect={'creative'}
         creativeEffect={SwiperEffect(SwipingType.Rotate)}
-        onSlideChange={(swiper) => setPage(pages[swiper.activeIndex])}
+        onSlideChange={swiper => setPage(pages[swiper.activeIndex])}
         className={rootClassName}
       >
-        {pages.map((page) => (
+        {pages.map(page => (
           <SwiperSlide key={page} className={pageClassName} style={{ overflowY: 'auto', overflowX: 'hidden' }}>
             <MainPage page={page} />
           </SwiperSlide>
@@ -60,7 +63,7 @@ export default function IndexPage() {
     ) : (
       <div className={rootClassName}>
         {user !== undefined ? (
-          pages.map((page) => (
+          pages.map(page => (
             <div key={page} className={cls(pageClassName, page === currentPage ? 'visible' : 'hidden')}>
               <MainPage page={page} />
             </div>
