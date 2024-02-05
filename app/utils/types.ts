@@ -1,12 +1,12 @@
-export interface Dataset {
+export type Dataset = {
   [key: string]: string;
-}
+};
 
-export interface Data {
+export type Data = {
   label: string;
   value: number;
   ratio: number;
-}
+};
 
 export type Filter = 'ascending' | 'descending' | 'none';
 
