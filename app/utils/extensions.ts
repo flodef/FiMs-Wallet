@@ -1,6 +1,6 @@
 'use client';
 
-import { IS_LOCAL } from './constants'; // Hack to be able to use the global context in this file
+import { Dataset } from './types'; // Hack to be able to use the global context in this file
 
 declare global {
   interface Number {
@@ -14,7 +14,7 @@ declare global {
   }
   interface String {
     fromCurrency(locale?: string): number;
-    Normalize(value: any): string;
+    Normalize(): string;
   }
 }
 
@@ -69,7 +69,7 @@ String.prototype.fromCurrency = function (locale?: string) {
   return parseFloat(number.replace(/[^0-9\.\-]/g, ''));
 };
 
-String.prototype.Normalize = function (value: any) {
-  const label = String(value).trim();
+String.prototype.Normalize = function () {
+  const label = this.trim();
   return label.charAt(0).toUpperCase() + label.slice(1);
 };
