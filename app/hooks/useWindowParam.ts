@@ -1,11 +1,16 @@
-import { use, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useLoading } from '../contexts/LoadingProvider';
 
 export enum ColorScheme {
   Light = 'light',
   Dark = 'dark',
 }
 
+export const isWindowReady = typeof window !== 'undefined';
+
 export function useWindowParam() {
+  const { isLoading } = useLoading();
+
   // Initialize state with undefined width/height so server and client renders match
   // Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/
   const [windowSize, setWindowSize] = useState({
@@ -18,6 +23,7 @@ export function useWindowParam() {
   });
   const [colorScheme, setColorScheme] = useState(ColorScheme.Light);
   const [isOnline, setIsOnline] = useState(true);
+  const isReady = useMemo(() => windowSize.width > 0 && !isLoading, [windowSize.width, isLoading]);
 
   useEffect(() => {
     // only execute all the code below in client side
@@ -55,6 +61,11 @@ export function useWindowParam() {
       window.removeEventListener('offline', () => setIsOnline(false));
     };
   }, []); // Empty array ensures that effect is only run on mount
+
+  useEffect(() => {
+    document.documentElement.className = colorScheme;
+  }, [colorScheme]);
+
   return {
     width: windowSize.width,
     height: windowSize.height,
@@ -62,9 +73,6 @@ export function useWindowParam() {
     left: windowPosition.left,
     colorScheme,
     isOnline,
+    isReady,
   };
-}
-
-export function useIsWindowReady() {
-  return useWindowParam().width > 0;
 }
