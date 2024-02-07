@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useState, useContext } from 'react';
+import { FC, ReactNode, createContext, useContext, useState } from 'react';
 
 interface LoadingContextState {
   isLoading: boolean;
@@ -10,7 +10,7 @@ interface LoadingContextState {
 
 const LoadingContext = createContext<LoadingContextState>({} as LoadingContextState);
 
-export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const LoadingProvider: FC<LoadingProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -33,4 +33,8 @@ export function useLoading(): LoadingContextState {
   //   }
   //   return context;
   return useContext(LoadingContext);
+}
+
+export interface LoadingProviderProps {
+  children: ReactNode;
 }
