@@ -4,8 +4,8 @@ import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Button, Dialog, DialogPanel, Tab, TabGroup, TabList } from '@tremor/react';
 import { FiMsLogo } from '../../public/FiMsLogo';
+import { usePopup } from '../contexts/PopupProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
-import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
 import { isWindowReady } from '../hooks/useWindowParam';
 import { cls } from '../utils/constants';
@@ -25,7 +25,7 @@ const t: Dataset = {
 export default function Navbar() {
   const { isPopupOpen, openPopup, closePopup } = usePopup();
   const { page: currentPage, setPage, pages } = useNavigation();
-  const { user } = useUser();
+  const { user, isConnected } = useUser();
 
   return (
     <Disclosure
@@ -38,7 +38,7 @@ export default function Navbar() {
       {({ open }) => (
         <>
           <Dialog open={isPopupOpen} onClose={closePopup}>
-            <DialogPanel>{!user ? <Connect /> : <Disconnect />}</DialogPanel>
+            <DialogPanel>{!isConnected ? <Connect /> : <Disconnect />}</DialogPanel>
           </Dialog>
 
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -47,10 +47,10 @@ export default function Navbar() {
                 <a
                   className={cls(
                     'flex flex-shrink-0 items-center',
-                    user && currentPage !== Page.Dashboard ? 'cursor-pointer' : '',
+                    isConnected && currentPage !== Page.Dashboard ? 'cursor-pointer' : '',
                   )}
                   onClick={
-                    user && currentPage !== Page.Dashboard
+                    isConnected && currentPage !== Page.Dashboard
                       ? () => setPage(Page.Dashboard)
                       : isWindowReady && window.location.pathname === '/admin'
                         ? () => (window.location.href = window.location.origin)
@@ -59,7 +59,7 @@ export default function Navbar() {
                 >
                   <FiMsLogo />
                 </a>
-                <div className={cls('contents', user ? 'animate-display' : 'hidden')}>
+                <div className={cls('contents', isConnected ? 'animate-display' : 'hidden')}>
                   <TabGroup
                     className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8"
                     style={{ marginTop: '15px' }}
@@ -113,13 +113,13 @@ export default function Navbar() {
 
               <div className={cls('ml-6 flex items-center', currentPage ? 'animate-display' : 'hidden')}>
                 <Button className="flex font-bold" style={{ borderRadius: 24 }} onClick={openPopup}>
-                  {!user ? t.connect : user.name}
+                  {!isConnected ? t.connect : user?.name}
                 </Button>
               </div>
             </div>
           </div>
 
-          {user && (
+          {isConnected && (
             <Disclosure.Panel className="sm:hidden animate-display">
               <div className="space-y-1 pt-2 pb-3">
                 {pages.map(page => (
@@ -127,11 +127,11 @@ export default function Navbar() {
                     key={page}
                     className={cls(
                       page === currentPage
-                        ? 'bg-tremor-background-muted dark:bg-dark-tremor-background-muted ' +
+                        ? 'bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle ' +
                             'border-tremor-content dark:border-dark-tremor-content ' +
                             'text-tremor-content-emphasis dark:text-dark-tremor-content-emphasis'
                         : 'border-transparent text-tremor-content dark:text-dark-tremor-content ' +
-                            'hover:bg-tremor-background-muted dark:hover:bg-dark-tremor-background-muted ' +
+                            'hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle ' +
                             'hover:border-tremor-content-subtle dark:hover:border-dark-tremor-content-subtle' +
                             'hover:text-tremor-content-strong dark:hover:text-dark-tremor-content-strong',
                       'block pl-3 pr-4 py-2 border-l-4 text-base font-medium',

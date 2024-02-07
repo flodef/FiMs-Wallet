@@ -1,12 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
 import { EffectCreative, EffectCube, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { usePopup } from './contexts/PopupProvider';
 import { Page, useNavigation } from './hooks/useNavigation';
-import { usePopup } from './hooks/usePopup';
 import { useUser } from './hooks/useUser';
-import { useWindowParam } from './hooks/useWindowParam';
 import { LoadingDot } from './loading';
 import MainPage from './main';
 import { cls } from './utils/constants';
@@ -20,32 +18,18 @@ import 'swiper/css/pagination';
 
 export default function IndexPage() {
   const { isPopupOpen } = usePopup();
-  const { connect, disconnect, user } = useUser();
+  const { isConnected } = useUser();
   const { page: currentPage, setPage, pages } = useNavigation();
-  const { isReady, colorScheme } = useWindowParam();
-
-  useEffect(() => {
-    if (!isReady) return;
-
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    const user = urlSearchParams.get('user');
-
-    if (user) {
-      connect(user);
-    } else {
-      disconnect();
-    }
-  }, [isReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const rootClassName = cls(
     'flex-grow overflow-auto w-full h-screen max-w-7xl self-center',
     isPopupOpen ? 'blur-sm' : '',
   );
   const pageClassName =
-    'space-y-6 p-4 md:p-10 mx-auto text-center w-full center overflow-auto bg-tremor-background-muted dark:bg-dark-tremor-background-muted';
+    'space-y-6 p-4 md:p-10 mx-auto text-center w-full center overflow-auto bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle';
 
   return currentPage ? (
-    user !== undefined && isMobileDevice() ? (
+    isConnected && isMobileDevice() ? (
       <Swiper
         pagination={true}
         modules={[Pagination, EffectCube, EffectCreative]}
@@ -62,7 +46,7 @@ export default function IndexPage() {
       </Swiper>
     ) : (
       <div className={rootClassName}>
-        {user !== undefined ? (
+        {isConnected ? (
           pages.map(page => (
             <div key={page} className={cls(pageClassName, page === currentPage ? 'visible' : 'hidden')}>
               <MainPage page={page} />
