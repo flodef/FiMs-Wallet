@@ -1,6 +1,6 @@
 'use client';
 
-import { Dataset } from './types'; // Hack to be able to use the global context in this file
+import { MinMax } from './types';
 
 declare global {
   interface Number {
@@ -14,7 +14,8 @@ declare global {
   }
   interface String {
     fromCurrency(locale?: string): number;
-    Normalize(): string;
+    normalize(): string;
+    testLimit(limit: MinMax): boolean;
   }
 }
 
@@ -69,7 +70,11 @@ String.prototype.fromCurrency = function (locale?: string) {
   return parseFloat(number.replace(/[^0-9\.\-]/g, ''));
 };
 
-String.prototype.Normalize = function () {
+String.prototype.normalize = function () {
   const label = this.trim();
   return label.charAt(0).toUpperCase() + label.slice(1);
+};
+
+String.prototype.testLimit = function (limit: MinMax) {
+  return this.length >= limit.min && this.length <= limit.max;
 };
