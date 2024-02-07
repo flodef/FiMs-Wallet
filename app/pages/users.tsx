@@ -157,10 +157,8 @@ export default function Users() {
                   key={user.name}
                   className={cls(
                     'cursor-pointer',
-                    'hover:bg-tremor-background-muted dark:hover:bg-dark-tremor-background-muted',
-                    user.name === currentUser?.name
-                      ? 'bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle'
-                      : '',
+                    'hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle',
+                    user.name === currentUser?.name ? 'bg-tremor-border dark:bg-dark-tremor-border' : '',
                   )}
                   onClick={() => {
                     navigator.clipboard.writeText(user.address);

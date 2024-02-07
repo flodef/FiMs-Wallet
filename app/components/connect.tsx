@@ -1,6 +1,6 @@
 import { Button, Flex, TextInput, Title } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePopup } from '../hooks/usePopup';
+import { usePopup } from '../contexts/PopupProvider';
 import { useUser } from '../hooks/useUser';
 import { Dataset } from '../utils/types';
 
@@ -34,7 +34,7 @@ export default function Connect() {
     setIsConnecting(true);
     setUserName(currentUserName);
 
-    connect(currentUserName).then((user) => {
+    connect(currentUserName).then(user => {
       setIsConnecting(false);
       setHasConnectionError(user === undefined);
       if (user) {
@@ -50,7 +50,7 @@ export default function Connect() {
       setCurrentUserName(value.trim());
       setHasConnectionError(value.trim() !== '' && value.trim() === userName);
     },
-    [userName]
+    [userName],
   );
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -72,7 +72,7 @@ export default function Connect() {
         placeholder={t.userName}
         defaultValue={currentUserName}
         onValueChange={changeUserName}
-        onKeyDown={(event) => {
+        onKeyDown={event => {
           event.key === 'Enter' && handleConnect();
         }}
       />

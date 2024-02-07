@@ -22,6 +22,12 @@ const t: Dataset = {
   withdrawalCost: 'Frais de retrait',
 };
 
+export enum TransactionType {
+  deposit,
+  withdrawal,
+  donation,
+}
+
 type Transaction = {
   [key: string]: number | string | undefined;
   date: number;
@@ -31,12 +37,6 @@ type Transaction = {
   cost: number;
   user?: string;
 };
-
-enum TransactionType {
-  deposit,
-  withdrawal,
-  donation,
-}
 
 export default function Transactions() {
   const { user } = useUser();
@@ -52,8 +52,8 @@ export default function Transactions() {
         // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
         setTransactions(
           data
-            .filter((d) => d.user === user.name)
-            .map((d) => ({
+            .filter(d => d.user === user.name)
+            .map(d => ({
               date: d.date,
               movement: d.movement,
               type:
@@ -64,7 +64,7 @@ export default function Transactions() {
                     : TransactionType.donation,
               stringDate: d.stringDate,
               cost: d.cost,
-            }))
+            })),
         );
       });
     }
@@ -72,7 +72,7 @@ export default function Transactions() {
 
   return (
     <>
-      <Title>{t.transactionList}</Title>
+      <Title className="text-left whitespace-nowrap">{t.transactionList}</Title>
       {/* <Search defaultValue={search} />  // TODO : Search by date */}
       <Card className="mt-6">
         <Table>
@@ -80,7 +80,10 @@ export default function Transactions() {
           <TableBody>
             {transactions?.length ? (
               transactions.map((transaction, index) => (
-                <TableRow key={index} className="hover:bg-gray-50">
+                <TableRow
+                  key={index}
+                  className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
+                >
                   <TableCell>{transaction.stringDate}</TableCell>
                   <TableCell className={cls('font-bold', transaction.movement > 0 ? 'text-green-400' : 'text-red-400')}>
                     <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
