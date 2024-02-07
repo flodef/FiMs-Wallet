@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   const { isPublic, address } = body;
 
   try {
-    const result = await sql`UPDATE users SET isPublic = ${isPublic} WHERE Address = ${address}`;
+    const result = await sql`UPDATE users SET isPublic = ${Boolean(isPublic)} WHERE Address = ${address}`;
 
     console.log(result);
 
