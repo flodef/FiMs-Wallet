@@ -14,8 +14,8 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className="h-full bg-gray-50">
-      <body className="flex flex-col h-screen">
+    <html lang="fr">
+      <body className="flex flex-col h-screen bg-tremor-background-muted dark:bg-dark-tremor-background-muted">
         <NavigationProvider>
           <UserProvider>
             <PopupProvider>

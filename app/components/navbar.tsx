@@ -7,6 +7,7 @@ import { FiMsLogo } from '../../public/FiMsLogo';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
+import { isWindowReady } from '../hooks/useWindowParam';
 import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
 import Connect from './connect';
@@ -27,7 +28,13 @@ export default function Navbar() {
   const { user } = useUser();
 
   return (
-    <Disclosure as="nav" className={cls('bg-white shadow-sm flex-shrink-0 z-10', isPopupOpen ? 'blur-sm' : '')}>
+    <Disclosure
+      as="nav"
+      className={cls(
+        'bg-tremor-background dark:bg-dark-tremor-background shadow-sm flex-shrink-0 z-10',
+        isPopupOpen ? 'blur-sm' : '',
+      )}
+    >
       {({ open }) => (
         <>
           <Dialog open={isPopupOpen} onClose={closePopup}>
@@ -40,9 +47,15 @@ export default function Navbar() {
                 <a
                   className={cls(
                     'flex flex-shrink-0 items-center',
-                    user && currentPage !== Page.Dashboard ? 'cursor-pointer' : ''
+                    user && currentPage !== Page.Dashboard ? 'cursor-pointer' : '',
                   )}
-                  onClick={user && currentPage !== Page.Dashboard ? () => setPage(Page.Dashboard) : undefined}
+                  onClick={
+                    user && currentPage !== Page.Dashboard
+                      ? () => setPage(Page.Dashboard)
+                      : isWindowReady && window.location.pathname === '/admin'
+                        ? () => (window.location.href = window.location.origin)
+                        : undefined
+                  }
                 >
                   <FiMsLogo />
                 </a>
@@ -52,16 +65,16 @@ export default function Navbar() {
                     style={{ marginTop: '15px' }}
                     defaultIndex={pages.indexOf(currentPage ?? Page.Dashboard)}
                     index={pages.indexOf(currentPage ?? Page.Dashboard)}
-                    onIndexChange={(i) => setPage(pages[i])}
+                    onIndexChange={i => setPage(pages[i])}
                   >
                     <TabList>
-                      {pages.map((page) => (
+                      {pages.map(page => (
                         <Tab
                           className={cls(
                             'text-[20px] hover:text-gray-700 hover:font-bold',
                             page === currentPage
                               ? 'cursor-default font-bold border-b-2 mb-0 border-b-blue-500 text-blue-500'
-                              : 'cursor-pointer'
+                              : 'cursor-pointer',
                           )}
                           key={page}
                           aria-current={page === currentPage ? 'page' : undefined}
@@ -72,7 +85,15 @@ export default function Navbar() {
                     </TabList>
                   </TabGroup>
                   <div className="-mr-2 ml-2 flex items-center sm:hidden">
-                    <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none">
+                    <Disclosure.Button
+                      className={cls(
+                        'inline-flex items-center justify-center rounded-md p-2 focus:outline-none',
+                        'bg-tremor-background dark:bg-dark-tremor-background',
+                        'text-tremor-content-subtle dark:text-dark-tremor-content-subtle',
+                        'hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle',
+                        'hover:text-tremor-content dark:hover:text-dark-tremor-content',
+                      )}
+                    >
                       <span className="sr-only">Open main menu</span>
                       {open ? (
                         <XMarkIcon
@@ -101,14 +122,19 @@ export default function Navbar() {
           {user && (
             <Disclosure.Panel className="sm:hidden animate-display">
               <div className="space-y-1 pt-2 pb-3">
-                {pages.map((page) => (
+                {pages.map(page => (
                   <Disclosure.Button
                     key={page}
                     className={cls(
                       page === currentPage
-                        ? 'bg-slate-50 border-slate-500 text-slate-700'
-                        : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800',
-                      'block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                        ? 'bg-tremor-background-muted dark:bg-dark-tremor-background-muted ' +
+                            'border-tremor-content dark:border-dark-tremor-content ' +
+                            'text-tremor-content-emphasis dark:text-dark-tremor-content-emphasis'
+                        : 'border-transparent text-tremor-content dark:text-dark-tremor-content ' +
+                            'hover:bg-tremor-background-muted dark:hover:bg-dark-tremor-background-muted ' +
+                            'hover:border-tremor-content-subtle dark:hover:border-dark-tremor-content-subtle' +
+                            'hover:text-tremor-content-strong dark:hover:text-dark-tremor-content-strong',
+                      'block pl-3 pr-4 py-2 border-l-4 text-base font-medium',
                     )}
                     onClick={() => setPage(page)}
                     aria-current={page === currentPage ? 'page' : undefined}

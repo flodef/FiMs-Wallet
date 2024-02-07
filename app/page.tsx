@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Page, useNavigation } from './hooks/useNavigation';
 import { usePopup } from './hooks/usePopup';
 import { useUser } from './hooks/useUser';
-import { useIsWindowReady } from './hooks/useWindowParam';
+import { useWindowParam } from './hooks/useWindowParam';
 import { LoadingDot } from './loading';
 import MainPage from './main';
 import { cls } from './utils/constants';
@@ -22,11 +22,10 @@ export default function IndexPage() {
   const { isPopupOpen } = usePopup();
   const { connect, disconnect, user } = useUser();
   const { page: currentPage, setPage, pages } = useNavigation();
-
-  const isWindowReady = useIsWindowReady();
+  const { isReady, colorScheme } = useWindowParam();
 
   useEffect(() => {
-    if (!isWindowReady) return;
+    if (!isReady) return;
 
     const urlSearchParams = new URLSearchParams(window.location.search);
     const user = urlSearchParams.get('user');
@@ -36,13 +35,14 @@ export default function IndexPage() {
     } else {
       disconnect();
     }
-  }, [isWindowReady]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const rootClassName = cls(
     'flex-grow overflow-auto w-full h-screen max-w-7xl self-center',
     isPopupOpen ? 'blur-sm' : '',
   );
-  const pageClassName = 'space-y-6 p-4 md:p-10 mx-auto text-center w-full center overflow-auto bg-gray-50';
+  const pageClassName =
+    'space-y-6 p-4 md:p-10 mx-auto text-center w-full center overflow-auto bg-tremor-background-muted dark:bg-dark-tremor-background-muted';
 
   return currentPage ? (
     user !== undefined && isMobileDevice() ? (

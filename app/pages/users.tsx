@@ -156,8 +156,11 @@ export default function Users() {
                 <TableRow
                   key={user.name}
                   className={cls(
-                    'hover:bg-gray-50 cursor-pointer',
-                    user.name === currentUser?.name ? 'bg-gray-100' : '',
+                    'cursor-pointer',
+                    'hover:bg-tremor-background-muted dark:hover:bg-dark-tremor-background-muted',
+                    user.name === currentUser?.name
+                      ? 'bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle'
+                      : '',
                   )}
                   onClick={() => {
                     navigator.clipboard.writeText(user.address);
@@ -169,7 +172,11 @@ export default function Users() {
                   </TableCell>
                   <TableCell>
                     <DocumentDuplicateIcon
-                      className="h-5 w-5 ml-3 text-gray-400 hover:text-gray-500 cursor-pointer"
+                      className={cls(
+                        'h-5 w-5 ml-3 cursor-pointer',
+                        'text-tremor-content-subtle dark:text-dark-tremor-content-subtle',
+                        'hover:text-tremor-content dark:hover:text-dark-tremor-content',
+                      )}
                       onClick={() => {
                         navigator.clipboard.writeText(user.address);
                       }}
