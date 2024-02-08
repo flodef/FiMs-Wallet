@@ -2,7 +2,7 @@
 
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { Button, Dialog, DialogPanel, Tab, TabGroup, TabList } from '@tremor/react';
+import { Button, Tab, TabGroup, TabList } from '@tremor/react';
 import { FiMsLogo } from '../../public/FiMsLogo';
 import { usePopup } from '../contexts/PopupProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
@@ -10,8 +10,6 @@ import { useUser } from '../hooks/useUser';
 import { isWindowReady } from '../hooks/useWindowParam';
 import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
-import Connect from './connect';
-import Disconnect from './disconnect';
 
 const t: Dataset = {
   connect: 'Se connecter',
@@ -23,7 +21,7 @@ const t: Dataset = {
 };
 
 export default function Navbar() {
-  const { isPopupOpen, openPopup, closePopup } = usePopup();
+  const { isPopupOpen, openPopup } = usePopup();
   const { page: currentPage, setPage, pages } = useNavigation();
   const { user, isConnected } = useUser();
 
@@ -37,10 +35,6 @@ export default function Navbar() {
     >
       {({ open }) => (
         <>
-          <Dialog open={isPopupOpen} onClose={closePopup}>
-            <DialogPanel>{!isConnected ? <Connect /> : <Disconnect />}</DialogPanel>
-          </Dialog>
-
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex">
