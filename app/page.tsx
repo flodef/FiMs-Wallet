@@ -46,7 +46,7 @@ export default function IndexPage() {
           const versions: VersionNote[] = [];
 
           while ((match = regex.exec(text)) !== null) {
-            if (version < match[1]) {
+            if (version < match[1] && versions.length < 3) {
               versions.push({
                 version: match[1],
                 notes: match[2]
