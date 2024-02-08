@@ -98,36 +98,40 @@ export default function Portfolio() {
 
     setNeedRefresh(false);
 
-    loadData(DataName.token).then((tokens: Token[]) => {
-      loadData(DataName.portfolio)
-        .then(async (data: Portfolio[]) => {
-          const assets = await loadAssets(user.address);
-          const p = data.filter(d => d.address === user.address)[0];
-          p.total =
-            assets?.reduce((a, b) => a + (b.balance ?? 0) * (tokens.find(t => t.label === b.name)?.value ?? 0), 0) ??
-            p.total;
-          p.profitValue = p.total - p.invested;
-          setPortfolio(p);
+    loadData(DataName.token)
+      .then((tokens: Token[]) => {
+        loadData(DataName.portfolio)
+          .then(async (data: Portfolio[]) => {
+            const assets = await loadAssets(user.address);
+            const p = data.filter(d => d.address === user.address)[0];
+            p.total = assets
+              ? assets.reduce((a, b) => a + (b.balance ?? 0) * (tokens.find(t => t.label === b.name)?.value ?? 0), 0)
+              : p.total;
+            p.profitValue = p.total - p.invested;
+            setPortfolio(p);
 
-          const wallet: Wallet[] = [];
-          tokens.forEach((t, i) => {
-            const balance = assets.find(a => a.name === t.label)?.balance ?? p.token[i];
-            if (!balance) return;
+            const wallet: Wallet[] = [];
+            tokens.forEach((t, i) => {
+              const balance = assets.find(a => a.name === t.label)?.balance ?? p.token[i];
+              if (!balance) return;
 
-            wallet.push({
-              image: TOKEN_PATH + t.label.replaceAll(' ', '') + '.png',
-              name: t.label,
-              symbol: t.symbol,
-              balance: balance,
-              value: t.value,
-              total: balance * t.value,
+              wallet.push({
+                image: TOKEN_PATH + t.label.replaceAll(' ', '') + '.png',
+                name: t.label,
+                symbol: t.symbol,
+                balance: balance,
+                value: t.value,
+                total: balance * t.value,
+              });
             });
-          });
-          setWallet(wallet.sort((a, b) => b.total - a.total));
-        })
-        .then(() => (loaded.current = true))
-        .then(() => loadData(user.name).then(setHistoric));
-    });
+            setWallet(wallet.sort((a, b) => b.total - a.total));
+          })
+          .then(() => (loaded.current = true))
+          .then(() => loadData(user.name).then(setHistoric));
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }, [needRefresh, setNeedRefresh, page, user]);
 
   const { minHisto, maxHisto } = useMemo(() => {
@@ -176,7 +180,10 @@ export default function Portfolio() {
             <Table>
               <TableBody>
                 {wallet.map(asset => (
-                  <TableRow key={asset.name} className="hover:bg-gray-50">
+                  <TableRow
+                    key={asset.name}
+                    className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
+                  >
                     <TableCell>
                       <Image
                         className="rounded-full"
@@ -205,16 +212,16 @@ export default function Portfolio() {
               <TableBody>
                 <TableRow className="animate-pulse">
                   <TableCell>
-                    <div className="rounded-full w-[50px] h-[50px] bg-slate-200"></div>
+                    <div className="rounded-full w-[50px] h-[50px] bg-tremor-border"></div>
                   </TableCell>
                   <TableCell>
                     <Flex justifyContent="between">
-                      <div className="bg-slate-200 w-24 h-7 mb-1 rounded-md"></div>
-                      <div className="bg-slate-200 w-10 h-5 mb-1 rounded-md"></div>
+                      <div className="bg-tremor-border w-24 h-7 mb-1 rounded-md"></div>
+                      <div className="bg-tremor-border w-10 h-5 mb-1 rounded-md"></div>
                     </Flex>
                     <Flex justifyContent="between">
-                      <div className="bg-slate-200 w-16 h-5 mb-1 rounded-md"></div>
-                      <div className="bg-slate-200 w-24 h-7 mb-1 rounded-md"></div>
+                      <div className="bg-tremor-border w-16 h-5 mb-1 rounded-md"></div>
+                      <div className="bg-tremor-border w-24 h-7 mb-1 rounded-md"></div>
                     </Flex>
                   </TableCell>
                 </TableRow>

@@ -64,7 +64,7 @@ export default function Users() {
       .then(result => {
         if (result.ok) {
           result.json().then((users: DBUser[] | { sourceError: { cause: { name: string } } }) => {
-            if (!Array.isArray(users)) throw new Error(users.sourceError.cause.name);
+            if (!Array.isArray(users)) throw new Error(users.sourceError?.cause.name ?? 'Invalid users');
 
             processUsers(users);
           });
