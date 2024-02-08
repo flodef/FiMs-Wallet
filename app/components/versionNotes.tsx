@@ -1,9 +1,10 @@
-import { Button, Divider, Flex, Title } from '@tremor/react';
+import { Button, Divider, Flex, Metric, Title } from '@tremor/react';
 import { useIsMobile } from '../utils/mobile';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
   close: 'Fermer',
+  news: 'Nouveautés',
 };
 
 export type VersionNote = {
@@ -17,6 +18,7 @@ export default function VersionNotes({ versionNotes, onClose }: { versionNotes: 
 
   return (
     <Flex flexDirection="col">
+      <Metric>{t.news}</Metric>
       {versionNotes.map((versionNote, index) => (
         <div key={index}>
           <Divider>
