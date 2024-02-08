@@ -38,46 +38,49 @@ export default function IndexPage() {
     'space-y-6 p-4 md:p-10 mx-auto text-center w-full center overflow-auto bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle';
 
   useEffect(() => {
-    async function fetchVersionNote() {
-      try {
-        const response = await fetch('/VERSION.md');
-        const text = await response.text();
-        const regex = /# (\d+\.\d+)((?:\n(?!\n#).*)*)/g;
-        let match;
-        const versions: VersionNote[] = [];
+    fetch('/VERSION.md')
+      .then(response => {
+        response.text().then(text => {
+          const regex = /# (\d+\.\d+)((?:\n(?!\n#).*)*)/g;
+          let match;
+          const versions: VersionNote[] = [];
 
-        while ((match = regex.exec(text)) !== null) {
-          if (version < match[1]) {
-            versions.push({
-              version: match[1],
-              notes: match[2]
-                .trim()
-                .split('\n')
-                .filter(line => line.trim().length > 0)
-                .map(note => note.replace(/^- /, '')),
-            });
+          while ((match = regex.exec(text)) !== null) {
+            if (version < match[1]) {
+              versions.push({
+                version: match[1],
+                notes: match[2]
+                  .trim()
+                  .split('\n')
+                  .filter(line => line.trim().length > 0)
+                  .map(note => note.replace(/^- /, '')),
+              });
+            }
           }
-        }
 
-        if (versions.length > 0) {
-          setVersion(versions[0].version);
-          setVersionNotes(versions);
-          openPopup();
-        }
-      } catch (error) {
+          if (versions.length > 0) {
+            setVersion(versions[0].version);
+            setVersionNotes(versions);
+            openPopup();
+          }
+        });
+      })
+      .catch(error => {
         console.error('Error fetching version note:', error);
-      }
-    }
-
-    fetchVersionNote();
+      });
   }, [version, setVersion, openPopup]);
+
+  function handleClose() {
+    setVersionNotes([]);
+    closePopup();
+  }
 
   return (
     <>
-      <Dialog open={isPopupOpen} onClose={closePopup}>
+      <Dialog open={isPopupOpen} onClose={handleClose}>
         <DialogPanel>
           {versionNotes.length > 0 ? (
-            <VersionNotes versionNotes={versionNotes} />
+            <VersionNotes versionNotes={versionNotes} onClose={handleClose} />
           ) : !isConnected ? (
             <Connect />
           ) : (
