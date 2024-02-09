@@ -102,17 +102,30 @@ export default function Portfolio() {
       .then((tokens: Token[]) => {
         loadData(DataName.portfolio)
           .then(async (data: Portfolio[]) => {
+            const p = data.find(d => d.address === user.address) ?? {
+              address: user.address,
+              token: [],
+              total: 0,
+              invested: 0,
+              profitValue: 0,
+              profitRatio: 0,
+              yearlyYield: 0,
+              solProfitPrice: 0,
+            };
             const assets = await loadAssets(user.address);
-            const p = data.filter(d => d.address === user.address)[0];
-            p.total = assets
-              ? assets.reduce((a, b) => a + (b.balance ?? 0) * (tokens.find(t => t.label === b.name)?.value ?? 0), 0)
-              : p.total;
-            p.profitValue = p.total - p.invested;
+            if (assets) {
+              p.total = assets.reduce(
+                (a, b) => a + (b.balance ?? 0) * (tokens.find(t => t.label === b.name)?.value ?? 0),
+                0,
+              );
+              p.profitValue = p.total - p.invested;
+              p.token = tokens.map(t => assets.find(a => a.name === t.label)?.balance ?? 0);
+            }
             setPortfolio(p);
 
             const wallet: Wallet[] = [];
             tokens.forEach((t, i) => {
-              const balance = assets.find(a => a.name === t.label)?.balance ?? p.token[i];
+              const balance = p.token[i];
               if (!balance) return;
 
               wallet.push({
