@@ -20,10 +20,17 @@ declare global {
 }
 
 Number.prototype.toLocaleCurrency = function (currency = 'EUR') {
-  return Intl.NumberFormat(undefined, {
+  let value = Intl.NumberFormat(undefined, {
     style: 'currency',
     currency: currency,
   }).format(Number(this));
+
+  if (this && /^(?:\D*0(?:\.\d{1,2})?)\D*$/.test(value)) {
+    const significantDigits = this.toPrecision(2); // Get the significant digits
+    value = value.replace('00', parseFloat(significantDigits).toString().slice(2)); // Convert to string and remove trailing zeros
+  }
+
+  return value;
 };
 
 Number.prototype.toShortCurrency = function (maxDecimals = 0, symbol = '€') {
