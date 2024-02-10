@@ -9,7 +9,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing required parameter: date, address or movement.' }, { status: 500 });
 
   try {
-    const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const d = new Date(date);
+    const dateString = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     const result = await sql`
       INSERT INTO transactions (Date, Address, Movement, Cost)
       VALUES (${dateString}, ${String(address)}, ${Number(movement)}, ${Number(cost)})`;
@@ -17,6 +18,6 @@ export async function POST(request: Request) {
     return NextResponse.json(result);
   } catch (error) {
     console.error(error);
-    return NextResponse.json(error);
+    return NextResponse.error();
   }
 }
