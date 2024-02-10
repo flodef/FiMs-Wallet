@@ -48,6 +48,7 @@ const t: Dataset = {
 };
 
 interface Token extends Data {
+  available: number;
   duration: number;
 }
 
@@ -92,7 +93,7 @@ export default function Dashboard() {
 
   const generateTokenHistoric = useCallback(
     (token: Token[]) => {
-      token = token.filter(({ label }) => label !== 'Euro'); // TODO : remove this line when Euro is removed from the spreadsheet
+      token = token.filter(({ label, available }) => available && label !== 'Euro'); // TODO : remove this line when Euro is removed from the spreadsheet
 
       setToken(token);
 

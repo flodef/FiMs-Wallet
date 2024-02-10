@@ -151,7 +151,7 @@ function convertTokenData(item: string[]) {
     label: String(item.at(1)).trim(), // token name
     // mintAddress: String(item.at(2)).trim(), //not used
     value: Number(item.at(3)),
-    // available: Number(item.at(4)), //not used
+    available: Number(item.at(4)), //not used
     // yearlyYield: Number(item.at(5)),  //not used
     ratio: Number(item.at(6)), // inception yield
     // inceptionPrice: Number(item.at(7)), //not used
