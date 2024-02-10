@@ -51,7 +51,6 @@ export default function AdminPage() {
 
     setUserLoading(true);
 
-    // Add user to the database with the provided name, address, and default values
     fetch('/api/database/addUser', {
       method: 'POST',
       body: JSON.stringify({ name: name.normalize(), address: address, isPublic: false }),
@@ -64,6 +63,9 @@ export default function AdminPage() {
           setName('');
           setAddress('');
         }
+      })
+      .catch(error => {
+        console.error(error);
       })
       .finally(() => {
         setUserLoading(false);
@@ -81,7 +83,6 @@ export default function AdminPage() {
     const cost =
       t === TransactionType.donation ? movement : t === TransactionType.withdrawal ? (movement * 0.5) / 100 : 0;
 
-    // TODO: Add logic to save the new transaction to the database
     fetch('/api/database/addTransaction', {
       method: 'POST',
       body: JSON.stringify({ date: date, address: currentUser, movement: value, cost: cost }),
@@ -96,6 +97,9 @@ export default function AdminPage() {
           setType(TransactionType[TransactionType.deposit]);
           setCurrentUser('');
         }
+      })
+      .catch(error => {
+        console.error(error);
       })
       .finally(() => {
         setTransactionLoading(false);
@@ -185,6 +189,7 @@ export default function AdminPage() {
             className="max-w-sm"
             value={movement}
             onValueChange={setMovement}
+            onFocus={e => (e.target.value = '')}
             placeholder="Movement"
             icon={CurrencyEuroIcon}
             step={100}

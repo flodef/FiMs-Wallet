@@ -13,6 +13,6 @@ export async function GET(request: Request) {
     return NextResponse.json(rows);
   } catch (error) {
     console.error(error);
-    return NextResponse.json(error);
+    return NextResponse.error();
   }
 }
