@@ -112,6 +112,12 @@ export async function loadData(name: DataName | string, isOutOfLocalHost = true)
   return data;
 }
 
+export function clearData() {
+  [DataName.portfolio, DataName.userHistoric].forEach(name => {
+    dataCache.set(name, { data: [], expire: 0 });
+  });
+}
+
 function checkData(data: any, minCol: number, maxCol = minCol, minRow = 1, maxRow = 100000) {
   if (!data) throw new Error('data not fetched');
   if (data.error) throw new Error(data.error);
@@ -143,8 +149,8 @@ function convertTokenData(item: string[]) {
   return {
     symbol: String(item.at(0)).trim(), // token symbol
     label: String(item.at(1)).trim(), // token name
-    value: Number(item.at(2)),
-    // mintAddress: String(item.at(3)).trim(), //not used
+    // mintAddress: String(item.at(2)).trim(), //not used
+    value: Number(item.at(3)),
     // available: Number(item.at(4)), //not used
     // yearlyYield: Number(item.at(5)),  //not used
     ratio: Number(item.at(6)), // inception yield

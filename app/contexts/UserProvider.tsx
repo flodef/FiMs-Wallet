@@ -4,7 +4,7 @@ import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, UserContext } from '../hooks/useUser';
 import { useLocalStorage } from '../utils/localStorage';
-import { DataName, loadData } from '../utils/processData';
+import { DataName, clearData, loadData } from '../utils/processData';
 
 export interface UserProviderProps {
   children: ReactNode;
@@ -20,11 +20,12 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
   useEffect(() => {
     setPage(user ? Page.Portfolio : Page.Dashboard);
     setIsConnected(!!user);
+    connecting.current = false;
   }, [user, setPage]);
 
   const disconnect = useCallback(() => {
     setUser(undefined);
-    connecting.current = false;
+    clearData();
   }, [setUser]);
 
   const connect = useCallback(
@@ -35,16 +36,14 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
 
       return await loadData(DataName.portfolio)
         .then((users: User[]) => {
-          const newUser = users.filter(u => u.name.toLowerCase() === userName.toLowerCase());
-          if (newUser.length === 1) {
-            connecting.current = false;
-            setUser(newUser[0]);
-            return newUser[0];
+          const newUser = users.find(u => u.name.toLowerCase() === userName.toLowerCase());
+          if (newUser) {
+            setUser(newUser);
           } else {
             console.error('No user found');
             disconnect();
-            return undefined;
           }
+          return newUser;
         })
         .catch(error => {
           console.error(error);
