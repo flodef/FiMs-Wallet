@@ -134,9 +134,10 @@ export default function Dashboard() {
       .then(() =>
         loadData(DataName.token)
           .then(generateTokenHistoric)
-          .then(() => (loaded.current = true))
           .then(() => loadData(DataName.historic).then(setHistoric)),
-      );
+      )
+      .catch(console.error)
+      .finally(() => (loaded.current = true));
   }, [needRefresh, setNeedRefresh, page, generateTokenHistoric]);
 
   const getBarList = useCallback(
