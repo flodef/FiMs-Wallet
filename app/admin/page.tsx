@@ -5,16 +5,8 @@ import { PublicKey } from '@solana/web3.js';
 import { Button, Card, DatePicker, Flex, Grid, NumberInput, Select, SelectItem, TextInput, Title } from '@tremor/react';
 import { useEffect, useMemo, useState } from 'react';
 import { User } from '../hooks/useUser';
-import { useWindowParam } from '../hooks/useWindowParam';
-import { TransactionType } from '../pages/transactions';
+import { Transaction, TransactionType } from '../pages/transactions';
 import { MinMax } from '../utils/types';
-
-interface Transaction {
-  date: Date;
-  address: string;
-  movement: number;
-  cost: number;
-}
 
 const nameLimit: MinMax = { min: 5, max: 25 };
 const addressLimit: MinMax = { min: 32, max: 44 };
@@ -24,8 +16,9 @@ export default function AdminPage() {
   const [address, setAddress] = useState('');
   const [date, setDate] = useState(new Date());
   const [movement, setMovement] = useState(0);
-  const [type, setType] = useState(TransactionType[TransactionType.deposit]);
+  const [transactionType, setTransactionType] = useState(TransactionType[TransactionType.deposit]);
   const [users, setUsers] = useState<User[]>();
+  const [transactions, setTransactions] = useState<Transaction[]>();
   const [currentUser, setCurrentUser] = useState('');
   const [userLoading, setUserLoading] = useState(false);
   const [transactionLoading, setTransactionLoading] = useState(false);
@@ -34,16 +27,18 @@ export default function AdminPage() {
     fetch('/api/database/getUsers')
       .then(result => {
         if (result.ok) {
-          result.json().then((users: User[] | { sourceError: { cause: { name: string } } }) => {
-            if (!Array.isArray(users)) throw new Error(users.sourceError.cause.name);
-
-            setUsers(users);
-          });
+          result.json().then(setUsers);
         }
       })
-      .catch(error => {
-        console.error(error);
-      });
+      .catch(console.error);
+
+    fetch('/api/database/getTransactions')
+      .then(result => {
+        if (result.ok) {
+          result.json().then(setTransactions);
+        }
+      })
+      .catch(console.error);
   }, []);
 
   const addUser = () => {
@@ -78,10 +73,10 @@ export default function AdminPage() {
     setTransactionLoading(true);
 
     // Determine the cost based on the movement and type
-    const t = TransactionType[type as keyof typeof TransactionType];
-    const value = t === TransactionType.donation || TransactionType.withdrawal ? -movement : movement;
+    const t = TransactionType[transactionType as keyof typeof TransactionType];
+    const value = t === TransactionType.deposit ? movement : -movement;
     const cost =
-      t === TransactionType.donation ? movement : t === TransactionType.withdrawal ? (movement * 0.5) / 100 : 0;
+      t === TransactionType.donation ? movement : t === TransactionType.withdrawal ? (-movement * 0.5) / 100 : 0;
 
     fetch('/api/database/addTransaction', {
       method: 'POST',
@@ -94,7 +89,7 @@ export default function AdminPage() {
 
           setDate(new Date());
           setMovement(0);
-          setType(TransactionType[TransactionType.deposit]);
+          setTransactionType(TransactionType[TransactionType.deposit]);
           setCurrentUser('');
         }
       })
@@ -176,7 +171,7 @@ export default function AdminPage() {
             enableYearNavigation={true}
             weekStartsOn={1}
           />
-          <Select className="max-w-sm" value={type} onValueChange={setType} enableClear={false}>
+          <Select className="max-w-sm" value={transactionType} onValueChange={setTransactionType} enableClear={false}>
             {Object.keys(TransactionType)
               .filter(key => isNaN(Number(key)))
               .map(type => (
