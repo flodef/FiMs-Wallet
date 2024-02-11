@@ -47,19 +47,19 @@ const t: Dataset = {
   amount: 'Montant',
 };
 
-interface Token extends Data {
+export interface DashboardToken extends Data {
   available: number;
   duration: number;
 }
 
-interface Historic {
+export interface Historic {
   date: number;
   stringDate: string;
   Investi: number;
   Trésorerie: number;
 }
 
-interface TokenHisto {
+interface TokenHistoric {
   date: string;
   Montant: number;
 }
@@ -70,9 +70,9 @@ export default function Dashboard() {
   const { page, needRefresh, setNeedRefresh } = useNavigation();
 
   const [dashboard, setDashboard] = useState<Data[]>([]);
-  const [token, setToken] = useState<Token[]>([]);
+  const [token, setToken] = useState<DashboardToken[]>([]);
   const [historic, setHistoric] = useState<Historic[]>([]);
-  const [tokenHistoric, setTokenHistoric] = useState<TokenHisto[][]>([]);
+  const [tokenHistoric, setTokenHistoric] = useState<TokenHistoric[][]>([]);
   const [tokenHistoricLimit, setTokenHistoricLimit] = useState<{ min: number; max: number }>();
 
   const findValue = useCallback((data: Data[], label: string | undefined) => {
@@ -92,14 +92,14 @@ export default function Dashboard() {
   );
 
   const generateTokenHistoric = useCallback(
-    (token: Token[]) => {
+    (token: DashboardToken[]) => {
       token = token.filter(({ label, available }) => available && label !== 'Euro'); // TODO : remove this line when Euro is removed from the spreadsheet
 
       setToken(token);
 
       let min = tokenValueStart;
       let max = tokenValueStart;
-      const tokenHisto: TokenHisto[][] = [];
+      const tokenHisto: TokenHistoric[][] = [];
       token.forEach(t => {
         const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(token, t.label)) / 100);
         tokenHisto.push([

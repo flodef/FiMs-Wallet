@@ -1,4 +1,9 @@
 import { Keypair } from '@solana/web3.js';
+import { DashboardToken, Historic } from '../pages/dashboard';
+import { Portfolio, PortfolioToken, UserHistoric } from '../pages/portfolio';
+import { Transaction } from '../pages/transactions';
+import { DBUser } from '../pages/users';
+import { Data } from './types';
 
 class MissingDataError extends Error {
   name = 'MissingDataError';
@@ -37,7 +42,7 @@ const dataNameParameters = new Map<
   [DataName.token, { convert: convertTokenData, hasHeader: true, range: 'A:I', minColInRow: 4 }],
   [DataName.portfolio, { convert: convertPortfolioData, hasHeader: true, range: 'A:M' }],
   [DataName.userHistoric, { convert: convertUserHistoricData, hasHeader: true, range: 'A:I' }],
-  [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, range: 'A:D' }],
+  [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, range: 'A:F' }],
 ]);
 
 const dataCache = new Map<DataName, { data: any[]; expire: number }>();
@@ -136,7 +141,7 @@ function checkColumn(item: any[], minCol: number) {
   if (item.length < minCol) throw new WrongDataPatternError();
 }
 
-function convertDashboardData(item: string[]) {
+function convertDashboardData(item: string[]): Data {
   return {
     label: String(item.at(0)).trim(),
     // sol: Number(item.at(1)), //not used
@@ -145,7 +150,7 @@ function convertDashboardData(item: string[]) {
   };
 }
 
-function convertTokenData(item: string[]) {
+function convertTokenData(item: string[]): DashboardToken & PortfolioToken {
   return {
     symbol: String(item.at(0)).trim(), // token symbol
     label: String(item.at(1)).trim(), // token name
@@ -159,7 +164,7 @@ function convertTokenData(item: string[]) {
   };
 }
 
-function convertHistoricData(item: string[]) {
+function convertHistoricData(item: string[]): Historic {
   return {
     date: Number(item.at(0)),
     stringDate: Number(item.at(0)).toLocaleDate(),
@@ -177,7 +182,7 @@ function convertHistoricData(item: string[]) {
   };
 }
 
-function convertPortfolioData(item: string[]) {
+function convertPortfolioData(item: string[]): Portfolio & DBUser {
   return {
     name: String(item.at(1)).trim(),
     address: String(item.at(2)).trim(),
@@ -192,7 +197,7 @@ function convertPortfolioData(item: string[]) {
   };
 }
 
-function convertUserHistoricData(item: string[]) {
+function convertUserHistoricData(item: string[]): UserHistoric {
   return {
     date: Number(item.at(0)),
     stringDate: Number(item.at(0)).toLocaleDate(),
@@ -207,12 +212,13 @@ function convertUserHistoricData(item: string[]) {
   };
 }
 
-function convertTransactionsData(item: string[]) {
+function convertTransactionsData(item: string[]): Transaction {
   return {
-    date: item.at(0),
-    stringDate: Number(item.at(0)).toLocaleDate(),
-    user: String(item.at(1)).trim(),
+    date: Number(item.at(0)).toLocaleDate(),
+    // user: String(item.at(1)).trim(), // not used
     movement: Number(item.at(2)),
     cost: Number(item.at(3)),
+    // stringDate: Number(item.at(4)), // not used
+    address: String(item.at(5)),
   };
 }

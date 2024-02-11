@@ -37,7 +37,7 @@ const t: Dataset = {
   loading: 'Chargement...',
 };
 
-interface Token extends Data {
+export interface PortfolioToken extends Data {
   symbol: string;
 }
 
@@ -47,7 +47,7 @@ interface Asset {
   balance: number;
 }
 
-interface Portfolio {
+export interface Portfolio {
   address: string;
   token: number[];
   total: number;
@@ -67,7 +67,7 @@ interface Wallet {
   total: number;
 }
 
-interface Historic {
+export interface UserHistoric {
   date: number;
   stringDate: string;
   Investi: number;
@@ -80,7 +80,7 @@ export default function Portfolio() {
 
   const [wallet, setWallet] = useState<Wallet[]>();
   const [portfolio, setPortfolio] = useState<Portfolio>();
-  const [historic, setHistoric] = useState<Historic[]>([]);
+  const [historic, setHistoric] = useState<UserHistoric[]>([]);
 
   const loadAssets = async (address: string, hasFiMsToken: boolean) => {
     return await fetch(
@@ -99,7 +99,7 @@ export default function Portfolio() {
     setNeedRefresh(false);
 
     loadData(DataName.token)
-      .then((tokens: Token[]) => {
+      .then((tokens: PortfolioToken[]) => {
         loadData(DataName.portfolio)
           .then(async (data: Portfolio[]) => {
             const p = data.find(d => d.address === user.address) ?? {
@@ -119,6 +119,7 @@ export default function Portfolio() {
                 0,
               );
               p.profitValue = p.total - p.invested;
+              p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
               p.token = tokens.map(t => assets.find(a => a.name === t.label)?.balance ?? 0);
             }
             setPortfolio(p);

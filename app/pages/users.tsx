@@ -33,7 +33,7 @@ const t: Dataset = {
   appearance: 'Etre visible des autres utilisateurs FiMs ?',
 };
 
-interface DBUser extends User {
+export interface DBUser extends User {
   ispublic: boolean;
 }
 
@@ -59,20 +59,14 @@ export default function Users() {
   );
 
   useEffect(() => {
-    loadData(DataName.portfolio).then(processUsers);
-    fetch('/api/database/getUsers')
-      .then(result => {
-        if (result.ok) {
-          result.json().then((users: DBUser[] | { sourceError: { cause: { name: string } } }) => {
-            if (!Array.isArray(users)) throw new Error(users.sourceError?.cause.name ?? 'Invalid users');
-
-            processUsers(users);
-          });
-        }
+    loadData(DataName.portfolio)
+      .then(processUsers)
+      .then(() => {
+        fetch('/api/database/getUsers').then(result => {
+          if (result.ok) result.json().then(processUsers);
+        });
       })
-      .catch(error => {
-        console.error(error);
-      });
+      .catch(console.error);
   }, [processUsers]);
 
   const isUserSelected = (user: User) => selectedUsers.includes(user.name) || selectedUsers.length === 0;
