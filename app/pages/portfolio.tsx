@@ -147,11 +147,11 @@ export default function Portfolio() {
   const { minHisto, maxHisto } = useMemo(() => {
     const minHisto = Math.min(...[...historic.map(d => d.Investi), ...historic.map(d => d.Total)]).toDecimalPlace(
       3,
-      RoundingDirection.down,
+      'down',
     );
     const maxHisto = Math.max(...[...historic.map(d => d.Investi), ...historic.map(d => d.Total)]).toDecimalPlace(
       3,
-      RoundingDirection.up,
+      'up',
     );
 
     return { minHisto, maxHisto };

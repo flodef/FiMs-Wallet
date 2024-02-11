@@ -59,15 +59,12 @@ Number.prototype.toShortFixed = function (maxDecimals = 2) {
   return Number.isInteger(this) ? this.toString() : this.toFixed(maxDecimals);
 };
 
-export enum RoundingDirection {
-  up = 'up',
-  down = 'down',
-}
-Number.prototype.toDecimalPlace = function (decimalPlace = 2, direction = RoundingDirection.down) {
+export type RoundingDirection = 'up' | 'down';
+Number.prototype.toDecimalPlace = function (decimalPlace = 2, direction = 'up') {
   const multiplier = 10 ** decimalPlace;
   const roundedValue =
-    direction === 'up' ? Math.ceil(Number(this) / multiplier) : Math.floor(Number(this) / multiplier);
-  return roundedValue * multiplier;
+    direction === 'up' ? Math.ceil(Number(this) * multiplier) : Math.floor(Number(this) * multiplier);
+  return roundedValue / multiplier;
 };
 
 String.prototype.fromCurrency = function (locale?: string) {
