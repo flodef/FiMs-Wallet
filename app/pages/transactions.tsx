@@ -1,6 +1,6 @@
 import { ArrowDownRightIcon, ArrowUpRightIcon, ExclamationCircleIcon, HeartIcon } from '@heroicons/react/24/solid';
 import { Card, Flex, Icon, Table, TableBody, TableCell, TableRow, Text, Title } from '@tremor/react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
 import { useUser } from '../hooks/useUser';
 import { cls } from '../utils/constants';
@@ -28,47 +28,76 @@ export enum TransactionType {
   donation,
 }
 
-type Transaction = {
-  [key: string]: number | string | undefined;
-  date: number;
+export interface Transaction {
+  date: string;
+  address?: string;
   movement: number;
-  type: TransactionType;
-  stringDate: string;
   cost: number;
-  user?: string;
-};
+  type?: TransactionType;
+}
+
+console.log(new Date().getTime());
 
 export default function Transactions() {
   const { user } = useUser();
 
   const [transactions, setTransactions] = useState<Transaction[] | undefined>();
 
+  const processTransactions = useCallback(
+    (data: Transaction[]) => {
+      // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
+      setTransactions(
+        data
+          .filter(d => d.address === user?.address)
+          .map(d => ({
+            date: new Date(d.date).toLocaleDateString(),
+            movement: Number(d.movement),
+            type:
+              Number(d.movement) > 0
+                ? TransactionType.deposit
+                : Number(d.cost) <= 0
+                  ? TransactionType.withdrawal
+                  : TransactionType.donation,
+            cost: Number(d.cost),
+          })),
+      );
+    },
+    [user],
+  );
+
   const loaded = useRef(false);
   useEffect(() => {
     if (user && !loaded.current) {
-      loadData(DataName.transactions).then((data: Transaction[]) => {
-        loaded.current = true;
+      // const data = fetch('/api/solana/getTransactions?address=' + user.address)
+      //   .then(res => res.json())
+      //   .then(data => {
+      //     console.log(data);
 
-        // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
-        setTransactions(
-          data
-            .filter(d => d.user === user.name)
-            .map(d => ({
-              date: d.date,
-              movement: d.movement,
-              type:
-                d.movement > 0
-                  ? TransactionType.deposit
-                  : d.cost <= 0
-                    ? TransactionType.withdrawal
-                    : TransactionType.donation,
-              stringDate: d.stringDate,
-              cost: d.cost,
-            })),
-        );
-      });
+      // return data.map((d: any) => ({
+      //   date: d.date,
+      //   movement: d.movement,
+      //   type:
+      //     d.movement > 0
+      //       ? TransactionType.deposit
+      //       : d.cost <= 0
+      //         ? TransactionType.withdrawal
+      //         : TransactionType.donation,
+      //   stringDate: d.stringDate,
+      //   cost: d.cost,
+      // }));
+      // });
+
+      loadData(DataName.transactions)
+        .then(processTransactions)
+        .then(() => {
+          fetch('/api/database/getTransactions').then(result => {
+            if (result.ok) result.json().then(processTransactions);
+          });
+        })
+        .catch(console.error)
+        .finally(() => (loaded.current = true));
     }
-  }, [user]);
+  }, [user, processTransactions]);
 
   return (
     <>
@@ -84,7 +113,7 @@ export default function Transactions() {
                   key={index}
                   className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
                 >
-                  <TableCell>{transaction.stringDate}</TableCell>
+                  <TableCell>{transaction.date}</TableCell>
                   <TableCell className={cls('font-bold', transaction.movement > 0 ? 'text-green-400' : 'text-red-400')}>
                     <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
                       {transaction.movement.toLocaleCurrency()}
