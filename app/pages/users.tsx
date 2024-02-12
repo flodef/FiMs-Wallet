@@ -107,13 +107,7 @@ export default function Users() {
           <Flex justifyContent="end">
             <Icon icon={InformationCircleIcon} tooltip={t.appearance} color="gray" />
             <Text className="mr-2">{isPublic ? t.public : t.private}</Text>
-            <Switch
-              id="switch"
-              name="switch"
-              disabled={isUpdatingUserPrivacy.current}
-              checked={isPublic}
-              onChange={handleSwitchChange}
-            />
+            <Switch disabled={isUpdatingUserPrivacy.current} checked={isPublic} onChange={handleSwitchChange} />
           </Flex>
         )}
       </Flex>

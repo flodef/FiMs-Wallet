@@ -2,24 +2,41 @@
 
 import { CurrencyEuroIcon } from '@heroicons/react/24/solid';
 import { PublicKey } from '@solana/web3.js';
-import { Button, Card, DatePicker, Flex, Grid, NumberInput, Select, SelectItem, TextInput, Title } from '@tremor/react';
+import {
+  Button,
+  Card,
+  DatePicker,
+  Flex,
+  Grid,
+  NumberInput,
+  Select,
+  SelectItem,
+  Switch,
+  Text,
+  TextInput,
+  Title,
+} from '@tremor/react';
 import { useEffect, useMemo, useState } from 'react';
 import { User } from '../hooks/useUser';
 import { Transaction, TransactionType } from '../pages/transactions';
 import { MinMax } from '../utils/types';
+import { cls } from '../utils/constants';
 
+const transactionCost = 0.5;
 const nameLimit: MinMax = { min: 5, max: 25 };
 const addressLimit: MinMax = { min: 32, max: 44 };
 
 export default function AdminPage() {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
   const [date, setDate] = useState(new Date());
   const [movement, setMovement] = useState(0);
+  const [hasCost, setHasCost] = useState(false);
   const [transactionType, setTransactionType] = useState(TransactionType[TransactionType.deposit]);
   const [users, setUsers] = useState<User[]>();
   const [transactions, setTransactions] = useState<Transaction[]>();
-  const [currentUser, setCurrentUser] = useState('');
+  const [transactionAddress, setTransactionAddress] = useState('');
   const [userLoading, setUserLoading] = useState(false);
   const [transactionLoading, setTransactionLoading] = useState(false);
 
@@ -48,7 +65,7 @@ export default function AdminPage() {
 
     fetch('/api/database/addUser', {
       method: 'POST',
-      body: JSON.stringify({ name: name.normalize(), address: address, isPublic: false }),
+      body: JSON.stringify({ name: name.normalize(), address: address, isPublic: isPublic }),
     })
       .then(result => {
         if (result.ok) {
@@ -72,15 +89,22 @@ export default function AdminPage() {
 
     setTransactionLoading(true);
 
-    // Determine the cost based on the movement and type
-    const t = TransactionType[transactionType as keyof typeof TransactionType];
-    const value = t === TransactionType.deposit ? movement : -movement;
-    const cost =
-      t === TransactionType.donation ? movement : t === TransactionType.withdrawal ? (-movement * 0.5) / 100 : 0;
+    const value = isTransactionType(TransactionType.deposit) ? movement : -movement;
+    const cost = isTransactionType(TransactionType.donation)
+      ? movement
+      : hasCost
+        ? ((-movement * transactionCost) / 100).toDecimalPlace(2, 'down')
+        : 0;
 
     fetch('/api/database/addTransaction', {
       method: 'POST',
-      body: JSON.stringify({ date: date, address: currentUser, movement: value, cost: cost }),
+      body: JSON.stringify({
+        date: date,
+        address: transactionAddress,
+        movement: value,
+        cost: cost,
+        id: users?.find(user => user.address === transactionAddress)?.id,
+      }),
     })
       .then(result => {
         if (result.ok) {
@@ -90,7 +114,7 @@ export default function AdminPage() {
           setDate(new Date());
           setMovement(0);
           setTransactionType(TransactionType[TransactionType.deposit]);
-          setCurrentUser('');
+          setTransactionAddress('');
         }
       })
       .catch(error => {
@@ -101,8 +125,10 @@ export default function AdminPage() {
       });
   };
 
+  const isTransactionType = (type: TransactionType) =>
+    TransactionType[transactionType as keyof typeof TransactionType] === type;
   const isValidName = useMemo(
-    () => name.testLimit(nameLimit) && !users?.find(user => user.name === name),
+    () => name.testLimit(nameLimit) && !users?.find(user => user.name.toLowerCase() === name.toLowerCase()),
     [name, users],
   );
   const isValidAddress = useMemo(() => {
@@ -114,17 +140,21 @@ export default function AdminPage() {
       return false;
     }
   }, [address, users]);
-  const isValidTransaction = useMemo(() => movement > 0 && currentUser, [movement, currentUser]);
+  const isValidTransaction = useMemo(() => movement > 0 && transactionAddress, [movement, transactionAddress]);
 
   // TODO : Reload users if modified
 
   return (
-    <Grid numItemsSm={2} numItemsLg={2} className="gap-6 mt-6 mr-12">
+    <Grid
+      numItemsSm={2}
+      numItemsLg={2}
+      className="flex-grow overflow-auto w-full max-w-7xl self-center gap-6 mt-6 pr-12"
+    >
       <Card className="mx-6">
         <Title>Add User</Title>
-        <Flex flexDirection="col" justifyContent="start" alignItems="start">
+        <Flex className='space-6 gap-6 p-4"' flexDirection="col" justifyContent="start" alignItems="start">
           <TextInput
-            className="max-w-xs mt-4"
+            className="max-w-xs"
             value={name}
             onValueChange={setName}
             placeholder="Name"
@@ -132,7 +162,7 @@ export default function AdminPage() {
             errorMessage={name.length <= nameLimit.max ? 'The name is already taken!' : 'The name is too long!'}
           />
           <TextInput
-            className="max-w-md mt-4"
+            className="max-w-md"
             value={address}
             onValueChange={setAddress}
             placeholder="Address"
@@ -145,6 +175,11 @@ export default function AdminPage() {
                 : 'The address is too long!'
             }
           />
+          <Flex className="space-6 gap-6" flexDirection="row" justifyContent="start" alignItems="center">
+            <Switch checked={isPublic} onChange={setIsPublic} />
+            <Text>{isPublic ? 'Public' : 'Private'}</Text>
+          </Flex>
+
           <Button
             className="flex font-bold self-center mt-4"
             disabled={!isValidName || !isValidAddress}
@@ -191,13 +226,27 @@ export default function AdminPage() {
             min={0}
             max={1000000}
           />
-          <Select className="max-w-sm" value={currentUser} onValueChange={setCurrentUser} enableClear={false}>
+          <Select
+            className="max-w-sm"
+            value={transactionAddress}
+            onValueChange={setTransactionAddress}
+            enableClear={false}
+          >
             {users?.map(user => (
               <SelectItem key={user.name} value={user.address}>
                 {user.name.normalize()}
               </SelectItem>
             ))}
           </Select>
+          <Flex
+            className={cls(isTransactionType(TransactionType.donation) ? 'hidden' : 'visible', 'space-6 gap-6')}
+            flexDirection="row"
+            justifyContent="start"
+            alignItems="center"
+          >
+            <Switch checked={hasCost} onChange={setHasCost} />
+            <Text>{hasCost ? `Costs ${((movement * transactionCost) / 100).toLocaleCurrency()}` : 'Free'}</Text>
+          </Flex>
           <Button
             className="flex font-bold self-center"
             disabled={!isValidTransaction}
