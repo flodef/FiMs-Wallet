@@ -29,17 +29,19 @@ export function SortHeader({
         const propertyA = a[Object.keys(a)[index]];
         const propertyB = b[Object.keys(b)[index]];
 
-        if (typeof propertyA === 'number' && typeof propertyB === 'number') {
+        const getTime = (date: string | number | Date) => new Date(date).getTime();
+
+        if (!isNaN(getTime(propertyA)) && !isNaN(getTime(propertyB))) {
+          const numA = getTime(propertyA);
+          const numB = getTime(propertyB);
+          return newFilters[index] === 'ascending' ? numA - numB : numB - numA;
+        } else if (!isNaN(Number(propertyA)) && !isNaN(Number(propertyA))) {
           const numA = Number(propertyA);
           const numB = Number(propertyB);
-
-          if (isNaN(numA) || isNaN(numB)) return 0;
-
           return newFilters[index] === 'ascending' ? numA - numB : numB - numA;
         } else {
           const stringA = String(propertyA);
           const stringB = String(propertyB);
-
           return newFilters[index] === 'ascending' ? stringA.localeCompare(stringB) : stringB.localeCompare(stringA);
         }
       });
