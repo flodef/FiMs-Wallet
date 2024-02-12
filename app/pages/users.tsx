@@ -16,6 +16,7 @@ import {
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
+import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, useUser } from '../hooks/useUser';
 import { cls, getShortAddress } from '../utils/constants';
 import { DataName, loadData } from '../utils/processData';
@@ -41,6 +42,7 @@ export interface DBUser extends User {
 
 export default function Users() {
   const { user: currentUser } = useUser();
+  const { page } = useNavigation();
 
   const [users, setUsers] = useState<User[] | undefined>();
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -60,6 +62,8 @@ export default function Users() {
   );
 
   useEffect(() => {
+    if (page !== Page.Users) return;
+
     loadData(DataName.portfolio)
       .then(processUsers)
       .then(() => {
@@ -68,7 +72,7 @@ export default function Users() {
         });
       })
       .catch(console.error);
-  }, [processUsers]);
+  }, [page, processUsers]);
 
   const isUserSelected = (user: User) => selectedUsers.includes(user.name) || selectedUsers.length === 0;
 

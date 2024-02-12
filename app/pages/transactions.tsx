@@ -1,7 +1,8 @@
 import { ArrowDownRightIcon, ArrowUpRightIcon, ExclamationCircleIcon, HeartIcon } from '@heroicons/react/24/solid';
 import { Card, Flex, Icon, Table, TableBody, TableCell, TableRow, Text, Title } from '@tremor/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
+import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { cls } from '../utils/constants';
 import {} from '../utils/extensions';
@@ -37,10 +38,9 @@ export interface Transaction {
   type?: TransactionType;
 }
 
-console.log(new Date().getTime());
-
 export default function Transactions() {
   const { user } = useUser();
+  const { page } = useNavigation();
 
   const [transactions, setTransactions] = useState<Transaction[] | undefined>();
 
@@ -66,39 +66,37 @@ export default function Transactions() {
     [user],
   );
 
-  const loaded = useRef(false);
   useEffect(() => {
-    if (user && !loaded.current) {
-      // const data = fetch('/api/solana/getTransactions?address=' + user.address)
-      //   .then(res => res.json())
-      //   .then(data => {
-      //     console.log(data);
+    if (page !== Page.Transactions) return;
 
-      // return data.map((d: any) => ({
-      //   date: d.date,
-      //   movement: d.movement,
-      //   type:
-      //     d.movement > 0
-      //       ? TransactionType.deposit
-      //       : d.cost <= 0
-      //         ? TransactionType.withdrawal
-      //         : TransactionType.donation,
-      //   stringDate: d.stringDate,
-      //   cost: d.cost,
-      // }));
-      // });
+    // const data = fetch('/api/solana/getTransactions?address=' + user.address)
+    //   .then(res => res.json())
+    //   .then(data => {
+    //     console.log(data);
 
-      loadData(DataName.transactions)
-        .then(processTransactions)
-        .then(() => {
-          fetch('/api/database/getTransactions').then(result => {
-            if (result.ok) result.json().then(processTransactions);
-          });
-        })
-        .catch(console.error)
-        .finally(() => (loaded.current = true));
-    }
-  }, [user, processTransactions]);
+    // return data.map((d: any) => ({
+    //   date: d.date,
+    //   movement: d.movement,
+    //   type:
+    //     d.movement > 0
+    //       ? TransactionType.deposit
+    //       : d.cost <= 0
+    //         ? TransactionType.withdrawal
+    //         : TransactionType.donation,
+    //   stringDate: d.stringDate,
+    //   cost: d.cost,
+    // }));
+    // });
+
+    loadData(DataName.transactions)
+      .then(processTransactions)
+      .then(() => {
+        fetch('/api/database/getTransactions').then(result => {
+          if (result.ok) result.json().then(processTransactions);
+        });
+      })
+      .catch(console.error);
+  }, [page, processTransactions]);
 
   return (
     <>
