@@ -59,7 +59,6 @@ export default function IndexPage() {
           }
 
           if (versions.length > 0) {
-            setVersion(versions[0].version);
             setVersionNotes(versions);
             openPopup();
           }
@@ -71,6 +70,7 @@ export default function IndexPage() {
   }, [version, setVersion, openPopup]);
 
   function handleClose() {
+    setVersion(versionNotes[0].version);
     setVersionNotes([]);
     closePopup();
   }
