@@ -16,12 +16,11 @@ import {
 } from '@tremor/react';
 
 import Image from 'next/image';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import GainsBar from '../components/gainsBar';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { TOKEN_PATH } from '../utils/constants';
-import { RoundingDirection } from '../utils/extensions';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
@@ -78,6 +77,7 @@ export default function Portfolio() {
   const { user } = useUser();
   const { page, needRefresh, setNeedRefresh } = useNavigation();
 
+  const [loaded, setLoaded] = useState(false);
   const [wallet, setWallet] = useState<Wallet[]>();
   const [portfolio, setPortfolio] = useState<Portfolio>();
   const [historic, setHistoric] = useState<UserHistoric[]>([]);
@@ -92,9 +92,8 @@ export default function Portfolio() {
     });
   };
 
-  const loaded = useRef(false);
   useEffect(() => {
-    if (!user || (loaded.current && !needRefresh && page !== Page.Portfolio)) return;
+    if (!user || (loaded && !needRefresh && page !== Page.Portfolio)) return;
 
     setNeedRefresh(false);
 
@@ -141,8 +140,8 @@ export default function Portfolio() {
           .then(() => loadData(user.name).then(setHistoric));
       })
       .catch(console.error)
-      .finally(() => (loaded.current = true));
-  }, [needRefresh, setNeedRefresh, page, user]);
+      .finally(() => setLoaded(true));
+  }, [loaded, needRefresh, setNeedRefresh, page, user]);
 
   const { minHisto, maxHisto } = useMemo(() => {
     const minHisto = Math.min(...[...historic.map(d => d.Investi), ...historic.map(d => d.Total)]).toDecimalPlace(
@@ -164,7 +163,7 @@ export default function Portfolio() {
           <Flex alignItems="start">
             <div>
               <Title className="text-left">{t.totalValue}</Title>
-              <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
+              <Metric color="green" className={!loaded ? 'blur-sm' : 'animate-unblur'}>
                 {(portfolio?.total ?? 0).toLocaleCurrency()}
               </Metric>
             </div>
@@ -182,14 +181,14 @@ export default function Portfolio() {
           </Flex>
         </AccordionHeader>
         <AccordionBody>
-          {!loaded.current || wallet?.length ? (
+          {!loaded || wallet?.length ? (
             <>
-              <GainsBar values={portfolio} loaded={loaded.current} />
+              <GainsBar values={portfolio} loaded={loaded} />
               <Divider style={{ fontSize: 18 }}>{t.assets}</Divider>
             </>
           ) : null}
 
-          {loaded.current ? (
+          {loaded ? (
             <Table>
               <TableBody>
                 {wallet &&
@@ -245,7 +244,7 @@ export default function Portfolio() {
         </AccordionBody>
       </Accordion>
 
-      {!loaded.current || (wallet?.length && portfolio?.invested) ? (
+      {!loaded || (wallet?.length && portfolio?.invested) ? (
         <Accordion className="group" defaultOpen={!isMobileSize()}>
           <AccordionHeader>
             <Title>Performance</Title>

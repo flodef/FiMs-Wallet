@@ -69,6 +69,7 @@ const today = new Date();
 export default function Dashboard() {
   const { page, needRefresh, setNeedRefresh } = useNavigation();
 
+  const [loaded, setLoaded] = useState(false);
   const [dashboard, setDashboard] = useState<Data[]>([]);
   const [token, setToken] = useState<DashboardToken[]>([]);
   const [historic, setHistoric] = useState<Historic[]>([]);
@@ -124,9 +125,8 @@ export default function Dashboard() {
     [getRatio],
   );
 
-  const loaded = useRef(false);
   useEffect(() => {
-    if (loaded.current && !needRefresh && page !== Page.Dashboard) return;
+    if (loaded && !needRefresh && page !== Page.Dashboard) return;
 
     setNeedRefresh(false);
 
@@ -138,8 +138,8 @@ export default function Dashboard() {
           .then(() => loadData(DataName.historic).then(setHistoric)),
       )
       .catch(console.error)
-      .finally(() => (loaded.current = true));
-  }, [needRefresh, setNeedRefresh, page, generateTokenHistoric]);
+      .finally(() => setLoaded(true));
+  }, [loaded, needRefresh, setNeedRefresh, page, generateTokenHistoric]);
 
   const getBarList = useCallback(
     (labels: string[]) => {
@@ -187,7 +187,7 @@ export default function Dashboard() {
           <Flex alignItems="start">
             <div>
               <Title className="text-left">{t.assets}</Title>
-              <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
+              <Metric color="green" className={!loaded ? 'blur-sm' : 'animate-unblur'}>
                 {getValue(dashboard, 'assets', 500000)}
               </Metric>
             </div>
@@ -211,7 +211,7 @@ export default function Dashboard() {
               profitValue: getValue(dashboard, 'gains').fromCurrency(),
               profitRatio: parseFloat(getRatio(dashboard, 'gains')) / 100,
             }}
-            loaded={loaded.current}
+            loaded={loaded}
           />
         </AccordionBody>
       </Accordion>
@@ -236,7 +236,7 @@ export default function Dashboard() {
               <Flex alignItems="start">
                 <Metric
                   color={result[resultIndex].total.fromCurrency() < 0 ? 'red' : 'green'}
-                  className={!loaded.current ? 'blur-sm' : 'animate-unblur'}
+                  className={!loaded ? 'blur-sm' : 'animate-unblur'}
                 >
                   {result[resultIndex].total}
                 </Metric>
@@ -303,7 +303,7 @@ export default function Dashboard() {
                 </TabGroup>
               </Flex>
               <Flex alignItems="start">
-                <Metric color="green" className={!loaded.current ? 'blur-sm' : 'animate-unblur'}>
+                <Metric color="green" className={!loaded ? 'blur-sm' : 'animate-unblur'}>
                   {getValue(token, token.at(priceIndex)?.label)}
                 </Metric>
                 <BadgeDelta
