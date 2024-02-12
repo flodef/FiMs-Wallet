@@ -1,7 +1,9 @@
 import { DocumentDuplicateIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { InformationCircleIcon } from '@heroicons/react/24/solid';
 import {
   Card,
   Flex,
+  Icon,
   MultiSelect,
   MultiSelectItem,
   Switch,
@@ -51,8 +53,7 @@ export default function Users() {
         users
           .filter(user => (user.ispublic || user.name === currentUser?.name) && user.address !== user.name)
           .sort((a, b) => a.name.localeCompare(b.name))
-          .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)) // Put the current user on top
-          .map(user => ({ name: user.name, address: user.address })),
+          .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)), // Put the current user on top
       );
     },
     [currentUser?.name],
@@ -104,12 +105,12 @@ export default function Users() {
         <Title className="text-left whitespace-nowrap">{t.usersList}</Title>
         {isPublic !== undefined && (
           <Flex justifyContent="end">
+            <Icon icon={InformationCircleIcon} tooltip={t.appearance} color="gray" />
             <Text className="mr-2">{isPublic ? t.public : t.private}</Text>
             <Switch
               id="switch"
               name="switch"
               disabled={isUpdatingUserPrivacy.current}
-              tooltip={t.appearance}
               checked={isPublic}
               onChange={handleSwitchChange}
             />
