@@ -34,16 +34,20 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
 
       connecting.current = true;
 
-      return await loadData(DataName.portfolio)
-        .then((users: User[]) => {
-          const newUser = users.find(u => u.name.toLowerCase() === userName.toLowerCase());
-          if (newUser) {
-            setUser(newUser);
-          } else {
-            console.error('No user found');
-            disconnect();
-          }
-          return newUser;
+      return await fetch('/api/database/getUsers')
+        .then(async result => {
+          if (!result.ok) throw new Error('Error while fetching users');
+
+          return result.json().then((users: User[]) => {
+            const newUser = users.find(u => u.name.toLowerCase() === userName.toLowerCase());
+            if (newUser) {
+              setUser(newUser);
+            } else {
+              console.error('No user found');
+              disconnect();
+            }
+            return newUser;
+          });
         })
         .catch(error => {
           console.error(error);
