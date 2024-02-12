@@ -168,6 +168,7 @@ export default function Portfolio() {
               </Metric>
             </div>
             <BadgeDelta
+              className={portfolio?.yearlyYield ? 'visible' : 'hidden'}
               deltaType={
                 portfolio && portfolio?.yearlyYield < 0
                   ? 'moderateDecrease'
