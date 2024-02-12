@@ -33,10 +33,13 @@ export enum DataName {
 }
 
 // Set a value that return all parameters needed to process data (convertFunction, hasFilter, minColInRow, minColInHeader)
-const dataNameParameters = new Map<
-  DataName,
-  { convert: (item: string[]) => any; hasHeader: boolean; range: string; minColInRow?: number }
->([
+type Parameter = {
+  convert: (item: string[]) => any;
+  hasHeader: boolean;
+  range: string;
+  minColInRow?: number;
+};
+const dataNameParameters = new Map<DataName, Parameter>([
   [DataName.dashboard, { convert: convertDashboardData, hasHeader: true, range: 'A:D' }],
   [DataName.historic, { convert: convertHistoricData, hasHeader: false, range: 'A:L' }],
   [DataName.token, { convert: convertTokenData, hasHeader: true, range: 'A:I', minColInRow: 4 }],
@@ -69,50 +72,23 @@ function columnNameToNumber(columnName: string): number {
   return number;
 }
 
-export async function loadData(name: DataName | string, isOutOfLocalHost = true) {
-  if (isOutOfLocalHost && !navigator.onLine) throw new Error('The web app is offline');
+export async function loadData(name: DataName | string) {
+  if (!navigator.onLine) throw new Error('The web app is offline');
 
   const dataName = Object.values(DataName).includes(name as DataName) ? (name as DataName) : DataName.userHistoric;
 
-  const parameters = dataNameParameters.get(dataName);
-  if (!parameters) throw new Error('data name not found');
+  const parameter = dataNameParameters.get(dataName);
+  if (!parameter) throw new Error('data name not found');
 
   const cache = dataCache.get(dataName);
-  if (cache && cache.expire > Date.now()) return cache.data;
+  let data = cache?.data;
+  if (!cache) {
+    data = await cacheData(name, dataName, parameter); // If the data is not in the cache, fetch it synchronously and wait for the cache to be updated
+  } else if (cache.expire < Date.now()) {
+    cacheData(name, dataName, parameter); // If the data is expired, fetch it again asynchronously and update the cache
+  }
 
-  const numberOfColumns = getNumberOfColumns(parameters.range);
-
-  const data =
-    (isOutOfLocalHost
-      ? await fetch(`./api/spreadsheet?sheetName=${name}&range=${parameters.range}&isRaw=true`)
-          .then(async response => {
-            if (typeof response === 'undefined') return;
-            return await response
-              .json()
-              .then((data: { values: string[][]; error: string }) => {
-                checkData(data, numberOfColumns);
-
-                return data.values
-                  .filter((_, i) => (parameters.hasHeader ? i !== 0 : true))
-                  .map(item => {
-                    checkColumn(item, parameters.minColInRow ?? numberOfColumns);
-                    return parameters.convert(item);
-                  });
-              })
-              .catch(error => {
-                if (error instanceof WrongDataPatternError) {
-                  console.error(error);
-                  return [];
-                }
-                throw error;
-              });
-          })
-          .catch(error => {
-            console.error(error);
-          })
-      : []) ?? [];
-
-  dataCache.set(dataName, { data: data, expire: Date.now() + 1000 * 60 });
+  if (!data) throw new Error('data not loaded');
 
   return data;
 }
@@ -121,6 +97,42 @@ export function clearData() {
   [DataName.portfolio, DataName.userHistoric].forEach(name => {
     dataCache.set(name, { data: [], expire: 0 });
   });
+}
+
+async function cacheData(sheetName: string, dataName: DataName, parameter: Parameter) {
+  const numberOfColumns = getNumberOfColumns(parameter.range);
+
+  const data =
+    (await fetch(`./api/spreadsheet?sheetName=${sheetName}&range=${parameter.range}&isRaw=true`)
+      .then(async response => {
+        if (typeof response === 'undefined') return;
+        return await response
+          .json()
+          .then((data: { values: string[][]; error: string }) => {
+            checkData(data, numberOfColumns);
+
+            return data.values
+              .filter((_, i) => (parameter.hasHeader ? i !== 0 : true))
+              .map(item => {
+                checkColumn(item, parameter.minColInRow ?? numberOfColumns);
+                return parameter.convert(item);
+              });
+          })
+          .catch(error => {
+            if (error instanceof WrongDataPatternError) {
+              console.error(error);
+              return [];
+            }
+            throw error;
+          });
+      })
+      .catch(error => {
+        console.error(error);
+      })) ?? [];
+
+  dataCache.set(dataName, { data: data, expire: Date.now() + 1000 * 60 });
+
+  return data;
 }
 
 function checkData(data: any, minCol: number, maxCol = minCol, minRow = 1, maxRow = 100000) {
