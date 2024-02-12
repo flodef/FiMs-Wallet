@@ -70,8 +70,10 @@ export default function IndexPage() {
   }, [version, setVersion, openPopup]);
 
   function handleClose() {
-    setVersion(versionNotes[0].version);
-    setVersionNotes([]);
+    if (versionNotes.length) {
+      setVersion(versionNotes[0].version);
+      setVersionNotes([]);
+    }
     closePopup();
   }
 
@@ -79,7 +81,7 @@ export default function IndexPage() {
     <>
       <Dialog open={isPopupOpen} onClose={handleClose}>
         <DialogPanel>
-          {versionNotes.length > 0 ? (
+          {versionNotes.length ? (
             <VersionNotes versionNotes={versionNotes} onClose={handleClose} />
           ) : !isConnected ? (
             <Connect />
