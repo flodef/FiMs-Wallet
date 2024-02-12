@@ -1,10 +1,14 @@
+import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline';
 import { Button, Divider, Flex, Metric, Title } from '@tremor/react';
+import { useState } from 'react';
 import { useIsMobile } from '../utils/mobile';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
   close: 'Fermer',
   news: 'Nouveautés',
+  showMore: 'Voir plus',
+  showLess: 'Voir moins',
 };
 
 export type VersionNote = {
@@ -16,11 +20,13 @@ export default function VersionNotes({ versionNotes, onClose }: { versionNotes: 
   const isMobile = useIsMobile(450); // sm for tailwindcss breakpoints
   const isTablet = useIsMobile(640); // md for tailwindcss breakpoints
 
+  const [showMore, setShowMore] = useState(false);
+
   return (
     <Flex flexDirection="col">
       <Metric>{t.news}</Metric>
       {versionNotes.map((versionNote, index) => (
-        <div key={index}>
+        <div className={index === 0 || showMore ? 'visible' : 'hidden'} key={index}>
           <Divider>
             <Title>{versionNote.version}</Title>
           </Divider>
@@ -36,9 +42,19 @@ export default function VersionNotes({ versionNotes, onClose }: { versionNotes: 
           </ul>
         </div>
       ))}
-      <Button className="flex font-bold mt-6" style={{ borderRadius: 24 }} onClick={onClose}>
-        {t.close}
-      </Button>
+      <Flex className="gap-6 mt-6" justifyContent="center" alignItems="center">
+        <Button className="font-bold" style={{ borderRadius: 24 }} onClick={onClose}>
+          {t.close}
+        </Button>
+        <Button
+          icon={showMore ? ArrowUpIcon : ArrowDownIcon}
+          iconPosition="right"
+          variant="light"
+          onClick={() => setShowMore(!showMore)}
+        >
+          {showMore ? t.showLess : t.showMore}
+        </Button>
+      </Flex>
     </Flex>
   );
 }
