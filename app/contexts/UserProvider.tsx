@@ -4,7 +4,7 @@ import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, UserContext } from '../hooks/useUser';
 import { useLocalStorage } from '../utils/localStorage';
-import { DataName, clearData, loadData } from '../utils/processData';
+import { clearData } from '../utils/processData';
 
 export interface UserProviderProps {
   children: ReactNode;
@@ -18,10 +18,13 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    setPage(user ? Page.Portfolio : Page.Dashboard);
-    setIsConnected(!!user);
+    const isValidUser = !!user?.id && !!user?.name && !!user?.address;
+    if (!isValidUser) setUser(undefined);
+
+    setPage(isValidUser ? Page.Portfolio : Page.Dashboard);
+    setIsConnected(isValidUser);
     connecting.current = false;
-  }, [user, setPage]);
+  }, [user, setPage, setUser]);
 
   const disconnect = useCallback(() => {
     setUser(undefined);
