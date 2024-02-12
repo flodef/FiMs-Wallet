@@ -42,7 +42,7 @@ const dataNameParameters = new Map<
   [DataName.token, { convert: convertTokenData, hasHeader: true, range: 'A:I', minColInRow: 4 }],
   [DataName.portfolio, { convert: convertPortfolioData, hasHeader: true, range: 'A:M' }],
   [DataName.userHistoric, { convert: convertUserHistoricData, hasHeader: true, range: 'A:I' }],
-  [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, range: 'A:F' }],
+  [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, range: 'A:E' }],
 ]);
 
 const dataCache = new Map<DataName, { data: any[]; expire: number }>();
@@ -184,6 +184,7 @@ function convertHistoricData(item: string[]): Historic {
 
 function convertPortfolioData(item: string[]): Portfolio & DBUser {
   return {
+    id: Number(item.at(0)),
     name: String(item.at(1)).trim(),
     address: String(item.at(2)).trim(),
     ispublic: String(item.at(3)).trim() === 'true',
@@ -214,11 +215,10 @@ function convertUserHistoricData(item: string[]): UserHistoric {
 
 function convertTransactionsData(item: string[]): Transaction {
   return {
-    date: Number(item.at(0)).toLocaleDate(),
-    // user: String(item.at(1)).trim(), // not used
+    date: String(item.at(0)).trim(),
+    address: String(item.at(1)).trim(),
     movement: Number(item.at(2)),
     cost: Number(item.at(3)),
-    // stringDate: Number(item.at(4)), // not used
-    address: String(item.at(5)),
+    id: Number(item.at(4)),
   };
 }

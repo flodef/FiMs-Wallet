@@ -33,6 +33,7 @@ export interface Transaction {
   address?: string;
   movement: number;
   cost: number;
+  id?: number;
   type?: TransactionType;
 }
 
@@ -48,7 +49,7 @@ export default function Transactions() {
       // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
       setTransactions(
         data
-          .filter(d => d.address === user?.address)
+          .filter(d => d.id === user?.id)
           .map(d => ({
             date: new Date(d.date).toLocaleDateString(),
             movement: Number(d.movement),
