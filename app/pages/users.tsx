@@ -40,9 +40,11 @@ export interface DBUser extends User {
   ispublic: boolean;
 }
 
+const thisPage = Page.Users;
+
 export default function Users() {
   const { user: currentUser } = useUser();
-  const { page } = useNavigation();
+  const { page, needRefresh, setNeedRefresh } = useNavigation();
 
   const [users, setUsers] = useState<User[] | undefined>();
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -61,8 +63,12 @@ export default function Users() {
     [currentUser?.name],
   );
 
+  const isLoading = useRef(false);
   useEffect(() => {
-    if (page !== Page.Users) return;
+    if (isLoading.current || !needRefresh || page !== thisPage) return;
+
+    isLoading.current = true;
+    setNeedRefresh(false);
 
     loadData(DataName.portfolio)
       .then(processUsers)
@@ -71,8 +77,9 @@ export default function Users() {
           if (result.ok) result.json().then(processUsers);
         });
       })
-      .catch(console.error);
-  }, [page, processUsers]);
+      .catch(console.error)
+      .finally(() => (isLoading.current = false));
+  }, [needRefresh, setNeedRefresh, page, processUsers]);
 
   const isUserSelected = (user: User) => selectedUsers.includes(user.name) || selectedUsers.length === 0;
 

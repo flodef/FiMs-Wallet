@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ReactNode, createContext, useContext, useState } from 'react';
+import { ReactNode, createContext, useContext, useState } from 'react';
 
 export interface PopupContextState {
   isPopupOpen: boolean;
@@ -10,7 +10,7 @@ export interface PopupContextState {
 
 export const PopupContext = createContext<PopupContextState>({} as PopupContextState);
 
-export const PopupProvider: FC<PopupProviderProps> = ({ children }) => {
+export const PopupProvider = ({ children }: { children: ReactNode }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   return (
@@ -28,8 +28,4 @@ export const PopupProvider: FC<PopupProviderProps> = ({ children }) => {
 
 export function usePopup(): PopupContextState {
   return useContext(PopupContext);
-}
-
-export interface PopupProviderProps {
-  children: ReactNode;
 }

@@ -1,6 +1,6 @@
 import { ArrowDownRightIcon, ArrowUpRightIcon, ExclamationCircleIcon, HeartIcon } from '@heroicons/react/24/solid';
 import { Card, Flex, Icon, Table, TableBody, TableCell, TableRow, Text, Title } from '@tremor/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
@@ -38,9 +38,11 @@ export interface Transaction {
   type?: TransactionType;
 }
 
+const thisPage = Page.Transactions;
+
 export default function Transactions() {
   const { user } = useUser();
-  const { page } = useNavigation();
+  const { page, needRefresh, setNeedRefresh } = useNavigation();
 
   const [transactions, setTransactions] = useState<Transaction[] | undefined>();
 
@@ -66,8 +68,12 @@ export default function Transactions() {
     [user],
   );
 
+  const isLoading = useRef(false);
   useEffect(() => {
-    if (page !== Page.Transactions) return;
+    if (isLoading.current || !needRefresh || page !== thisPage) return;
+
+    isLoading.current = true;
+    setNeedRefresh(false);
 
     // const data = fetch('/api/solana/getTransactions?address=' + user.address)
     //   .then(res => res.json())
@@ -95,8 +101,9 @@ export default function Transactions() {
           if (result.ok) result.json().then(processTransactions);
         });
       })
-      .catch(console.error);
-  }, [page, processTransactions]);
+      .catch(console.error)
+      .finally(() => (isLoading.current = false));
+  }, [needRefresh, setNeedRefresh, page, processTransactions]);
 
   return (
     <>

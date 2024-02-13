@@ -1,17 +1,13 @@
 'use client';
 
-import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, UserContext } from '../hooks/useUser';
 import { useLocalStorage } from '../utils/localStorage';
 import { clearData } from '../utils/processData';
 
-export interface UserProviderProps {
-  children: ReactNode;
-}
-
-export const UserProvider: FC<UserProviderProps> = ({ children }) => {
-  const { setPage } = useNavigation();
+export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const { setPage, setNeedRefresh } = useNavigation();
 
   const connecting = useRef(false);
   const [user, setUser] = useLocalStorage<User | undefined>('user', undefined);
@@ -23,8 +19,8 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
 
     setPage(isValidUser ? Page.Portfolio : Page.Dashboard);
     setIsConnected(isValidUser);
-    connecting.current = false;
-  }, [user, setPage, setUser]);
+    setNeedRefresh(true);
+  }, [user, setPage, setUser, setNeedRefresh]);
 
   const disconnect = useCallback(() => {
     setUser(undefined);
@@ -56,7 +52,8 @@ export const UserProvider: FC<UserProviderProps> = ({ children }) => {
           console.error(error);
           disconnect();
           return undefined;
-        });
+        })
+        .finally(() => (connecting.current = false));
     },
     [disconnect, user, setUser],
   );

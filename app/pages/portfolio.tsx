@@ -16,7 +16,7 @@ import {
 } from '@tremor/react';
 
 import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import GainsBar from '../components/gainsBar';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
@@ -47,6 +47,7 @@ interface Asset {
 }
 
 export interface Portfolio {
+  id: number;
   address: string;
   token: number[];
   total: number;
@@ -73,11 +74,12 @@ export interface UserHistoric {
   Total: number;
 }
 
+const thisPage = Page.Portfolio;
+
 export default function Portfolio() {
   const { user } = useUser();
   const { page, needRefresh, setNeedRefresh } = useNavigation();
 
-  const [loaded, setLoaded] = useState(false);
   const [wallet, setWallet] = useState<Wallet[]>();
   const [portfolio, setPortfolio] = useState<Portfolio>();
   const [historic, setHistoric] = useState<UserHistoric[]>([]);
@@ -92,16 +94,19 @@ export default function Portfolio() {
     });
   };
 
+  const isLoading = useRef(false);
   useEffect(() => {
-    if (!user || (loaded && !needRefresh && page !== Page.Portfolio)) return;
+    if (!user || isLoading.current || !needRefresh || page !== thisPage) return;
 
+    isLoading.current = true;
     setNeedRefresh(false);
 
     loadData(DataName.token)
       .then((tokens: PortfolioToken[]) => {
         loadData(DataName.portfolio)
           .then(async (data: Portfolio[]) => {
-            const p = data.find(d => d.address === user.address) ?? {
+            const p = data.find(d => d.id === user.id) ?? {
+              id: user.id,
               address: user.address,
               token: [],
               total: 0,
@@ -140,8 +145,8 @@ export default function Portfolio() {
           .then(() => loadData(user.name).then(setHistoric));
       })
       .catch(console.error)
-      .finally(() => setLoaded(true));
-  }, [loaded, needRefresh, setNeedRefresh, page, user]);
+      .finally(() => (isLoading.current = false));
+  }, [needRefresh, setNeedRefresh, page, user]);
 
   const { minHisto, maxHisto } = useMemo(() => {
     const minHisto = Math.min(...[...historic.map(d => d.Investi), ...historic.map(d => d.Total)]).toDecimalPlace(
@@ -163,7 +168,7 @@ export default function Portfolio() {
           <Flex alignItems="start">
             <div>
               <Title className="text-left">{t.totalValue}</Title>
-              <Metric color="green" className={!loaded ? 'blur-sm' : 'animate-unblur'}>
+              <Metric color="green" className={!portfolio ? 'blur-sm' : 'animate-unblur'}>
                 {(portfolio?.total ?? 0).toLocaleCurrency()}
               </Metric>
             </div>
@@ -182,43 +187,38 @@ export default function Portfolio() {
           </Flex>
         </AccordionHeader>
         <AccordionBody>
-          {!loaded || wallet?.length ? (
-            <>
-              <GainsBar values={portfolio} loaded={loaded} />
-              <Divider style={{ fontSize: 18 }}>{t.assets}</Divider>
-            </>
-          ) : null}
+          {!portfolio || portfolio.invested ? <GainsBar values={portfolio} loaded={!!portfolio} /> : null}
+          {!wallet || wallet.length ? <Divider style={{ fontSize: 18 }}>{t.assets}</Divider> : null}
 
-          {loaded ? (
+          {wallet ? (
             <Table>
               <TableBody>
-                {wallet &&
-                  wallet.map(asset => (
-                    <TableRow
-                      key={asset.name}
-                      className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
-                    >
-                      <TableCell>
-                        <Image
-                          className="rounded-full"
-                          src={asset.image}
-                          alt={t.tokenLogo}
-                          width={50}
-                          height={50}
-                        ></Image>
-                      </TableCell>
-                      <TableCell>
-                        <Flex justifyContent="between">
-                          <div className="text-xl truncate">{asset.name}</div>
-                          <div>{`${asset.balance.toShortFixed()} ${asset.symbol}`}</div>
-                        </Flex>
-                        <Flex justifyContent="between">
-                          <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
-                          <div className="font-bold text-lg">{asset.total.toLocaleCurrency()}</div>
-                        </Flex>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {wallet.map(asset => (
+                  <TableRow
+                    key={asset.name}
+                    className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
+                  >
+                    <TableCell>
+                      <Image
+                        className="rounded-full"
+                        src={asset.image}
+                        alt={t.tokenLogo}
+                        width={50}
+                        height={50}
+                      ></Image>
+                    </TableCell>
+                    <TableCell>
+                      <Flex justifyContent="between">
+                        <div className="text-xl truncate">{asset.name}</div>
+                        <div>{`${asset.balance.toShortFixed()} ${asset.symbol}`}</div>
+                      </Flex>
+                      <Flex justifyContent="between">
+                        <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
+                        <div className="font-bold text-lg">{asset.total.toLocaleCurrency()}</div>
+                      </Flex>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           ) : (
@@ -245,7 +245,7 @@ export default function Portfolio() {
         </AccordionBody>
       </Accordion>
 
-      {!loaded || (wallet?.length && portfolio?.invested) ? (
+      {!portfolio || portfolio?.invested ? (
         <Accordion className="group" defaultOpen={!isMobileSize()}>
           <AccordionHeader>
             <Title>Performance</Title>
