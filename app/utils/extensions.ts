@@ -11,6 +11,7 @@ declare global {
     toLocaleDate(): string;
     toShortFixed(maxDecimals?: number): string;
     toDecimalPlace(decimalPlace?: number, direction?: RoundingDirection): number;
+    toClosestPowerOfTen(direction?: RoundingDirection): number;
   }
   interface String {
     fromCurrency(locale?: string): number;
@@ -37,9 +38,8 @@ Number.prototype.toShortCurrency = function (maxDecimals = 0, symbol = '€') {
   return (
     this.toShortFixed(maxDecimals)
       .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-      .replace(/ 000/, 'K') +
-    ' ' +
-    symbol
+      .replace(/ 000 000/, 'M')
+      .replace(/ 000/, 'K') + (symbol ? ' ' + symbol : '')
   );
 };
 
@@ -60,11 +60,25 @@ Number.prototype.toShortFixed = function (maxDecimals = 2) {
 };
 
 export type RoundingDirection = 'up' | 'down';
-Number.prototype.toDecimalPlace = function (decimalPlace = 2, direction = 'up') {
+Number.prototype.toDecimalPlace = function (decimalPlace = 2, direction: RoundingDirection = 'up') {
   const multiplier = 10 ** decimalPlace;
   const roundedValue =
     direction === 'up' ? Math.ceil(Number(this) * multiplier) : Math.floor(Number(this) * multiplier);
   return roundedValue / multiplier;
+};
+
+Number.prototype.toClosestPowerOfTen = function (direction: RoundingDirection = 'down') {
+  if (Math.abs(Number(this)) < 10) return direction === 'down' ? 0 : 1;
+
+  let absNumber = Math.abs(Number(this));
+  let power = 1;
+
+  while (absNumber >= 100) {
+    absNumber /= 10;
+    power++;
+  }
+
+  return Math.pow(10, direction === 'down' ? power : power + 1);
 };
 
 String.prototype.fromCurrency = function (locale?: string) {
