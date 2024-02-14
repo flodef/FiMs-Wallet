@@ -1,5 +1,21 @@
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { ArrowDownRightIcon, ArrowUpRightIcon, ExclamationCircleIcon, HeartIcon } from '@heroicons/react/24/solid';
-import { Card, Flex, Icon, Table, TableBody, TableCell, TableRow, Text, Title } from '@tremor/react';
+import {
+  Card,
+  Flex,
+  Grid,
+  Icon,
+  MultiSelect,
+  MultiSelectItem,
+  Select,
+  SelectItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  Text,
+  Title,
+} from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
 import { Page, useNavigation } from '../hooks/useNavigation';
@@ -11,7 +27,10 @@ import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
-  transactionList: 'Liste des transactions',
+  transactionSummary: 'Résumé des transactions',
+  cost: 'Frais',
+  total: 'Total',
+  transactionsHistoric: 'Historique des transactions',
   date: 'Date',
   movement: 'Mouvement',
   type: 'Type',
@@ -21,6 +40,11 @@ const t: Dataset = {
   noTransactionFound: 'Aucune transaction trouvé',
   transactionLoading: 'Chargement des transactions...',
   withdrawalCost: 'Frais de retrait',
+  selectTransactionDate: 'Sélectionner une date',
+  selectTransactionMovement: 'Sélectionner un mouvement',
+  selectTransactionType: 'Sélectionner un type',
+  to: 'à',
+  search: 'Rechercher',
 };
 
 export enum TransactionType {
@@ -45,6 +69,15 @@ export default function Transactions() {
   const { page, needRefresh, setNeedRefresh } = useNavigation();
 
   const [transactions, setTransactions] = useState<Transaction[] | undefined>();
+  const [selectedType, setSelectedType] = useState<string>();
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const [selectedMovements, setSelectedMovements] = useState<string[]>([]);
+
+  const isTypeSelected = (t: Transaction) => selectedType === TransactionType[t.type ?? -1] || !selectedType;
+  const isDateSelected = (t: Transaction) =>
+    selectedDates.includes(new Date(t.date).getFullYear().toString()) || !selectedDates.length;
+  const isMovementSelected = (t: Transaction) =>
+    selectedMovements.includes(String(t.movement.toClosestPowerOfTen())) || !selectedMovements.length;
 
   const processTransactions = useCallback(
     (data: Transaction[]) => {
@@ -107,77 +140,223 @@ export default function Transactions() {
 
   return (
     <>
-      <Title className="text-left whitespace-nowrap">{t.transactionList}</Title>
-      {/* <Search defaultValue={search} />  // TODO : Search by date */}
-      <Card className="mt-6">
-        <Table>
-          <SortTableHead labels={[t.date, t.movement, t.type]} table={transactions} setTable={setTransactions} />
-          <TableBody>
-            {transactions?.length ? (
-              transactions.map((transaction, index) => (
-                <TableRow
-                  key={index}
-                  className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
-                >
-                  <TableCell>{transaction.date}</TableCell>
-                  <TableCell className={cls('font-bold', transaction.movement > 0 ? 'text-green-400' : 'text-red-400')}>
-                    <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
-                      {transaction.movement.toLocaleCurrency()}
-                      {transaction.type === TransactionType.withdrawal && transaction.cost < 0 && (
-                        <Icon
-                          className="self-center"
-                          icon={ExclamationCircleIcon}
-                          color="gray"
-                          tooltip={t.withdrawalCost + ' : ' + transaction.cost.toLocaleCurrency()}
-                        />
-                      )}
-                    </Flex>
-                  </TableCell>
-                  <TableCell>
-                    <Flex justifyContent="start" alignItems="start" className="flex-col sm:flex-row">
-                      <Icon
-                        className="sm:hover:animate-pulse cursor-pointer"
-                        icon={
-                          transaction.type === TransactionType.deposit
-                            ? ArrowDownRightIcon
-                            : transaction.type === TransactionType.withdrawal
-                              ? ArrowUpRightIcon
-                              : HeartIcon
-                        }
-                        tooltip={
-                          isMobileSize()
-                            ? transaction.type === TransactionType.deposit
-                              ? t.deposit
-                              : transaction.type === TransactionType.withdrawal
-                                ? t.withdrawal
-                                : t.donation
-                            : undefined
-                        }
-                        size="lg"
-                        color={transaction.type === TransactionType.deposit ? 'green' : 'red'}
-                      />
-                      {!isMobileSize() && (
-                        <Text className="self-center sm:ml-4">
-                          {transaction.type === TransactionType.deposit
-                            ? t.deposit
-                            : transaction.type === TransactionType.withdrawal
-                              ? t.withdrawal
-                              : t.donation}
-                        </Text>
-                      )}
-                    </Flex>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
+      {transactions?.length !== 0 && (
+        <Card>
+          <Title className="text-left whitespace-nowrap">{t.transactionSummary}</Title>
+          <Table>
+            <TableBody>
               <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  {transactions ? t.noTransactionFound : t.transactionLoading}
+                <TableCell>{t.deposit}</TableCell>
+                <TableCell className="ml-4">
+                  {transactions?.filter(t => t.type === TransactionType.deposit).length}
+                </TableCell>
+                <TableCell className="ml-4">
+                  {transactions
+                    ?.filter(t => t.type === TransactionType.deposit)
+                    .reduce((a, b) => a + b.movement, 0)
+                    .toLocaleCurrency()}
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              <TableRow>
+                <TableCell>{t.withdrawal}</TableCell>
+                <TableCell className="ml-4">
+                  {transactions?.filter(t => t.type === TransactionType.withdrawal).length}
+                </TableCell>
+                <TableCell className="ml-4">
+                  {transactions
+                    ?.filter(t => t.type === TransactionType.withdrawal)
+                    .reduce((a, b) => a + b.movement, 0)
+                    .toLocaleCurrency()}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>{t.donation}</TableCell>
+                <TableCell className="ml-4">
+                  {transactions?.filter(t => t.type === TransactionType.donation).length}
+                </TableCell>
+                <TableCell className="ml-4">
+                  {transactions
+                    ?.filter(t => t.type === TransactionType.donation)
+                    .reduce((a, b) => a + b.movement, 0)
+                    .toLocaleCurrency()}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>{t.cost}</TableCell>
+                <TableCell className="ml-4">{transactions?.filter(t => t.cost < 0).length}</TableCell>
+                <TableCell className="ml-4">
+                  {transactions
+                    ?.filter(t => t.cost < 0)
+                    .reduce((a, b) => a + b.cost, 0)
+                    .toLocaleCurrency()}
+                </TableCell>
+              </TableRow>
+              <TableRow className="font-bold">
+                <TableCell>{t.total}</TableCell>
+                <TableCell className="ml-4">{transactions?.length}</TableCell>
+                <TableCell
+                  className={cls(
+                    'font-bold',
+                    transactions?.reduce((a, b) => a + b.movement, 0) ?? 0 >= 0 ? 'text-green-400' : 'text-red-400',
+                  )}
+                >
+                  {transactions?.reduce((a, b) => a + b.movement, 0).toLocaleCurrency()}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Card>
+      )}
+      <Card>
+        <Title className="text-left whitespace-nowrap">
+          {!transactions || transactions.length ? t.transactionsHistoric : t.noTransactionFound}
+        </Title>
+        {!transactions || transactions?.length ? (
+          <>
+            <Grid className="space-x-4 space-y-4" numItemsMd={2} numItemsLg={3}>
+              <label htmlFor="searchDate" className="sr-only">
+                {t.searchByDate}
+              </label>
+              <MultiSelect
+                id="searchDate"
+                icon={MagnifyingGlassIcon}
+                placeholder={t.selectTransactionDate}
+                placeholderSearch={t.search}
+                spellCheck={false}
+                value={selectedDates}
+                onValueChange={setSelectedDates}
+              >
+                {transactions
+                  ?.map(({ date }) => new Date(date).getFullYear())
+                  .filter((v, i, a) => a.findIndex(t => t === v) === i)
+                  .map(item => (
+                    <MultiSelectItem key={item} value={String(item)}>
+                      {String(item)}
+                    </MultiSelectItem>
+                  ))}
+              </MultiSelect>
+              <label htmlFor="searchMovement" className="sr-only">
+                {t.searchByMovement}
+              </label>
+              <MultiSelect
+                id="searchMovement"
+                icon={MagnifyingGlassIcon}
+                placeholder={t.selectTransactionMovement}
+                placeholderSearch={t.search}
+                spellCheck={false}
+                value={selectedMovements}
+                onValueChange={setSelectedMovements}
+              >
+                {transactions
+                  ?.map(({ movement }) => movement.toClosestPowerOfTen())
+                  .filter((v, i, a) => a.findIndex(t => t === v) === i)
+                  .sort((a, b) => Math.abs(a) - Math.abs(b))
+                  .map(item => (
+                    <MultiSelectItem key={item} value={String(item)}>
+                      {`${item.toShortCurrency(0, '')} ${t.to} ${(item * 10).toShortCurrency(0, '')}`}
+                    </MultiSelectItem>
+                  ))}
+              </MultiSelect>
+              <label htmlFor="searchType" className="sr-only">
+                {t.searchByType}
+              </label>
+              <Select
+                icon={MagnifyingGlassIcon}
+                id="searchType"
+                enableClear={true}
+                placeholder={t.selectTransactionType}
+                spellCheck={false}
+                value={selectedType}
+                onValueChange={setSelectedType}
+              >
+                {transactions
+                  ?.filter((v, i, a) => a.findIndex(t => t.type === v.type) === i)
+                  .map(
+                    item =>
+                      item.type !== undefined && (
+                        <SelectItem key={item.type} value={TransactionType[item.type]}>
+                          {t[TransactionType[item.type]]}
+                        </SelectItem>
+                      ),
+                  )}
+              </Select>
+            </Grid>
+            <Table>
+              <SortTableHead labels={[t.date, t.movement, t.type]} table={transactions} setTable={setTransactions} />
+              <TableBody>
+                {transactions ? (
+                  transactions
+                    .filter(isDateSelected)
+                    .filter(isMovementSelected)
+                    .filter(isTypeSelected)
+                    .map((transaction, index) => (
+                      <TableRow
+                        key={index}
+                        className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
+                      >
+                        <TableCell>{transaction.date}</TableCell>
+                        <TableCell
+                          className={cls('font-bold', transaction.movement >= 0 ? 'text-green-400' : 'text-red-400')}
+                        >
+                          <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
+                            {transaction.movement.toLocaleCurrency()}
+                            {transaction.type === TransactionType.withdrawal && transaction.cost < 0 && (
+                              <Icon
+                                className="self-center"
+                                icon={ExclamationCircleIcon}
+                                color="gray"
+                                tooltip={t.withdrawalCost + ' : ' + transaction.cost.toLocaleCurrency()}
+                              />
+                            )}
+                          </Flex>
+                        </TableCell>
+                        <TableCell>
+                          <Flex justifyContent="start" alignItems="start" className="flex-col sm:flex-row">
+                            <Icon
+                              className="sm:hover:animate-pulse cursor-pointer"
+                              icon={
+                                transaction.type === TransactionType.deposit
+                                  ? ArrowDownRightIcon
+                                  : transaction.type === TransactionType.withdrawal
+                                    ? ArrowUpRightIcon
+                                    : HeartIcon
+                              }
+                              tooltip={
+                                isMobileSize()
+                                  ? transaction.type === TransactionType.deposit
+                                    ? t.deposit
+                                    : transaction.type === TransactionType.withdrawal
+                                      ? t.withdrawal
+                                      : t.donation
+                                  : undefined
+                              }
+                              size="lg"
+                              color={transaction.type === TransactionType.deposit ? 'green' : 'red'}
+                            />
+                            {!isMobileSize() && (
+                              <Text className="self-center sm:ml-4">
+                                {transaction.type === TransactionType.deposit
+                                  ? t.deposit
+                                  : transaction.type === TransactionType.withdrawal
+                                    ? t.withdrawal
+                                    : t.donation}
+                              </Text>
+                            )}
+                          </Flex>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center">
+                      {t.transactionLoading}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </>
+        ) : null}
       </Card>
     </>
   );
