@@ -87,11 +87,10 @@ export default function Portfolio() {
   const loadAssets = async (address: string, hasFiMsToken: boolean) => {
     return await fetch(
       `/api/solana/getAssets?address=${address}${hasFiMsToken ? '&creator=CCLcWAJX6fubUqGyZWz8dyUGEddRj8h4XZZCNSDzMVx4' : ''}`,
-    ).then(async value => {
-      return await value.json().then((tokens: Asset[]) => {
-        return tokens;
-      });
-    });
+    )
+      .then(async result => await (result.ok ? result.json() : undefined))
+      .then((tokens: Asset[]) => tokens)
+      .catch(console.error);
   };
 
   const isLoading = useRef(false);
@@ -102,7 +101,7 @@ export default function Portfolio() {
     setNeedRefresh(false);
 
     loadData(DataName.token)
-      .then((tokens: PortfolioToken[]) => {
+      .then((tokens: PortfolioToken[]) =>
         loadData(DataName.portfolio)
           .then(async (data: Portfolio[]) => {
             if (!data.length) data = await forceData(DataName.portfolio);
@@ -120,7 +119,7 @@ export default function Portfolio() {
               solProfitPrice: 0,
             };
             const assets = await loadAssets(user.address, !!p.total);
-            if (assets.length) {
+            if (assets?.length) {
               p.total = assets.reduce(
                 (a, b) => a + (b.balance ?? 0) * (tokens.find(t => t.label === b.name)?.value ?? 0),
                 0,
@@ -145,8 +144,10 @@ export default function Portfolio() {
                 .sort((a, b) => b.total - a.total),
             );
           })
-          .then(() => loadData(user.name).then(setHistoric));
-      })
+          .catch(console.error),
+      )
+      .then(() => loadData(user.name))
+      .then(setHistoric)
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, user]);

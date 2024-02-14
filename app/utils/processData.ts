@@ -113,30 +113,22 @@ async function cacheData(sheetName: string, dataName: DataName, parameter: Param
 
   const data =
     (await fetch(`./api/spreadsheet?sheetName=${sheetName}&range=${parameter.range}&isRaw=true`)
-      .then(async response => {
-        if (typeof response === 'undefined') return;
-        return await response
-          .json()
-          .then((data: { values: string[][]; error: string }) => {
-            checkData(data, numberOfColumns);
+      .then(result => (result.ok ? result.json() : undefined))
+      .then((data: { values: string[][]; error: string }) => {
+        checkData(data, numberOfColumns);
 
-            return data.values
-              .filter((_, i) => (parameter.hasHeader ? i !== 0 : true))
-              .map(item => {
-                checkColumn(item, parameter.minColInRow ?? numberOfColumns);
-                return parameter.convert(item);
-              });
-          })
-          .catch(error => {
-            if (error instanceof WrongDataPatternError) {
-              console.error(error);
-              return [];
-            }
-            throw error;
+        return data.values
+          .filter((_, i) => (parameter.hasHeader ? i !== 0 : true))
+          .map(item => {
+            checkColumn(item, parameter.minColInRow ?? numberOfColumns);
+            return parameter.convert(item);
           });
       })
       .catch(error => {
         console.error(error);
+        if (error instanceof WrongDataPatternError) {
+          return;
+        }
       })) ?? [];
 
   dataCache.set(dataName, { data: data, expire: Date.now() + 1000 * 60 });

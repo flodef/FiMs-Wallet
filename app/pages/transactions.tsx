@@ -129,11 +129,9 @@ export default function Transactions() {
 
     loadData(DataName.transactions)
       .then(processTransactions)
-      .then(() => {
-        fetch('/api/database/getTransactions').then(result => {
-          if (result.ok) result.json().then(processTransactions);
-        });
-      })
+      .then(() => fetch('/api/database/getTransactions'))
+      .then(result => (result.ok ? result.json() : undefined))
+      .then(processTransactions)
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, processTransactions]);

@@ -32,21 +32,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (!userName || userName.toLowerCase() === user?.name.toLowerCase() || connecting.current) return user;
 
       connecting.current = true;
+      // if (!result.ok) throw new Error('Error while fetching users');
 
       return await fetch('/api/database/getUsers')
-        .then(async result => {
-          if (!result.ok) throw new Error('Error while fetching users');
+        .then(result => (result.ok ? result.json() : undefined))
+        .then((users: User[]) => {
+          if (!users) throw new Error('Error while fetching users');
 
-          return result.json().then((users: User[]) => {
-            const newUser = users.find(u => u.name.toLowerCase() === userName.toLowerCase());
-            if (newUser) {
-              setUser(newUser);
-            } else {
-              console.error('No user found');
-              disconnect();
-            }
-            return newUser;
-          });
+          const newUser = users.find(u => u.name.toLowerCase() === userName.toLowerCase());
+          if (newUser) {
+            setUser(newUser);
+          } else {
+            console.error('No user found');
+            disconnect();
+          }
+          return newUser;
         })
         .catch(error => {
           console.error(error);

@@ -42,19 +42,13 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetch('/api/database/getUsers')
-      .then(result => {
-        if (result.ok) {
-          result.json().then(setUsers);
-        }
-      })
+      .then(result => (result.ok ? result.json() : undefined))
+      .then(setUsers)
       .catch(console.error);
 
     fetch('/api/database/getTransactions')
-      .then(result => {
-        if (result.ok) {
-          result.json().then(setTransactions);
-        }
-      })
+      .then(result => (result.ok ? result.json() : undefined))
+      .then(setTransactions)
       .catch(console.error);
   }, []);
 
@@ -76,9 +70,7 @@ export default function AdminPage() {
           setAddress('');
         }
       })
-      .catch(error => {
-        console.error(error);
-      })
+      .catch(console.error)
       .finally(() => {
         setUserLoading(false);
       });
@@ -117,9 +109,7 @@ export default function AdminPage() {
           setTransactionAddress('');
         }
       })
-      .catch(error => {
-        console.error(error);
-      })
+      .catch(console.error)
       .finally(() => {
         setTransactionLoading(false);
       });
@@ -145,14 +135,10 @@ export default function AdminPage() {
   // TODO : Reload users if modified
 
   return (
-    <Grid
-      numItemsSm={2}
-      numItemsLg={2}
-      className="flex-grow overflow-auto w-full max-w-7xl self-center gap-6 mt-6 pr-12"
-    >
+    <Grid numItemsSm={2} numItemsLg={2} className="w-full max-w-7xl self-center gap-6 mt-6 pr-12">
       <Card className="mx-6">
         <Title>Add User</Title>
-        <Flex className='space-6 gap-6 p-4"' flexDirection="col" justifyContent="start" alignItems="start">
+        <Flex className="p-4" flexDirection="col" justifyContent="start" alignItems="start">
           <TextInput
             className="max-w-xs"
             value={name}
@@ -162,7 +148,7 @@ export default function AdminPage() {
             errorMessage={name.length <= nameLimit.max ? 'The name is already taken!' : 'The name is too long!'}
           />
           <TextInput
-            className="max-w-md"
+            className="max-w-md mt-4"
             value={address}
             onValueChange={setAddress}
             placeholder="Address"
@@ -175,7 +161,7 @@ export default function AdminPage() {
                 : 'The address is too long!'
             }
           />
-          <Flex className="space-6 gap-6" flexDirection="row" justifyContent="start" alignItems="center">
+          <Flex className="space-6 gap-6 mt-4" flexDirection="row" justifyContent="start" alignItems="center">
             <Switch checked={isPublic} onChange={setIsPublic} />
             <Text>{isPublic ? 'Public' : 'Private'}</Text>
           </Flex>
@@ -192,9 +178,9 @@ export default function AdminPage() {
         </Flex>
       </Card>
 
-      <Card className="mx-6 ">
+      <Card className="mx-6">
         <Title>Add Transaction</Title>
-        <Flex className="space-6 gap-6 p-4" flexDirection="col" justifyContent="start" alignItems="start">
+        <Flex className="p-4" flexDirection="col" justifyContent="start" alignItems="start">
           <DatePicker
             className="max-w-sm"
             value={date}
@@ -206,7 +192,12 @@ export default function AdminPage() {
             enableYearNavigation={true}
             weekStartsOn={1}
           />
-          <Select className="max-w-sm" value={transactionType} onValueChange={setTransactionType} enableClear={false}>
+          <Select
+            className="max-w-sm mt-4"
+            value={transactionType}
+            onValueChange={setTransactionType}
+            enableClear={false}
+          >
             {Object.keys(TransactionType)
               .filter(key => isNaN(Number(key)))
               .map(type => (
@@ -216,7 +207,7 @@ export default function AdminPage() {
               ))}
           </Select>
           <NumberInput
-            className="max-w-sm"
+            className="max-w-sm mt-4"
             value={movement}
             onValueChange={setMovement}
             onFocus={e => (e.target.value = '')}
@@ -227,7 +218,7 @@ export default function AdminPage() {
             max={1000000}
           />
           <Select
-            className="max-w-sm"
+            className="max-w-sm mt-4"
             value={transactionAddress}
             onValueChange={setTransactionAddress}
             enableClear={false}
@@ -239,7 +230,7 @@ export default function AdminPage() {
             ))}
           </Select>
           <Flex
-            className={cls(isTransactionType(TransactionType.donation) ? 'hidden' : 'visible', 'space-6 gap-6')}
+            className={cls(isTransactionType(TransactionType.donation) ? 'hidden' : 'visible', 'space-6 gap-6 mt-4')}
             flexDirection="row"
             justifyContent="start"
             alignItems="center"
@@ -248,7 +239,7 @@ export default function AdminPage() {
             <Text>{hasCost ? `Costs ${((movement * transactionCost) / 100).toLocaleCurrency()}` : 'Free'}</Text>
           </Flex>
           <Button
-            className="flex font-bold self-center"
+            className="flex font-bold self-center mt-4"
             disabled={!isValidTransaction}
             style={{ borderRadius: 24 }}
             loading={transactionLoading}

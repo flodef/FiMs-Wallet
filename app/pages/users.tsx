@@ -75,11 +75,9 @@ export default function Users() {
 
     loadData(DataName.portfolio)
       .then(processUsers)
-      .then(() => {
-        fetch('/api/database/getUsers').then(result => {
-          if (result.ok) result.json().then(processUsers);
-        });
-      })
+      .then(() => fetch('/api/database/getUsers'))
+      .then(result => (result.ok ? result.json() : undefined))
+      .then(processUsers)
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, processUsers]);
@@ -94,11 +92,8 @@ export default function Users() {
       method: 'POST',
       body: JSON.stringify({ address: currentUser.address, isPublic: value }),
     })
-      .then(result => {
-        if (result.ok) {
-          setIsPublic(value);
-        }
-      })
+      .then(result => (result.ok ? setIsPublic(value) : undefined))
+      .catch(console.error)
       .finally(() => {
         isUpdatingUserPrivacy.current = false;
       });

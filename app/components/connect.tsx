@@ -34,15 +34,17 @@ export default function Connect() {
     setIsConnecting(true);
     setUserName(currentUserName);
 
-    connect(currentUserName).then(user => {
-      setIsConnecting(false);
-      setHasConnectionError(user === undefined);
-      if (user) {
-        closePopup();
-      } else {
+    connect(currentUserName)
+      .then(user => {
+        setHasConnectionError(user === undefined);
+        user ? closePopup() : setFocus();
+      })
+      .catch(error => {
+        console.error(error);
+        setHasConnectionError(true);
         setFocus();
-      }
-    });
+      })
+      .finally(() => setIsConnecting(false));
   }, [currentUserName, closePopup, connect, setFocus, isConnecting, isValidationDisabled]);
 
   const changeUserName = useCallback(

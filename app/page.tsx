@@ -49,34 +49,31 @@ export default function IndexPage() {
 
   useEffect(() => {
     fetch('/VERSION.md')
-      .then(response => {
-        response.text().then(text => {
-          const regex = /# (\d+\.\d+)((?:\n(?!\n#).*)*)/g;
-          let match;
-          const versions: VersionNote[] = [];
+      .then(response => response.text())
+      .then(text => {
+        const regex = /# (\d+\.\d+)((?:\n(?!\n#).*)*)/g;
+        let match;
+        const versions: VersionNote[] = [];
 
-          while ((match = regex.exec(text)) !== null) {
-            if (versions.length < 3) {
-              versions.push({
-                version: match[1],
-                notes: match[2]
-                  .trim()
-                  .split('\n')
-                  .filter(line => line.trim().length > 0)
-                  .map(note => note.replace(/^- /, '')),
-              });
-            }
+        while ((match = regex.exec(text)) !== null) {
+          if (versions.length < 3) {
+            versions.push({
+              version: match[1],
+              notes: match[2]
+                .trim()
+                .split('\n')
+                .filter(line => line.trim().length > 0)
+                .map(note => note.replace(/^- /, '')),
+            });
           }
+        }
 
-          if (versions.length && version !== versions[0].version) {
-            setVersionNotes(versions);
-            openPopup();
-          }
-        });
+        if (versions.length && version !== versions[0].version) {
+          setVersionNotes(versions);
+          openPopup();
+        }
       })
-      .catch(error => {
-        console.error('Error fetching version note:', error);
-      });
+      .catch(console.error);
   }, [version, setVersion, openPopup]);
 
   function handleClose() {

@@ -134,11 +134,10 @@ export default function Dashboard() {
 
     loadData(DataName.dashboard)
       .then(setDashboard)
-      .then(() =>
-        loadData(DataName.token)
-          .then(generateTokenHistoric)
-          .then(() => loadData(DataName.historic).then(setHistoric)),
-      )
+      .then(() => loadData(DataName.token))
+      .then(generateTokenHistoric)
+      .then(() => loadData(DataName.historic))
+      .then(setHistoric)
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, generateTokenHistoric]);
