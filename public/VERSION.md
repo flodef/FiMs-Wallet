@@ -1,3 +1,9 @@
+# 1.3
+
+- Ajout d'un résumé des transactions
+- Ajout de recherches dans l'historique des transactions
+- Optimisation du chargement des données
+
 # 1.2
 
 - Affichage des notes de version
