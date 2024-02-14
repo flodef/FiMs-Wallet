@@ -19,12 +19,13 @@ import SortTableHead from '../components/sortTableHead';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, useUser } from '../hooks/useUser';
 import { cls, getShortAddress } from '../utils/constants';
+import { isMobileDevice } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
   usersList: 'Liste des utilisateurs',
-  noUserFound: 'Aucun utilisateur trouvé',
+  noUserFound: 'Aucun utilisateur trouvée',
   userLoading: 'Chargement des utilisateurs...',
   selectUser: 'Sélectionner un utilisateur',
   search: 'Rechercher',
@@ -49,6 +50,8 @@ export default function Users() {
   const [users, setUsers] = useState<User[] | undefined>();
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState<boolean>();
+
+  const isUserSelected = (user: User) => selectedUsers.includes(user.name) || !selectedUsers.length;
 
   const processUsers = useCallback(
     (users: DBUser[]) => {
@@ -81,8 +84,6 @@ export default function Users() {
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, processUsers]);
 
-  const isUserSelected = (user: User) => selectedUsers.includes(user.name) || selectedUsers.length === 0;
-
   const isUpdatingUserPrivacy = useRef(false);
   const handleSwitchChange = (value: boolean) => {
     if (!currentUser || isUpdatingUserPrivacy.current) return;
@@ -110,44 +111,53 @@ export default function Users() {
     }
   }, [users]);
 
+  const [tooltipText, setTooltipText] = useState(t.appearance + ' ');
+
   return (
     <>
-      <Flex justifyContent="between">
-        <Title className="text-left whitespace-nowrap">{t.usersList}</Title>
-        {isPublic !== undefined && (
-          <Flex justifyContent="end">
-            <Icon icon={InformationCircleIcon} tooltip={t.appearance} color="gray" />
-            <Text className="mr-2">{isPublic ? t.public : t.private}</Text>
-            <Switch disabled={isUpdatingUserPrivacy.current} checked={isPublic} onChange={handleSwitchChange} />
+      <Card>
+        <Flex justifyContent="between">
+          <Title className="text-left whitespace-nowrap">{t.usersList}</Title>
+          {isPublic !== undefined && (
+            <Flex justifyContent="end">
+              <Icon
+                icon={InformationCircleIcon}
+                tooltip={tooltipText}
+                color="gray"
+                onClick={() => {
+                  isMobileDevice() ? setTooltipText(tooltipText !== t.appearance ? t.appearance : '') : null;
+                }}
+              />
+              <Text className="mr-2">{isPublic ? t.public : t.private}</Text>
+              <Switch disabled={isUpdatingUserPrivacy.current} checked={isPublic} onChange={handleSwitchChange} />
+            </Flex>
+          )}
+        </Flex>
+        {users?.length && (
+          <Flex className="relative mt-5 max-w-md">
+            <label htmlFor="search" className="sr-only">
+              {t.searchByName}
+            </label>
+            <MultiSelect
+              autoFocus
+              ref={inputRef}
+              className="max-w-full sm:max-w-xs"
+              id="search"
+              icon={MagnifyingGlassIcon}
+              placeholder={t.selectUser}
+              placeholderSearch={t.search}
+              spellCheck={false}
+              value={selectedUsers}
+              onValueChange={setSelectedUsers}
+            >
+              {users?.map(item => (
+                <MultiSelectItem key={item.name} value={item.name}>
+                  {item.name}
+                </MultiSelectItem>
+              ))}
+            </MultiSelect>
           </Flex>
         )}
-      </Flex>
-      {users?.length && (
-        <Flex className="relative mt-5 max-w-md">
-          <label htmlFor="search" className="sr-only">
-            {t.searchByName}
-          </label>
-          <MultiSelect
-            autoFocus
-            ref={inputRef}
-            icon={MagnifyingGlassIcon}
-            id="search"
-            className="max-w-full sm:max-w-xs"
-            placeholder={t.selectUser}
-            placeholderSearch={t.search}
-            spellCheck={false}
-            value={selectedUsers}
-            onValueChange={setSelectedUsers}
-          >
-            {users?.map(item => (
-              <MultiSelectItem key={item.name} value={item.name}>
-                {item.name}
-              </MultiSelectItem>
-            ))}
-          </MultiSelect>
-        </Flex>
-      )}
-      <Card className="mt-6">
         <Table>
           <SortTableHead labels={[t.name, t.address, t.copy]} table={users} setTable={setUsers} />
           <TableBody>
