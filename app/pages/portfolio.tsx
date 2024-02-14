@@ -22,7 +22,7 @@ import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
-import { DataName, loadData } from '../utils/processData';
+import { DataName, forceData, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
 
 const t: Dataset = {
@@ -105,6 +105,9 @@ export default function Portfolio() {
       .then((tokens: PortfolioToken[]) => {
         loadData(DataName.portfolio)
           .then(async (data: Portfolio[]) => {
+            if (!data.length) data = await forceData(DataName.portfolio);
+            if (!tokens.length) tokens = await forceData(DataName.token);
+
             const p = data.find(d => d.id === user.id) ?? {
               id: user.id,
               address: user.address,

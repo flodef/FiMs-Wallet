@@ -82,7 +82,7 @@ export async function loadData(name: DataName | string) {
 
   const cache = dataCache.get(dataName);
   let data = cache?.data;
-  if (!cache) {
+  if (!cache?.data.length) {
     data = await cacheData(name, dataName, parameter); // If the data is not in the cache, fetch it synchronously and wait for the cache to be updated
   } else if (cache.expire < Date.now()) {
     cacheData(name, dataName, parameter); // If the data is expired, fetch it again asynchronously and update the cache
@@ -93,8 +93,17 @@ export async function loadData(name: DataName | string) {
   return data;
 }
 
+export async function forceData(name: DataName | string) {
+  let data: any[] = [];
+  while (!data.length) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    data = await loadData(name);
+  }
+  return data;
+}
+
 export function clearData() {
-  [DataName.portfolio, DataName.userHistoric].forEach(name => {
+  [DataName.userHistoric].forEach(name => {
     dataCache.set(name, { data: [], expire: 0 });
   });
 }
