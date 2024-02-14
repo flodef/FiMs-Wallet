@@ -25,7 +25,7 @@ import 'swiper/css/pagination';
 export default function IndexPage() {
   const { isPopupOpen, openPopup, closePopup } = usePopup();
   const { isConnected } = useUser();
-  const { page: currentPage, setPage, pages } = useNavigation();
+  const { page: currentPage, setPage, pages, setNeedRefresh } = useNavigation();
 
   const [version, setVersion] = useLocalStorage('version', '0.0');
   const [versionNotes, setVersionNotes] = useState<VersionNote[]>([]);
@@ -36,6 +36,16 @@ export default function IndexPage() {
   );
   const pageClassName =
     'space-y-6 p-4 md:p-10 mx-auto text-center w-full center overflow-auto bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle';
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNeedRefresh(true);
+    }, 60000); // Refresh every minute
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [setNeedRefresh]);
 
   useEffect(() => {
     fetch('/VERSION.md')
