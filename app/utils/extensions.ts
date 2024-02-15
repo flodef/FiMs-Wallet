@@ -39,7 +39,7 @@ Number.prototype.toShortCurrency = function (maxDecimals = 0, symbol = '€') {
     this.toShortFixed(maxDecimals)
       .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
       .replace(/ 000 000/, 'M')
-      .replace(/ 000/, 'K') + (symbol ? ' ' + symbol : '')
+      .replace(/ 000/, 'K') + (symbol ? (Number(this) < 1000 ? ' ' : '') + symbol : '')
   );
 };
 
