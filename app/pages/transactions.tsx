@@ -192,53 +192,47 @@ export default function Transactions() {
           <Title className="text-left whitespace-nowrap">{t.transactionSummary}</Title>
           <Table>
             <TableBody>
-              <TableRow>
-                <TableCell>{t.deposit}</TableCell>
-                <TableCell className="ml-4">
-                  {transactions?.filter(t => t.type === TransactionType.deposit).length}
-                </TableCell>
-                <TableCell className="ml-4">
-                  {transactions
-                    ?.filter(t => t.type === TransactionType.deposit)
-                    .reduce((a, b) => a + b.movement, 0)
-                    .toLocaleCurrency()}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>{t.withdrawal}</TableCell>
-                <TableCell className="ml-4">
-                  {transactions?.filter(t => t.type === TransactionType.withdrawal).length}
-                </TableCell>
-                <TableCell className="ml-4">
-                  {transactions
-                    ?.filter(t => t.type === TransactionType.withdrawal)
-                    .reduce((a, b) => a + b.movement, 0)
-                    .toLocaleCurrency()}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>{t.donation}</TableCell>
-                <TableCell className="ml-4">
-                  {transactions?.filter(t => t.type === TransactionType.donation).length}
-                </TableCell>
-                <TableCell className="ml-4">
-                  {transactions
-                    ?.filter(t => t.type === TransactionType.donation)
-                    .reduce((a, b) => a + b.movement, 0)
-                    .toLocaleCurrency()}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>{t.cost}</TableCell>
-                <TableCell className="ml-4">{transactions?.filter(t => t.cost < 0).length}</TableCell>
-                <TableCell className="ml-4">
-                  {transactions
-                    ?.filter(t => t.cost < 0)
-                    .reduce((a, b) => a + b.cost, 0)
-                    .toLocaleCurrency()}
-                </TableCell>
-              </TableRow>
-              <TableRow className="font-bold">
+              {Object.values(TransactionType)
+                .filter(v => typeof v !== 'number')
+                .map(
+                  (type, index) =>
+                    transactions?.filter(t => t.type === index).length !== 0 && (
+                      <TableRow
+                        className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
+                        onClick={() => setSelectedType(TransactionType[index])}
+                        key={index}
+                      >
+                        <TableCell>{t[type]}</TableCell>
+                        <TableCell className="ml-4">{transactions?.filter(t => t.type === index).length}</TableCell>
+                        <TableCell className="ml-4">
+                          {transactions
+                            ?.filter(t => t.type === index)
+                            .reduce((a, b) => a + b.movement, 0)
+                            .toLocaleCurrency()}
+                        </TableCell>
+                      </TableRow>
+                    ),
+                )}
+              {transactions?.filter(t => t.cost < 0).length !== 0 && (
+                <TableRow className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle">
+                  <TableCell>{t.cost}</TableCell>
+                  <TableCell className="ml-4">{transactions?.filter(t => t.cost < 0).length}</TableCell>
+                  <TableCell className="ml-4">
+                    {transactions
+                      ?.filter(t => t.cost < 0)
+                      .reduce((a, b) => a + b.cost, 0)
+                      .toLocaleCurrency()}
+                  </TableCell>
+                </TableRow>
+              )}
+              <TableRow
+                className="font-bold hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
+                onClick={() => {
+                  setSelectedType(undefined);
+                  setSelectedDates([]);
+                  setSelectedMovements([]);
+                }}
+              >
                 <TableCell>{t.total}</TableCell>
                 <TableCell className="ml-4">{transactions?.length}</TableCell>
                 <TableCell
