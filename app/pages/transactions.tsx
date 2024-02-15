@@ -37,6 +37,8 @@ const t: Dataset = {
   deposit: 'Dépôt',
   withdrawal: 'Retrait',
   donation: 'Don',
+  swap: 'Échange',
+  payment: 'Paiement',
   noTransactionFound: 'Aucune transaction trouvé',
   transactionLoading: 'Chargement des transactions...',
   withdrawalCost: 'Frais de retrait',
@@ -51,6 +53,14 @@ export enum TransactionType {
   deposit,
   withdrawal,
   donation,
+  swap,
+  payment,
+}
+
+enum TransactionFilter {
+  date,
+  movement,
+  type,
 }
 
 export interface Transaction {
@@ -72,12 +82,9 @@ export default function Transactions() {
   const [selectedType, setSelectedType] = useState<string>();
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [selectedMovements, setSelectedMovements] = useState<string[]>([]);
-
-  const isTypeSelected = (t: Transaction) => selectedType === TransactionType[t.type ?? -1] || !selectedType;
-  const isDateSelected = (t: Transaction) =>
-    selectedDates.includes(new Date(t.date).getFullYear().toString()) || !selectedDates.length;
-  const isMovementSelected = (t: Transaction) =>
-    selectedMovements.includes(String(t.movement.toClosestPowerOfTen())) || !selectedMovements.length;
+  const [dateFilter, setDateFilter] = useState<number[]>();
+  const [movementFilter, setMovementFilter] = useState<number[]>();
+  const [typeFilter, setTypeFilter] = useState<Transaction[]>();
 
   const processTransactions = useCallback(
     (data: Transaction[]) => {
@@ -135,6 +142,48 @@ export default function Transactions() {
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, processTransactions]);
+
+  const getFilteredTransactions = useCallback(
+    (filters: TransactionFilter[]) => {
+      const isTypeSelected = (t: Transaction) => selectedType === TransactionType[t.type ?? -1] || !selectedType;
+      const isDateSelected = (t: Transaction) =>
+        selectedDates.includes(new Date(t.date).getFullYear().toString()) || !selectedDates.length;
+      const isMovementSelected = (t: Transaction) =>
+        selectedMovements.includes(String(t.movement.toClosestPowerOfTen())) || !selectedMovements.length;
+      return filters.reduce(
+        (filteredTransactions, filter) =>
+          filteredTransactions?.filter(
+            filter === TransactionFilter.date
+              ? isDateSelected
+              : filter === TransactionFilter.movement
+                ? isMovementSelected
+                : filter === TransactionFilter.type
+                  ? isTypeSelected
+                  : () => true,
+          ),
+        transactions,
+      );
+    },
+    [selectedDates, selectedMovements, selectedType, transactions],
+  );
+
+  useEffect(() => {
+    setDateFilter(
+      getFilteredTransactions([TransactionFilter.movement, TransactionFilter.type])
+        ?.map(({ date }) => new Date(date).getFullYear())
+        .filter((v, i, a) => a.findIndex(t => t === v) === i),
+    );
+    setMovementFilter(
+      getFilteredTransactions([TransactionFilter.date, TransactionFilter.type])
+        ?.map(({ movement }) => movement.toClosestPowerOfTen())
+        .filter((v, i, a) => a.findIndex(t => t === v) === i),
+    );
+    setTypeFilter(
+      getFilteredTransactions([TransactionFilter.date, TransactionFilter.movement])?.filter(
+        (v, i, a) => a.findIndex(t => t.type === v.type) === i,
+      ),
+    );
+  }, [getFilteredTransactions]);
 
   return (
     <>
@@ -215,61 +264,61 @@ export default function Transactions() {
               <label htmlFor="searchDate" className="sr-only">
                 {t.searchByDate}
               </label>
-              <MultiSelect
-                id="searchDate"
-                icon={MagnifyingGlassIcon}
-                placeholder={t.selectTransactionDate}
-                placeholderSearch={t.search}
-                spellCheck={false}
-                value={selectedDates}
-                onValueChange={setSelectedDates}
-              >
-                {transactions
-                  ?.map(({ date }) => new Date(date).getFullYear())
-                  .filter((v, i, a) => a.findIndex(t => t === v) === i)
-                  .map(item => (
+              {(dateFilter?.length ?? 0) > 1 ? (
+                <MultiSelect
+                  id="searchDate"
+                  icon={MagnifyingGlassIcon}
+                  placeholder={t.selectTransactionDate}
+                  placeholderSearch={t.search}
+                  spellCheck={false}
+                  value={selectedDates}
+                  onValueChange={setSelectedDates}
+                >
+                  {dateFilter?.map(item => (
                     <MultiSelectItem key={item} value={String(item)}>
                       {String(item)}
                     </MultiSelectItem>
                   ))}
-              </MultiSelect>
+                </MultiSelect>
+              ) : null}
+
               <label htmlFor="searchMovement" className="sr-only">
                 {t.searchByMovement}
               </label>
-              <MultiSelect
-                id="searchMovement"
-                icon={MagnifyingGlassIcon}
-                placeholder={t.selectTransactionMovement}
-                placeholderSearch={t.search}
-                spellCheck={false}
-                value={selectedMovements}
-                onValueChange={setSelectedMovements}
-              >
-                {transactions
-                  ?.map(({ movement }) => movement.toClosestPowerOfTen())
-                  .filter((v, i, a) => a.findIndex(t => t === v) === i)
-                  .sort((a, b) => Math.abs(a) - Math.abs(b))
-                  .map(item => (
-                    <MultiSelectItem key={item} value={String(item)}>
-                      {`${item.toShortCurrency(0, '')} ${t.to} ${(item * 10).toShortCurrency(0, '')}`}
-                    </MultiSelectItem>
-                  ))}
-              </MultiSelect>
+              {(movementFilter?.length ?? 0) > 1 ? (
+                <MultiSelect
+                  id="searchMovement"
+                  icon={MagnifyingGlassIcon}
+                  placeholder={t.selectTransactionMovement}
+                  placeholderSearch={t.search}
+                  spellCheck={false}
+                  value={selectedMovements}
+                  onValueChange={setSelectedMovements}
+                >
+                  {movementFilter
+                    ?.sort((a, b) => Math.abs(a) - Math.abs(b))
+                    .map(item => (
+                      <MultiSelectItem key={item} value={String(item)}>
+                        {`${item.toShortCurrency(0, '')} ${t.to} ${(item * 10).toShortCurrency()}`}
+                      </MultiSelectItem>
+                    ))}
+                </MultiSelect>
+              ) : null}
+
               <label htmlFor="searchType" className="sr-only">
                 {t.searchByType}
               </label>
-              <Select
-                icon={MagnifyingGlassIcon}
-                id="searchType"
-                enableClear={true}
-                placeholder={t.selectTransactionType}
-                spellCheck={false}
-                value={selectedType}
-                onValueChange={setSelectedType}
-              >
-                {transactions
-                  ?.filter((v, i, a) => a.findIndex(t => t.type === v.type) === i)
-                  .map(
+              {(typeFilter?.length ?? 0) > 1 ? (
+                <Select
+                  id="searchType"
+                  icon={MagnifyingGlassIcon}
+                  enableClear={true}
+                  placeholder={t.selectTransactionType}
+                  spellCheck={false}
+                  value={selectedType}
+                  onValueChange={setSelectedType}
+                >
+                  {typeFilter?.map(
                     item =>
                       item.type !== undefined && (
                         <SelectItem key={item.type} value={TransactionType[item.type]}>
@@ -277,73 +326,74 @@ export default function Transactions() {
                         </SelectItem>
                       ),
                   )}
-              </Select>
+                </Select>
+              ) : null}
             </Grid>
             <Table>
               <SortTableHead labels={[t.date, t.movement, t.type]} table={transactions} setTable={setTransactions} />
               <TableBody>
                 {transactions ? (
-                  transactions
-                    .filter(isDateSelected)
-                    .filter(isMovementSelected)
-                    .filter(isTypeSelected)
-                    .map((transaction, index) => (
-                      <TableRow
-                        key={index}
-                        className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
+                  getFilteredTransactions([
+                    TransactionFilter.date,
+                    TransactionFilter.movement,
+                    TransactionFilter.type,
+                  ])?.map((transaction, index) => (
+                    <TableRow
+                      key={index}
+                      className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
+                    >
+                      <TableCell>{transaction.date}</TableCell>
+                      <TableCell
+                        className={cls('font-bold', transaction.movement >= 0 ? 'text-green-400' : 'text-red-400')}
                       >
-                        <TableCell>{transaction.date}</TableCell>
-                        <TableCell
-                          className={cls('font-bold', transaction.movement >= 0 ? 'text-green-400' : 'text-red-400')}
-                        >
-                          <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
-                            {transaction.movement.toLocaleCurrency()}
-                            {transaction.type === TransactionType.withdrawal && transaction.cost < 0 && (
-                              <Icon
-                                className="self-center"
-                                icon={ExclamationCircleIcon}
-                                color="gray"
-                                tooltip={t.withdrawalCost + ' : ' + transaction.cost.toLocaleCurrency()}
-                              />
-                            )}
-                          </Flex>
-                        </TableCell>
-                        <TableCell>
-                          <Flex justifyContent="start" alignItems="start" className="flex-col sm:flex-row">
+                        <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
+                          {transaction.movement.toLocaleCurrency()}
+                          {transaction.type === TransactionType.withdrawal && transaction.cost < 0 && (
                             <Icon
-                              className="sm:hover:animate-pulse cursor-pointer"
-                              icon={
-                                transaction.type === TransactionType.deposit
-                                  ? ArrowDownRightIcon
-                                  : transaction.type === TransactionType.withdrawal
-                                    ? ArrowUpRightIcon
-                                    : HeartIcon
-                              }
-                              tooltip={
-                                isMobileSize()
-                                  ? transaction.type === TransactionType.deposit
-                                    ? t.deposit
-                                    : transaction.type === TransactionType.withdrawal
-                                      ? t.withdrawal
-                                      : t.donation
-                                  : undefined
-                              }
-                              size="lg"
-                              color={transaction.type === TransactionType.deposit ? 'green' : 'red'}
+                              className="self-center"
+                              icon={ExclamationCircleIcon}
+                              color="gray"
+                              tooltip={t.withdrawalCost + ' : ' + transaction.cost.toLocaleCurrency()}
                             />
-                            {!isMobileSize() && (
-                              <Text className="self-center sm:ml-4">
-                                {transaction.type === TransactionType.deposit
+                          )}
+                        </Flex>
+                      </TableCell>
+                      <TableCell>
+                        <Flex justifyContent="start" alignItems="start" className="flex-col sm:flex-row">
+                          <Icon
+                            className="sm:hover:animate-pulse cursor-pointer"
+                            icon={
+                              transaction.type === TransactionType.deposit
+                                ? ArrowDownRightIcon
+                                : transaction.type === TransactionType.withdrawal
+                                  ? ArrowUpRightIcon
+                                  : HeartIcon
+                            }
+                            tooltip={
+                              isMobileSize()
+                                ? transaction.type === TransactionType.deposit
                                   ? t.deposit
                                   : transaction.type === TransactionType.withdrawal
                                     ? t.withdrawal
-                                    : t.donation}
-                              </Text>
-                            )}
-                          </Flex>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                                    : t.donation
+                                : undefined
+                            }
+                            size="lg"
+                            color={transaction.type === TransactionType.deposit ? 'green' : 'red'}
+                          />
+                          {!isMobileSize() && (
+                            <Text className="self-center sm:ml-4">
+                              {transaction.type === TransactionType.deposit
+                                ? t.deposit
+                                : transaction.type === TransactionType.withdrawal
+                                  ? t.withdrawal
+                                  : t.donation}
+                            </Text>
+                          )}
+                        </Flex>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 ) : (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center">
