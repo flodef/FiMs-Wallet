@@ -64,12 +64,15 @@ enum TransactionFilter {
 }
 
 export interface Transaction {
+  id?: number;
   date: string;
   address?: string;
   movement: number;
   cost: number;
-  id?: number;
+  userid?: number;
   type?: TransactionType;
+  token?: string;
+  amount?: number;
 }
 
 const thisPage = Page.Transactions;
@@ -85,13 +88,14 @@ export default function Transactions() {
   const [dateFilter, setDateFilter] = useState<number[]>();
   const [movementFilter, setMovementFilter] = useState<number[]>();
   const [typeFilter, setTypeFilter] = useState<Transaction[]>();
+  const [costFilter, setCostFilter] = useState(false);
 
   const processTransactions = useCallback(
     (data: Transaction[]) => {
       // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
       setTransactions(
         data
-          .filter(d => d.id === user?.id)
+          .filter(d => d.userid === user?.id)
           .map(d => ({
             date: new Date(d.date).toLocaleDateString(),
             movement: Number(d.movement),
@@ -161,10 +165,10 @@ export default function Transactions() {
                   ? isTypeSelected
                   : () => true,
           ),
-        transactions,
+        transactions?.filter(t => (costFilter ? t.cost < 0 : true)),
       );
     },
-    [selectedDates, selectedMovements, selectedType, transactions],
+    [selectedDates, selectedMovements, selectedType, costFilter, transactions],
   );
 
   useEffect(() => {
@@ -187,7 +191,7 @@ export default function Transactions() {
 
   return (
     <>
-      {transactions?.length !== 0 && (
+      {transactions?.length ? (
         <Card>
           <Title className="text-left whitespace-nowrap">{t.transactionSummary}</Title>
           <Table>
@@ -199,7 +203,10 @@ export default function Transactions() {
                     transactions?.filter(t => t.type === index).length !== 0 && (
                       <TableRow
                         className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
-                        onClick={() => setSelectedType(TransactionType[index])}
+                        onClick={() => {
+                          setSelectedType(TransactionType[index]);
+                          setCostFilter(false);
+                        }}
                         key={index}
                       >
                         <TableCell>{t[type]}</TableCell>
@@ -214,7 +221,13 @@ export default function Transactions() {
                     ),
                 )}
               {transactions?.filter(t => t.cost < 0).length !== 0 && (
-                <TableRow className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle">
+                <TableRow
+                  className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
+                  onClick={() => {
+                    setSelectedType(undefined);
+                    setCostFilter(true);
+                  }}
+                >
                   <TableCell>{t.cost}</TableCell>
                   <TableCell className="ml-4">{transactions?.filter(t => t.cost < 0).length}</TableCell>
                   <TableCell className="ml-4">
@@ -228,6 +241,7 @@ export default function Transactions() {
               <TableRow
                 className="font-bold hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
                 onClick={() => {
+                  setCostFilter(false);
                   setSelectedType(undefined);
                   setSelectedDates([]);
                   setSelectedMovements([]);
@@ -247,14 +261,14 @@ export default function Transactions() {
             </TableBody>
           </Table>
         </Card>
-      )}
+      ) : null}
       <Card>
         <Title className="text-left whitespace-nowrap">
           {!transactions || transactions.length ? t.transactionsHistoric : t.noTransactionFound}
         </Title>
         {!transactions || transactions?.length ? (
           <>
-            <Grid className="space-x-4 space-y-4" numItemsMd={2} numItemsLg={3}>
+            <Grid style={{ gap: '16px' }} className="mt-4" numItemsSm={2} numItemsLg={3}>
               <label htmlFor="searchDate" className="sr-only">
                 {t.searchByDate}
               </label>

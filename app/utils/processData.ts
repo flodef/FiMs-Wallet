@@ -45,7 +45,7 @@ const dataNameParameters = new Map<DataName, Parameter>([
   [DataName.token, { convert: convertTokenData, hasHeader: true, range: 'A:I', minColInRow: 4 }],
   [DataName.portfolio, { convert: convertPortfolioData, hasHeader: true, range: 'A:M' }],
   [DataName.userHistoric, { convert: convertUserHistoricData, hasHeader: true, range: 'A:I' }],
-  [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, range: 'A:E' }],
+  [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, range: 'A:H' }],
 ]);
 
 const dataCache = new Map<DataName, { data: any[]; expire: number }>();
@@ -228,10 +228,13 @@ function convertUserHistoricData(item: string[]): UserHistoric {
 
 function convertTransactionsData(item: string[]): Transaction {
   return {
-    date: String(item.at(0)).trim(),
-    address: String(item.at(1)).trim(),
-    movement: Number(item.at(2)),
-    cost: Number(item.at(3)),
-    id: Number(item.at(4)),
+    id: Number(item.at(0)),
+    date: String(item.at(1)).trim(),
+    userid: Number(item.at(2)),
+    address: String(item.at(3)).trim(),
+    movement: Number(item.at(4)),
+    cost: Number(item.at(5)),
+    token: String(item.at(6)).trim(),
+    amount: Number(item.at(7)),
   };
 }
