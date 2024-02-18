@@ -35,7 +35,7 @@ export function SortHeader({
           const numA = getTime(propertyA);
           const numB = getTime(propertyB);
           return newFilters[index] === 'ascending' ? numA - numB : numB - numA;
-        } else if (!isNaN(Number(propertyA)) && !isNaN(Number(propertyA))) {
+        } else if (!isNaN(Number(propertyA)) && !isNaN(Number(propertyB))) {
           const numA = Number(propertyA);
           const numB = Number(propertyB);
           return newFilters[index] === 'ascending' ? numA - numB : numB - numA;
@@ -51,10 +51,11 @@ export function SortHeader({
   };
 
   return (
-    <Flex justifyContent="start" alignItems="start">
+    <Flex className="cursor-pointer" onClick={() => changeFilter(index)} justifyContent="start" alignItems="start">
       {label}
       {table?.length && (
         <Icon
+          className="w-6 h-6"
           icon={
             filters[index] === 'ascending'
               ? ChevronUpIcon
@@ -62,8 +63,6 @@ export function SortHeader({
                 ? ChevronDownIcon
                 : ChevronUpDownIcon
           }
-          className="w-6 h-6 cursor-pointer"
-          onClick={() => changeFilter(index)}
         />
       )}
     </Flex>
@@ -84,7 +83,7 @@ export default function SortTableHead({
     <TableHead>
       <TableRow>
         {labels.map((label, index) => (
-          <TableHeaderCell key={index} className={`w-[${(100 / labels.length).toFixed(6)}%] px-2.5`}>
+          <TableHeaderCell key={index} className={`w-[${(100 / labels.length).toFixed(6)}%] px-1`}>
             {index < length ? <SortHeader label={label} index={index} table={table} setTable={setTable} /> : label}
           </TableHeaderCell>
         ))}

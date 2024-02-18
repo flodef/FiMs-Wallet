@@ -25,6 +25,8 @@ import {} from '../utils/extensions';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
+import { TransactionDetails } from '../components/transactionDetails';
+import { usePopup } from '../contexts/PopupProvider';
 
 const t: Dataset = {
   transactionSummary: 'Résumé des transactions',
@@ -34,6 +36,8 @@ const t: Dataset = {
   date: 'Date',
   movement: 'Mouvement',
   type: 'Type',
+  token: 'Tokens',
+  rate: 'Taux',
   deposit: 'Dépôt',
   withdrawal: 'Retrait',
   donation: 'Don',
@@ -46,6 +50,7 @@ const t: Dataset = {
   selectTransactionMovement: 'Sélectionner un mouvement',
   selectTransactionType: 'Sélectionner un type',
   to: 'à',
+  from: 'du',
   search: 'Rechercher',
 };
 
@@ -64,15 +69,17 @@ enum TransactionFilter {
 }
 
 export interface Transaction {
+  [key: string]: string | number | TransactionType | undefined;
   id?: number;
   date: string;
-  address?: string;
+  address: string;
   movement: number;
   cost: number;
   userid?: number;
   type?: TransactionType;
-  token?: string;
+  token: string;
   amount?: number;
+  rate?: string;
 }
 
 const thisPage = Page.Transactions;
@@ -80,6 +87,7 @@ const thisPage = Page.Transactions;
 export default function Transactions() {
   const { user } = useUser();
   const { page, needRefresh, setNeedRefresh } = useNavigation();
+  const { openPopup } = usePopup();
 
   const [transactions, setTransactions] = useState<Transaction[] | undefined>();
   const [selectedType, setSelectedType] = useState<string>();
@@ -92,11 +100,11 @@ export default function Transactions() {
 
   const processTransactions = useCallback(
     (data: Transaction[]) => {
-      // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
       setTransactions(
         data
           .filter(d => d.userid === user?.id)
           .map(d => ({
+            // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
             date: new Date(d.date).toLocaleDateString(),
             movement: Number(d.movement),
             type:
@@ -105,6 +113,9 @@ export default function Transactions() {
                 : Number(d.cost) <= 0
                   ? TransactionType.withdrawal
                   : TransactionType.donation,
+            token: d.token && `${d.amount} ${d.token}`,
+            rate: d.token && `1 ${d.token} = ${Math.abs(Number(d.movement) / Number(d.amount)).toLocaleCurrency()}`,
+            address: d.address,
             cost: Number(d.cost),
           })),
       );
@@ -188,6 +199,8 @@ export default function Transactions() {
       ),
     );
   }, [getFilteredTransactions]);
+
+  const hasTokenTransactions = transactions?.some(t => t.token);
 
   return (
     <>
@@ -338,7 +351,13 @@ export default function Transactions() {
               ) : null}
             </Grid>
             <Table>
-              <SortTableHead labels={[t.date, t.movement, t.type]} table={transactions} setTable={setTransactions} />
+              <SortTableHead
+                labels={[t.date, t.movement, t.type].concat(
+                  !isMobileSize() && hasTokenTransactions ? [t.token, t.rate] : [],
+                )}
+                table={transactions}
+                setTable={setTransactions}
+              />
               <TableBody>
                 {transactions ? (
                   getFilteredTransactions([
@@ -348,7 +367,8 @@ export default function Transactions() {
                   ])?.map((transaction, index) => (
                     <TableRow
                       key={index}
-                      className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
+                      className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
+                      onClick={() => openPopup(<TransactionDetails transaction={transaction} />, true)}
                     >
                       <TableCell>{transaction.date}</TableCell>
                       <TableCell
@@ -377,29 +397,21 @@ export default function Transactions() {
                                   ? ArrowUpRightIcon
                                   : HeartIcon
                             }
-                            tooltip={
-                              isMobileSize()
-                                ? transaction.type === TransactionType.deposit
-                                  ? t.deposit
-                                  : transaction.type === TransactionType.withdrawal
-                                    ? t.withdrawal
-                                    : t.donation
-                                : undefined
-                            }
+                            tooltip={isMobileSize() ? t[TransactionType[transaction?.type ?? 0]] : undefined}
                             size="lg"
                             color={transaction.type === TransactionType.deposit ? 'green' : 'red'}
                           />
                           {!isMobileSize() && (
-                            <Text className="self-center sm:ml-4">
-                              {transaction.type === TransactionType.deposit
-                                ? t.deposit
-                                : transaction.type === TransactionType.withdrawal
-                                  ? t.withdrawal
-                                  : t.donation}
-                            </Text>
+                            <Text className="self-center sm:ml-4">{t[TransactionType[transaction?.type ?? 0]]}</Text>
                           )}
                         </Flex>
                       </TableCell>
+                      {!isMobileSize() && (
+                        <>
+                          <TableCell>{transaction.token}</TableCell>
+                          <TableCell>{transaction.rate}</TableCell>
+                        </>
+                      )}
                     </TableRow>
                   ))
                 ) : (
