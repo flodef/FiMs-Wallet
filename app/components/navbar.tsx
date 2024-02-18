@@ -10,6 +10,8 @@ import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
+import Connect from './connect';
+import Disconnect from './disconnect';
 
 const t: Dataset = {
   connect: 'Se connecter',
@@ -107,7 +109,11 @@ export default function Navbar() {
                 </div>
 
                 <div className={cls('ml-6 flex items-center', currentPage ? 'animate-display' : 'hidden')}>
-                  <Button className="flex font-bold" style={{ borderRadius: 24 }} onClick={openPopup}>
+                  <Button
+                    className="flex font-bold"
+                    style={{ borderRadius: 24 }}
+                    onClick={() => openPopup(!isConnected ? <Connect /> : <Disconnect />)}
+                  >
                     {!isConnected ? t.connect : user?.name}
                   </Button>
                 </div>

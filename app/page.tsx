@@ -2,11 +2,9 @@
 
 import { useLocalStorage } from '@solana/wallet-adapter-react';
 import { Dialog, DialogPanel } from '@tremor/react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { EffectCreative, EffectCube, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import Connect from './components/connect';
-import Disconnect from './components/disconnect';
 import VersionNotes, { VersionNote } from './components/versionNotes';
 import { usePopup } from './contexts/PopupProvider';
 import { Page, useNavigation } from './hooks/useNavigation';
@@ -23,12 +21,11 @@ import 'swiper/css/effect-creative';
 import 'swiper/css/pagination';
 
 export default function IndexPage() {
-  const { isPopupOpen, openPopup, closePopup } = usePopup();
+  const { isPopupOpen, popup, openPopup, closePopup, autoClosePopup } = usePopup();
   const { isConnected } = useUser();
   const { page: currentPage, setPage, pages, setNeedRefresh } = useNavigation();
 
   const [version, setVersion] = useLocalStorage('version', '0.0');
-  const [versionNotes, setVersionNotes] = useState<VersionNote[]>([]);
 
   const rootClassName = cls(
     'flex-grow overflow-auto w-full h-screen max-w-7xl self-center',
@@ -68,34 +65,22 @@ export default function IndexPage() {
           }
         }
 
+        const handleClose = () => {
+          setVersion(versions[0].version);
+          closePopup();
+        };
+
         if (versions.length && version !== versions[0].version) {
-          setVersionNotes(versions);
-          openPopup();
+          openPopup(<VersionNotes versionNotes={versions} onClose={handleClose} />, true);
         }
       })
       .catch(console.error);
-  }, [version, setVersion, openPopup]);
-
-  function handleClose() {
-    if (versionNotes.length) {
-      setVersion(versionNotes[0].version);
-      setVersionNotes([]);
-    }
-    closePopup();
-  }
+  }, [version, openPopup, closePopup, setVersion]);
 
   return (
     <>
-      <Dialog open={isPopupOpen} onClose={handleClose}>
-        <DialogPanel>
-          {versionNotes.length ? (
-            <VersionNotes versionNotes={versionNotes} onClose={handleClose} />
-          ) : !isConnected ? (
-            <Connect />
-          ) : (
-            <Disconnect />
-          )}
-        </DialogPanel>
+      <Dialog open={isPopupOpen} onClose={autoClosePopup}>
+        <DialogPanel>{popup}</DialogPanel>
       </Dialog>
       {currentPage ? (
         isConnected && isMobileDevice() ? (
