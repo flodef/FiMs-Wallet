@@ -55,8 +55,7 @@
     "jest-environment-jsdom": "latest",
     "prettier": "latest",
     "ts-jest": "latest",
-    "typescript": "latest",
-    "yarn-upgrade-all": "latest"
+    "typescript": "latest"
   },
   "prettier": {
     "useTabs": false,
