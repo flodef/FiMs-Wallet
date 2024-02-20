@@ -1,3 +1,9 @@
+# 1.4
+
+- Détails des transaction disponibles !!
+- Ajout des tokens échangés et du taux d'échange lors d'un dépot / retrait
+- Affichage mis à jour pour les donations
+
 # 1.3
 
 - Ajout d'un résumé des transactions
