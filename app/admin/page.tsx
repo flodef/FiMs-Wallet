@@ -33,6 +33,7 @@ import { DBUser } from '../pages/users';
 import { cls, getShortAddress } from '../utils/constants';
 import { DataName, loadData } from '../utils/processData';
 import { MinMax } from '../utils/types';
+import NotFound from '../not-found';
 
 const transactionCost = 0.5;
 const nameLimit: MinMax = { min: 5, max: 25 };
@@ -105,10 +106,7 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    if (window.location.hostname !== 'localhost') {
-      window.location.href = `https://${window.location.hostname}`;
-      return;
-    }
+    if (window.location.hostname !== 'localhost') return;
 
     loadUsers();
     loadTransactions();
@@ -593,5 +591,7 @@ export default function AdminPage() {
         </Table>
       </Card>
     </Grid>
-  ) : null;
+  ) : (
+    <NotFound />
+  );
 }
