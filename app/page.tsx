@@ -67,7 +67,7 @@ export default function IndexPage() {
 
         const handleClose = () => {
           setVersion(versions[0].version);
-          closePopup();
+          setTimeout(closePopup, 100);
         };
 
         if (versions.length && version !== versions[0].version) {
