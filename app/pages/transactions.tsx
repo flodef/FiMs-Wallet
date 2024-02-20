@@ -18,6 +18,8 @@ import {
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
+import { TransactionDetails } from '../components/transactionDetails';
+import { usePopup } from '../contexts/PopupProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { cls } from '../utils/constants';
@@ -25,8 +27,6 @@ import {} from '../utils/extensions';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
-import { TransactionDetails } from '../components/transactionDetails';
-import { usePopup } from '../contexts/PopupProvider';
 
 const t: Dataset = {
   transactionSummary: 'Résumé des transactions',
@@ -82,6 +82,23 @@ export interface Transaction {
   rate?: string;
 }
 
+export interface HeliusTransaction {
+  from: string;
+  to: string;
+  amount: number;
+  symbol: string;
+  fee: number;
+  feePayer: string;
+  timestamp: number;
+}
+
+export const getTransactionType = (transaction: Transaction | { movement: number | string; cost: number | string }) =>
+  Number(transaction.movement) > 0
+    ? Number(transaction.cost) > 0
+      ? TransactionType.donation
+      : TransactionType.deposit
+    : TransactionType.withdrawal;
+
 const thisPage = Page.Transactions;
 
 export default function Transactions() {
@@ -107,12 +124,7 @@ export default function Transactions() {
             // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
             date: new Date(d.date).toLocaleDateString(),
             movement: Number(d.movement),
-            type:
-              Number(d.movement) > 0
-                ? TransactionType.deposit
-                : Number(d.cost) <= 0
-                  ? TransactionType.withdrawal
-                  : TransactionType.donation,
+            type: getTransactionType(d),
             token: d.token && `${d.amount} ${d.token}`,
             rate: d.token && `1 ${d.token} = ${Math.abs(Number(d.movement) / Number(d.amount)).toLocaleCurrency()}`,
             address: d.address,
@@ -129,25 +141,6 @@ export default function Transactions() {
 
     isLoading.current = true;
     setNeedRefresh(false);
-
-    // const data = fetch('/api/solana/getTransactions?address=' + user.address)
-    //   .then(res => res.json())
-    //   .then(data => {
-    //     console.log(data);
-
-    // return data.map((d: any) => ({
-    //   date: d.date,
-    //   movement: d.movement,
-    //   type:
-    //     d.movement > 0
-    //       ? TransactionType.deposit
-    //       : d.cost <= 0
-    //         ? TransactionType.withdrawal
-    //         : TransactionType.donation,
-    //   stringDate: d.stringDate,
-    //   cost: d.cost,
-    // }));
-    // });
 
     loadData(DataName.transactions)
       .then(processTransactions)
