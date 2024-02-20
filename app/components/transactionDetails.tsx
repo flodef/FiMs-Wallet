@@ -6,7 +6,6 @@ import { Dataset } from '../utils/types';
 
 const t: Dataset = {
   cost: 'Frais',
-  refund: 'Remboursement',
   date: 'Date',
   movement: 'Mouvement',
   token: 'Tokens',
@@ -32,19 +31,25 @@ export const TransactionDetails = ({ transaction }: { transaction: Transaction }
         {['movement', 'cost', 'token', 'rate'].map((item, index) =>
           transaction[item] ? (
             <ListItem key={index}>
-              <span>{transaction.type === TransactionType.donation && item === 'cost' ? t.refund : t[item]}</span>
-              <span
-                className={cls(
-                  'font-bold',
-                  !isNaN(Number(transaction[item]))
-                    ? Number(transaction[item]) >= 0
-                      ? 'text-green-400'
-                      : 'text-red-400'
-                    : '',
-                )}
-              >
-                {isNaN(Number(transaction[item])) ? transaction[item] : Number(transaction[item]).toLocaleCurrency()}
-              </span>
+              {transaction.type !== TransactionType.donation || item !== 'cost' ? (
+                <>
+                  <span>{t[item]}</span>
+                  <span
+                    className={cls(
+                      'font-bold',
+                      !isNaN(Number(transaction[item]))
+                        ? Number(transaction[item]) >= 0
+                          ? 'text-green-400'
+                          : 'text-red-400'
+                        : '',
+                    )}
+                  >
+                    {isNaN(Number(transaction[item]))
+                      ? transaction[item]
+                      : Number(transaction[item]).toLocaleCurrency()}
+                  </span>
+                </>
+              ) : null}
             </ListItem>
           ) : null,
         )}
