@@ -15,6 +15,11 @@ interface HeliusData {
     mint: string;
     tokenStandard: tokenStandard;
   }[];
+  nativeTransfers: {
+    fromUserAccount: string;
+    toUserAccount: string;
+    amount: number;
+  }[];
 }
 
 export async function GET(request: Request) {
@@ -31,28 +36,31 @@ export async function GET(request: Request) {
       `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=${process.env.HELIUS_API_KEY}&type=TRANSFER`,
     );
 
-    const getSymbol = (description: string) => description.split(' ')[3];
+    const getSymbol = (description: string) => description.split(' ')[3].trim();
 
     const result = (await response.json()) as HeliusData[];
     const data = result
-      .filter(
-        d =>
-          !d.transactionError &&
-          d.tokenTransfers.length === 1 &&
-          d.tokenTransfers[0].tokenStandard === 'Fungible' &&
-          d.tokenTransfers[0].mint !== getSymbol(d.description),
+      .filter(d =>
+        !d.transactionError && d.tokenTransfers.length === 1
+          ? d.tokenTransfers[0].mint !== getSymbol(d.description)
+          : true &&
+            ((d.tokenTransfers.length === 1 && d.tokenTransfers[0].tokenStandard === 'Fungible') ||
+              d.nativeTransfers.length === 1),
       )
       .map(d => {
         return {
-          from: d.tokenTransfers[0].fromUserAccount,
-          to: d.tokenTransfers[0].toUserAccount,
-          amount: d.tokenTransfers[0].tokenAmount,
+          from: d.tokenTransfers.length ? d.tokenTransfers[0].fromUserAccount : d.nativeTransfers[0].fromUserAccount,
+          to: d.tokenTransfers.length ? d.tokenTransfers[0].toUserAccount : d.nativeTransfers[0].toUserAccount,
+          amount: d.tokenTransfers.length
+            ? d.tokenTransfers[0].tokenAmount
+            : d.nativeTransfers[0].amount / Math.pow(10, 9),
           symbol: getSymbol(d.description),
-          fee: d.fee,
+          fee: d.fee / Math.pow(10, 9),
           feePayer: d.feePayer,
           timestamp: d.timestamp,
         };
-      });
+      })
+      .filter(d => d.amount * 1000 > 1);
 
     return NextResponse.json(data);
   } catch (error) {
