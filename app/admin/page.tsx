@@ -66,6 +66,7 @@ export default function AdminPage() {
   const [transactionIndex, setTransactionIndex] = useState('0');
   const [transactionFilter, setTransactionFilter] = useState('0');
   const [cryptoTransactions, setCryptoTransactions] = useState<Transaction[]>();
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   const initUser = useCallback(() => {
     setName('');
@@ -112,6 +113,7 @@ export default function AdminPage() {
     loadUsers();
     loadTransactions();
     loadData(DataName.token).then(setTokens);
+    setIsAuthorized(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -286,7 +288,7 @@ export default function AdminPage() {
       .finally(() => setTransactionLoading(false));
   };
 
-  return (
+  return isAuthorized ? (
     <Grid style={{ gap: 24, margin: 24 }} numItemsSm={2} className="w-full max-w-7xl self-center px-6">
       <Card>
         <Title>User</Title>
@@ -591,5 +593,5 @@ export default function AdminPage() {
         </Table>
       </Card>
     </Grid>
-  );
+  ) : null;
 }
