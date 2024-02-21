@@ -106,7 +106,10 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    if (window.location.hostname !== 'localhost') return;
+    if (location.hostname !== 'localhost') {
+      location.href = `/`;
+      return;
+    }
 
     loadUsers();
     loadTransactions();

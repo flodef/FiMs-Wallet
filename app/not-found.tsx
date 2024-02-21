@@ -8,7 +8,7 @@ export default function NotFound() {
       <div
         className={cls(
           'container mt-10 flex flex-col justify-center font-bold',
-          'uppercase text-[3vmin] text-center text-secondary-light dark:text-secondary-dark'
+          'uppercase text-[3vmin] text-center text-secondary-light dark:text-secondary-dark',
         )}
       >
         <div className="row">

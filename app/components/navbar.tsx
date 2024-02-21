@@ -30,7 +30,7 @@ export default function Navbar() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    setIsAdmin(window.location.pathname === '/admin');
+    setIsAdmin(window.location.pathname === '/admin' && window.location.hostname === 'localhost');
   }, []);
 
   return (

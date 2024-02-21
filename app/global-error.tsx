@@ -14,8 +14,8 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
     console.error(error);
   }, [error]);
 
-  const retry = () => setTimeout(reset, 1000); // Attempt to recover by trying to re-render the segment
-  const reload = () => setTimeout(() => location.reload(), 1000); // Hard reset by reloading the page
+  const retry = () => setTimeout(reset, 100); // Attempt to recover by trying to re-render the segment
+  const reload = () => setTimeout(() => location.reload, 100); // Hard reset by reloading the page
 
   const zeroClassName =
     'relative before:rotate-45 before:scale-x-0 before:scale-y-75 before:animate-cross1$ ' +
@@ -36,7 +36,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
       <div
         className={cls(
           'mt-10 overflow-hidden flex flex-col items-center justify-center font-bold',
-          'uppercase text-[3vmin] text-center text-secondary-light dark:text-secondary-dark'
+          'uppercase text-[3vmin] text-center text-secondary-light dark:text-secondary-dark',
         )}
       >
         <p className="px-6 z-10">
@@ -52,7 +52,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
               'text-white text-[50vmin] text-center relative mb-[5vmin] mt-[-10vmin] cursor-pointer group-hover:scale-110',
               "group-hover:before:animate-flipReverse before:content-['('] before:absolute before:-rotate-90",
               'before:right-[25vmin] before:bottom-[-30vmin] before:block before:text-[115%] before:animate-flip',
-              'transition-transform duration-300'
+              'transition-transform duration-300',
             )}
             style={{ textShadow: '0 1vmin 5vmin rgba(0, 0, 0, 0.5)' }}
             onClick={retry}
