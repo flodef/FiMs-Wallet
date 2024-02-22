@@ -35,17 +35,17 @@ export enum DataName {
 // Set a value that return all parameters needed to process data (convertFunction, hasFilter, minColInRow, minColInHeader)
 type Parameter = {
   convert: (item: string[]) => any;
-  hasHeader: boolean;
   range: string;
+  isHeaderLess?: boolean;
   minColInRow?: number;
 };
 const dataNameParameters = new Map<DataName, Parameter>([
-  [DataName.dashboard, { convert: convertDashboardData, hasHeader: true, range: 'A:D' }],
-  [DataName.historic, { convert: convertHistoricData, hasHeader: false, range: 'A:L' }],
-  [DataName.token, { convert: convertTokenData, hasHeader: true, range: 'A:I', minColInRow: 4 }],
-  [DataName.portfolio, { convert: convertPortfolioData, hasHeader: true, range: 'A:M' }],
-  [DataName.userHistoric, { convert: convertUserHistoricData, hasHeader: true, range: 'A:I' }],
-  [DataName.transactions, { convert: convertTransactionsData, hasHeader: true, range: 'A:H' }],
+  [DataName.dashboard, { convert: convertDashboardData, range: 'A:D' }],
+  [DataName.historic, { convert: convertHistoricData, range: 'A:L' }],
+  [DataName.token, { convert: convertTokenData, range: 'A:I', minColInRow: 4 }],
+  [DataName.portfolio, { convert: convertPortfolioData, range: 'A:M' }],
+  [DataName.userHistoric, { convert: convertUserHistoricData, range: 'A:I' }],
+  [DataName.transactions, { convert: convertTransactionsData, range: 'A:H' }],
 ]);
 
 const dataCache = new Map<DataName, { data: any[]; expire: number }>();
@@ -118,7 +118,7 @@ async function cacheData(sheetName: string, dataName: DataName, parameter: Param
         checkData(data, numberOfColumns);
 
         return data.values
-          .filter((_, i) => (parameter.hasHeader ? i !== 0 : true))
+          .filter((_, i) => (parameter.isHeaderLess ? true : i !== 0))
           .map(item => {
             checkColumn(item, parameter.minColInRow ?? numberOfColumns);
             return parameter.convert(item);
