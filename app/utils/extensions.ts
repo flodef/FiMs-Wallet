@@ -8,7 +8,7 @@ declare global {
     toShortCurrency(maxDecimals?: number, symbol?: string): string;
     toCurrency(maxDecimals?: number, symbol?: string): string;
     toRatio(maxDecimals?: number): string;
-    toLocaleDate(): string;
+    toLocaleDateString(): string;
     toShortFixed(maxDecimals?: number): string;
     toDecimalPlace(decimalPlace?: number, direction?: RoundingDirection): number;
     toClosestPowerOfTen(direction?: RoundingDirection): number;
@@ -55,7 +55,7 @@ Number.prototype.toRatio = function (maxDecimals = 2) {
   return `${(Number(this) * 100).toFixed(maxDecimals)}%`;
 };
 
-Number.prototype.toLocaleDate = function () {
+Number.prototype.toLocaleDateString = function () {
   return new Date(Math.round((Number(this) - 25569) * 86400 * 1000)).toShortDate();
 };
 

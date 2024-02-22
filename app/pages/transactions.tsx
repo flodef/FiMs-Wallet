@@ -68,9 +68,9 @@ enum TransactionFilter {
 }
 
 export interface Transaction {
-  [key: string]: string | number | TransactionType | undefined;
+  [key: string]: string | number | Date | TransactionType | undefined;
   id?: number;
-  date: string;
+  date: Date;
   address: string;
   movement: number;
   cost: number;
@@ -121,7 +121,7 @@ export default function Transactions() {
           .filter(d => d.userid === user?.id)
           .map(d => ({
             // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
-            date: new Date(d.date).toShortDate(),
+            date: new Date(d.date),
             movement: Number(d.movement),
             type: getTransactionType(d),
             token: d.token && `${d.amount} ${d.token}`,
@@ -362,7 +362,7 @@ export default function Transactions() {
                       className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
                       onClick={() => openPopup(<TransactionDetails transaction={transaction} />, true)}
                     >
-                      <TableCell>{transaction.date}</TableCell>
+                      <TableCell>{transaction.date.toShortDate()}</TableCell>
                       <TableCell
                         className={cls('font-bold', transaction.movement >= 0 ? 'text-green-400' : 'text-red-400')}
                       >

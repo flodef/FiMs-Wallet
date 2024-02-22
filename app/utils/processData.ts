@@ -180,7 +180,7 @@ function convertTokenData(item: string[]): DashboardToken & PortfolioToken {
 function convertHistoricData(item: string[]): Historic {
   return {
     date: Number(item.at(0)),
-    stringDate: Number(item.at(0)).toLocaleDate(),
+    stringDate: Number(item.at(0)).toLocaleDateString(),
     Investi: Number(item.at(1)),
     // transferCost: Number(item.at(2)), //not used
     // strategyCost: Number(item.at(3)), //not used
@@ -214,7 +214,7 @@ function convertPortfolioData(item: string[]): Portfolio & DBUser {
 function convertUserHistoricData(item: string[]): UserHistoric {
   return {
     date: Number(item.at(0)),
-    stringDate: Number(item.at(0)).toLocaleDate(),
+    stringDate: Number(item.at(0)).toLocaleDateString(),
     // movement: Number(item.at(1)), // not used
     Investi: Number(item.at(2)),
     // monthlyRate: Number(item.at(3)), //not used
@@ -229,7 +229,7 @@ function convertUserHistoricData(item: string[]): UserHistoric {
 function convertTransactionsData(item: string[]): Transaction {
   return {
     id: Number(item.at(0)),
-    date: String(item.at(1)).trim(),
+    date: new Date(String(item.at(1)).trim()),
     userid: Number(item.at(2)),
     address: String(item.at(3)).trim(),
     movement: Number(item.at(4)),

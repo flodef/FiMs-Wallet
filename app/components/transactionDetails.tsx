@@ -25,31 +25,27 @@ export const TransactionDetails = ({ transaction }: { transaction: Transaction }
   return (
     <>
       <Title className="text-center mb-2">
-        {t[TransactionType[transaction.type ?? 0]]} {t.from} {transaction.date}
+        {t[TransactionType[transaction.type ?? 0]]} {t.from} {transaction.date.toShortDate()}
       </Title>
       <List>
         {['movement', 'cost', 'token', 'rate'].map((item, index) =>
-          transaction[item] ? (
+          transaction[item] && (transaction.type !== TransactionType.donation || item !== 'cost') ? (
             <ListItem key={index}>
-              {transaction.type !== TransactionType.donation || item !== 'cost' ? (
-                <>
-                  <span>{t[item]}</span>
-                  <span
-                    className={cls(
-                      'font-bold',
-                      !isNaN(Number(transaction[item]))
-                        ? Number(transaction[item]) >= 0
-                          ? 'text-green-400'
-                          : 'text-red-400'
-                        : '',
-                    )}
-                  >
-                    {isNaN(Number(transaction[item]))
-                      ? transaction[item]
-                      : Number(transaction[item]).toLocaleCurrency()}
-                  </span>
-                </>
-              ) : null}
+              <span>{t[item]}</span>
+              <span
+                className={cls(
+                  'font-bold',
+                  !isNaN(Number(transaction[item]))
+                    ? Number(transaction[item]) >= 0
+                      ? 'text-green-400'
+                      : 'text-red-400'
+                    : '',
+                )}
+              >
+                {isNaN(Number(transaction[item]))
+                  ? String(transaction[item])
+                  : Number(transaction[item]).toLocaleCurrency()}
+              </span>
             </ListItem>
           ) : null,
         )}
