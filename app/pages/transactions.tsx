@@ -23,7 +23,6 @@ import { usePopup } from '../contexts/PopupProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { cls } from '../utils/constants';
-import {} from '../utils/extensions';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
@@ -122,7 +121,7 @@ export default function Transactions() {
           .filter(d => d.userid === user?.id)
           .map(d => ({
             // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
-            date: new Date(d.date).toLocaleDateString(),
+            date: new Date(d.date).toShortDate(),
             movement: Number(d.movement),
             type: getTransactionType(d),
             token: d.token && `${d.amount} ${d.token}`,

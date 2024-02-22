@@ -100,23 +100,23 @@ export default function Dashboard() {
 
       let min = tokenValueStart;
       let max = tokenValueStart;
-      const tokenHisto: TokenHistoric[][] = [];
+      const tokenHistoric: TokenHistoric[][] = [];
       token.forEach(t => {
         const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(token, t.label)) / 100);
-        tokenHisto.push([
+        tokenHistoric.push([
           {
-            date: new Date(today.getTime() - t.duration * 24 * 60 * 60 * 1000).toLocaleDateString(),
+            date: new Date(today.getTime() - t.duration * 24 * 60 * 60 * 1000).toShortDate(),
             Montant: tokenValueStart,
           },
           {
-            date: today.toLocaleDateString(),
+            date: today.toShortDate(),
             Montant: tokenValueEnd,
           },
         ]);
         min = Math.min(min, tokenValueEnd);
         max = Math.max(max, tokenValueEnd);
       });
-      setTokenHistoric(tokenHisto);
+      setTokenHistoric(tokenHistoric);
       setTokenHistoricLimit({
         min: min,
         max: max,

@@ -18,10 +18,14 @@ declare global {
     normalize(): string;
     testLimit(limit: MinMax): boolean;
   }
+  interface Date {
+    toShortDate(): string;
+    toLongDate(): string;
+  }
 }
 
 Number.prototype.toLocaleCurrency = function (currency = 'EUR') {
-  let value = Intl.NumberFormat(undefined, {
+  let value = Intl.NumberFormat(navigator.language, {
     style: 'currency',
     currency: currency,
   }).format(Number(this));
@@ -52,7 +56,7 @@ Number.prototype.toRatio = function (maxDecimals = 2) {
 };
 
 Number.prototype.toLocaleDate = function () {
-  return new Date(Math.round((Number(this) - 25569) * 86400 * 1000)).toLocaleDateString();
+  return new Date(Math.round((Number(this) - 25569) * 86400 * 1000)).toShortDate();
 };
 
 Number.prototype.toShortFixed = function (maxDecimals = 2) {
@@ -82,7 +86,7 @@ Number.prototype.toClosestPowerOfTen = function (direction: RoundingDirection = 
 };
 
 String.prototype.fromCurrency = function (locale?: string) {
-  const number = (locale ?? Intl.NumberFormat().resolvedOptions().locale).startsWith('fr')
+  const number = (locale ?? Intl.NumberFormat(navigator.language).resolvedOptions().locale).startsWith('fr')
     ? this.replace(/,/g, '.')
     : this.replace(/,/g, '');
   return parseFloat(number.replace(/[^0-9\.\-]/g, ''));
@@ -95,4 +99,12 @@ String.prototype.normalize = function () {
 
 String.prototype.testLimit = function (limit: MinMax) {
   return this.length >= limit.min && this.length <= limit.max;
+};
+
+Date.prototype.toShortDate = function () {
+  return this.toLocaleDateString(navigator.language, { year: 'numeric', month: 'numeric', day: 'numeric' });
+};
+
+Date.prototype.toLongDate = function () {
+  return this.toLocaleString(navigator.language);
 };
