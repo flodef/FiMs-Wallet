@@ -27,13 +27,14 @@ import {
   Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import NotFound from '../not-found';
 import { PortfolioToken } from '../pages/portfolio';
 import { HeliusTransaction, Transaction, TransactionType, getTransactionType } from '../pages/transactions';
 import { DBUser } from '../pages/users';
 import { cls, getShortAddress } from '../utils/constants';
+import {} from '../utils/extensions';
 import { DataName, loadData } from '../utils/processData';
 import { MinMax } from '../utils/types';
-import NotFound from '../not-found';
 
 const transactionCost = 0.5;
 const nameLimit: MinMax = { min: 5, max: 25 };
@@ -170,7 +171,7 @@ export default function AdminPage() {
           console.log(data);
           setCryptoTransactions(
             data.map((d: HeliusTransaction) => ({
-              date: new Date(d.timestamp * 1000).toLocaleString(),
+              date: new Date(d.timestamp * 1000).toLongDate(),
               address: [
                 users.find(user => user.address === d.from)?.name ?? getShortAddress(d.from),
                 users.find(user => user.address === d.to)?.name ?? getShortAddress(d.to),
@@ -207,12 +208,20 @@ export default function AdminPage() {
 
   const isValidName = useMemo(
     () =>
-      (name.testLimit(nameLimit) && !users?.find(user => user.name.toLowerCase() === name.toLowerCase())) ||
-      userTabIndex,
-    [name, users, userTabIndex],
+      name.testLimit(nameLimit) &&
+      (!users?.find(user => user.name.toLowerCase() === name.toLowerCase()) ||
+        (userTabIndex &&
+          name.toLowerCase() === users?.find(user => user.id === Number(userIndex))?.name.toLowerCase())),
+    [name, users, userTabIndex, userIndex],
   );
   const isValidAddress = useMemo(() => {
-    if ((!address.testLimit(addressLimit) || users?.find(user => user.address === address)) && !userTabIndex)
+    if (
+      !(
+        address.testLimit(addressLimit) &&
+        (!users?.find(user => user.address === address) ||
+          (userTabIndex && address === users?.find(user => user.id === Number(userIndex))?.address))
+      )
+    )
       return false;
     try {
       const pubkey = new PublicKey(address);
@@ -220,7 +229,7 @@ export default function AdminPage() {
     } catch (error) {
       return false;
     }
-  }, [address, users, userTabIndex]);
+  }, [address, users, userTabIndex, userIndex]);
   const isValidTransaction = useMemo(
     () =>
       getTransactionDetails().value &&
