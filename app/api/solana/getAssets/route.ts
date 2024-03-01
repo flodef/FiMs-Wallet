@@ -10,10 +10,12 @@ interface HeliusData {
   items: {
     id: string;
     content: { metadata: { name: string; symbol: string } };
-    token_info: { balance: number; decimals: number };
+    token_info: { name: string; symbol: string; balance: number; decimals: number };
     creators: { address: string }[];
   }[];
 }
+
+const solanaTokenId = 'So11111111111111111111111111111111111111112';
 
 export async function GET(request: Request) {
   if (!process.env.HELIUS_API_KEY)
@@ -54,14 +56,16 @@ export async function GET(request: Request) {
       .filter(d => !tokens?.length || tokens?.includes(d.id))
       .map(d => {
         return {
-          name: d.content.metadata.name,
-          symbol: d.content.metadata.symbol,
+          id: d.id,
+          name: d.content.metadata.name ?? d.token_info.name,
+          symbol: d.content.metadata.symbol ?? d.token_info.symbol,
           balance: d.token_info.balance / Math.pow(10, d.token_info.decimals),
         };
       })
       .concat(
-        result?.nativeBalance.lamports && !tokens?.length
+        result?.nativeBalance.lamports && (!tokens?.length || tokens?.includes(solanaTokenId))
           ? {
+              id: solanaTokenId,
               name: 'Solana',
               symbol: 'SOL',
               balance: result?.nativeBalance.lamports / Math.pow(10, 9),
