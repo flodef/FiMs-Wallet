@@ -138,7 +138,7 @@ async function cacheData(sheetName: string, dataName: DataName, parameter: Param
 
 function checkData(data: any, minCol: number, maxCol = minCol, minRow = 1, maxRow = 100000) {
   if (!data) throw new Error('data not fetched');
-  if (data.error) throw new Error(data.error);
+  if (data.error) throw new Error(data.error.message ?? data.error);
   if (!data.values?.length) throw new MissingDataError();
   if (
     data.values &&

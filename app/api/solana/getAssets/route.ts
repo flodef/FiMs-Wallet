@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 
 interface HeliusData {
+  total: number;
+  limit: number;
+  cursor: string;
+  nativeBalance: {
+    lamports: number;
+  };
   items: {
     id: string;
     content: { metadata: { name: string; symbol: string } };
@@ -16,7 +22,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const address = searchParams.get('address');
   const creator = searchParams.get('creator');
-  const token = searchParams.get('token');
+  const tokens = searchParams.get('tokens')?.split(',');
 
   if (!address) return NextResponse.json({ error: 'Missing required parameter: address.' }, { status: 500 });
 
@@ -43,17 +49,25 @@ export async function GET(request: Request) {
     });
     const { result } = (await response.json()) as { result: HeliusData };
 
-    const data =
-      result?.items
-        .filter(d => !creator || d.creators.some(c => c.address === creator))
-        .filter(d => !token || d.id === token)
-        .map(d => {
-          return {
-            name: d.content.metadata.name,
-            symbol: d.content.metadata.symbol,
-            balance: d.token_info.balance / Math.pow(10, d.token_info.decimals),
-          };
-        }) ?? [];
+    const data = result?.items
+      .filter(d => !creator || d.creators.some(c => c.address === creator))
+      .filter(d => !tokens || tokens?.includes(d.id))
+      .map(d => {
+        return {
+          name: d.content.metadata.name,
+          symbol: d.content.metadata.symbol,
+          balance: d.token_info.balance / Math.pow(10, d.token_info.decimals),
+        };
+      })
+      .concat(
+        result?.nativeBalance.lamports
+          ? {
+              name: 'Solana',
+              symbol: 'SOL',
+              balance: result?.nativeBalance.lamports / Math.pow(10, 9),
+            }
+          : [],
+      );
 
     return NextResponse.json(data);
   } catch (error) {
