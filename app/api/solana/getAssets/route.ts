@@ -51,7 +51,7 @@ export async function GET(request: Request) {
 
     const data = result?.items
       .filter(d => !creator || d.creators.some(c => c.address === creator))
-      .filter(d => !tokens || tokens?.includes(d.id))
+      .filter(d => !tokens?.length || tokens?.includes(d.id))
       .map(d => {
         return {
           name: d.content.metadata.name,
@@ -60,7 +60,7 @@ export async function GET(request: Request) {
         };
       })
       .concat(
-        result?.nativeBalance.lamports
+        result?.nativeBalance.lamports && !tokens?.length
           ? {
               name: 'Solana',
               symbol: 'SOL',
