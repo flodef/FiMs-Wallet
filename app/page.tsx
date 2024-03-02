@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { EffectCreative, EffectCube, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import VersionNotes, { VersionNote } from './components/versionNotes';
-import { usePopup } from './contexts/PopupProvider';
+import { usePopup } from './contexts/popupProvider';
 import { Page, useNavigation } from './hooks/useNavigation';
 import { useUser } from './hooks/useUser';
 import { LoadingDot } from './loading';

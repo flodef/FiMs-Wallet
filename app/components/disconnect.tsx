@@ -1,6 +1,6 @@
 import { Button, Flex, Title } from '@tremor/react';
 import { useCallback, useEffect, useRef } from 'react';
-import { usePopup } from '../contexts/PopupProvider';
+import { usePopup } from '../contexts/popupProvider';
 import { useUser } from '../hooks/useUser';
 import { Dataset } from '../utils/types';
 

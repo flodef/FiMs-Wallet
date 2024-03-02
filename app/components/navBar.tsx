@@ -5,7 +5,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Button, Tab, TabGroup, TabList } from '@tremor/react';
 import { useEffect, useState } from 'react';
 import { FiMsLogo } from '../../public/FiMsLogo';
-import { usePopup } from '../contexts/PopupProvider';
+import { usePopup } from '../contexts/popupProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { cls } from '../utils/constants';

@@ -1,5 +1,5 @@
 import { Button, Flex, List, ListItem, Title } from '@tremor/react';
-import { usePopup } from '../contexts/PopupProvider';
+import { usePopup } from '../contexts/popupProvider';
 import { Transaction, TransactionType, getTokenLabel, getTokenRate } from '../pages/transactions';
 import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';

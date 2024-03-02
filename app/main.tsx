@@ -17,7 +17,7 @@ export default function MainPage({ page }: { page: Page }) {
   useEffect(() => {
     if (!swiper || swiper.destroyed) return;
 
-    const i = pages.findIndex((p) => p === currentPage);
+    const i = pages.findIndex(p => p === currentPage);
     if (i === swiper.activeIndex) return;
 
     swiper.slideTo(i);

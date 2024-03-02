@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLoading } from '../contexts/LoadingProvider';
+import { useLoading } from '../contexts/loadingProvider';
 
 export enum ColorScheme {
   Light = 'light',

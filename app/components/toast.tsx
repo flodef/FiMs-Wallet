@@ -1,5 +1,5 @@
 // import { cookies } from 'next/headers';
-import DismissButton from './dismiss-button';
+import DismissButton from './dismissButton';
 
 export default function Toast() {
   // const cookieStore = cookies();
