@@ -78,7 +78,7 @@ export interface Transaction {
   type?: TransactionType;
   token: string;
   amount?: number;
-  rate?: string;
+  rate?: number | string;
 }
 
 export interface HeliusTransaction {
@@ -99,6 +99,10 @@ export const getTransactionType = (transaction: Transaction | { movement: number
     : TransactionType.withdrawal;
 
 const thisPage = Page.Transactions;
+
+export const getTokenLabel = (d: Transaction) => d.token && `${d.amount} ${d.token}`;
+export const getTokenRate = (d: Transaction) =>
+  d.token && `1 ${d.token} = ${Math.abs(Number(d.movement) / Number(d.amount)).toLocaleCurrency()}`;
 
 export default function Transactions() {
   const { user } = useUser();
@@ -124,8 +128,9 @@ export default function Transactions() {
             date: new Date(d.date),
             movement: Number(d.movement),
             type: getTransactionType(d),
-            token: d.token && `${d.amount} ${d.token}`,
-            rate: d.token && `1 ${d.token} = ${Math.abs(Number(d.movement) / Number(d.amount)).toLocaleCurrency()}`,
+            amount: Number(d.amount),
+            rate: Math.abs(Number(d.movement) / Number(d.amount)),
+            token: d.token,
             address: d.address,
             cost: Number(d.cost),
           })),
@@ -400,8 +405,8 @@ export default function Transactions() {
                       </TableCell>
                       {!isMobileSize() && (
                         <>
-                          <TableCell>{transaction.token}</TableCell>
-                          <TableCell>{transaction.rate}</TableCell>
+                          <TableCell>{getTokenLabel(transaction)}</TableCell>
+                          <TableCell>{getTokenRate(transaction)}</TableCell>
                         </>
                       )}
                     </TableRow>
