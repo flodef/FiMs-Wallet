@@ -83,7 +83,7 @@ export async function GET(request: Request) {
                       name: 'Solana',
                       symbol: 'SOL',
                       decimals: 9,
-                      balance: result?.nativeBalance.lamports / Math.pow(10, 9),
+                      balance: result?.nativeBalance.lamports,
                     },
                     content: { metadata: { name: '', symbol: '' } },
                   }
