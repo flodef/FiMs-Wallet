@@ -118,7 +118,7 @@ export default function Portfolio() {
               yearlyYield: 0,
               solProfitPrice: 0,
             };
-            const assets = await loadAssets(user.address, !!p.total);
+            const assets = await loadAssets(user.address, !!p.invested);
             if (assets?.length) {
               p.total = assets.reduce(
                 (a, b) => a + (b.balance ?? 0) * (tokens.find(t => t.label === b.name)?.value ?? 0),
