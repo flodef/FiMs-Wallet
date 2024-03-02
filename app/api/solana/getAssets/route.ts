@@ -51,27 +51,51 @@ export async function GET(request: Request) {
     });
     const { result } = (await response.json()) as { result: HeliusData };
 
-    const data = result?.items
-      .filter(d => !creator || d.creators.some(c => c.address === creator))
-      .filter(d => !tokens?.length || tokens?.includes(d.id))
-      .map(d => {
-        return {
-          id: d.id,
-          name: d.content.metadata.name ?? d.token_info.name,
-          symbol: d.content.metadata.symbol ?? d.token_info.symbol,
-          balance: d.token_info.balance / Math.pow(10, d.token_info.decimals),
-        };
-      })
-      .concat(
-        result?.nativeBalance.lamports && (!tokens?.length || tokens?.includes(solanaTokenId))
-          ? {
-              id: solanaTokenId,
-              name: 'Solana',
-              symbol: 'SOL',
-              balance: result?.nativeBalance.lamports / Math.pow(10, 9),
-            }
-          : [],
-      );
+    const data = !tokens?.length
+      ? result?.items
+          .filter(d => !creator || d.creators.some(c => c.address === creator))
+          .map(d => {
+            return {
+              id: d.id,
+              name: d.content.metadata.name ?? d.token_info.name,
+              symbol: d.content.metadata.symbol ?? d.token_info.symbol,
+              balance: d.token_info.balance / Math.pow(10, d.token_info.decimals),
+            };
+          })
+          .concat(
+            result?.nativeBalance.lamports
+              ? {
+                  id: solanaTokenId,
+                  name: 'Solana',
+                  symbol: 'SOL',
+                  balance: result?.nativeBalance.lamports / Math.pow(10, 9),
+                }
+              : [],
+          )
+          .sort((a, b) => (tokens?.length ? tokens.indexOf(a.id) - tokens.indexOf(b.id) : 0))
+      : tokens.map(token => {
+          const item =
+            token !== solanaTokenId
+              ? result?.items.find(d => d.id === token && (!creator || d.creators.some(c => c.address === creator)))
+              : result?.nativeBalance.lamports
+                ? {
+                    token_info: {
+                      name: 'Solana',
+                      symbol: 'SOL',
+                      decimals: 9,
+                      balance: result?.nativeBalance.lamports / Math.pow(10, 9),
+                    },
+                    content: { metadata: { name: '', symbol: '' } },
+                  }
+                : undefined;
+
+          return {
+            id: token,
+            name: item ? item.content.metadata.name ?? item.token_info.name : '',
+            symbol: item ? item.content.metadata.symbol ?? item.token_info.symbol : '',
+            balance: item ? item.token_info.balance / Math.pow(10, item.token_info.decimals) : 0,
+          };
+        });
 
     return NextResponse.json(data);
   } catch (error) {
