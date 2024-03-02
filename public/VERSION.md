@@ -1,3 +1,9 @@
+# 1.5
+
+- Ajout d'un mode privé (cliquer sur l'oeil). Au cas où vous voulez frimer auprès des copains, sans tout dévoiler ;-)
+- Ajout des Solana (SOL) dans le portfolio : "il n'y a pas de petites économies ..."
+- Grosse amélioration du cache des données : finis les achats de maisons à Dubaï !!
+
 # 1.4
 
 - Détails des transaction disponibles !! (clique une transaction pour voir ;-))
