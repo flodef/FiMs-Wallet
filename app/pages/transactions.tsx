@@ -17,9 +17,10 @@ import {
   Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Privacy, PrivacyButton } from '../components/privacy';
 import SortTableHead from '../components/sortTableHead';
 import { TransactionDetails } from '../components/transactionDetails';
-import { usePopup } from '../contexts/PopupProvider';
+import { usePopup } from '../contexts/popupProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { cls } from '../utils/constants';
@@ -203,7 +204,11 @@ export default function Transactions() {
     <>
       {transactions?.length ? (
         <Card>
-          <Title className="text-left whitespace-nowrap">{t.transactionSummary}</Title>
+          <Flex>
+            <Title className="text-left whitespace-nowrap">{t.transactionSummary}</Title>
+            <PrivacyButton />
+          </Flex>
+
           <Table>
             <TableBody>
               {Object.values(TransactionType)
@@ -222,10 +227,9 @@ export default function Transactions() {
                         <TableCell>{t[type]}</TableCell>
                         <TableCell className="ml-4">{transactions?.filter(t => t.type === index).length}</TableCell>
                         <TableCell className="ml-4">
-                          {transactions
-                            ?.filter(t => t.type === index)
-                            .reduce((a, b) => a + b.movement, 0)
-                            .toLocaleCurrency()}
+                          <Privacy
+                            amount={transactions?.filter(t => t.type === index).reduce((a, b) => a + b.movement, 0)}
+                          />
                         </TableCell>
                       </TableRow>
                     ),
@@ -241,10 +245,7 @@ export default function Transactions() {
                   <TableCell>{t.cost}</TableCell>
                   <TableCell className="ml-4">{transactions?.filter(t => t.cost < 0).length}</TableCell>
                   <TableCell className="ml-4">
-                    {transactions
-                      ?.filter(t => t.cost < 0)
-                      .reduce((a, b) => a + b.cost, 0)
-                      .toLocaleCurrency()}
+                    <Privacy amount={transactions?.filter(t => t.cost < 0).reduce((a, b) => a + b.cost, 0)} />
                   </TableCell>
                 </TableRow>
               )}
@@ -265,7 +266,7 @@ export default function Transactions() {
                     transactions?.reduce((a, b) => a + b.movement, 0) ?? 0 >= 0 ? 'text-green-400' : 'text-red-400',
                   )}
                 >
-                  {transactions?.reduce((a, b) => a + b.movement, 0).toLocaleCurrency()}
+                  <Privacy amount={transactions?.reduce((a, b) => a + b.movement, 0)} />
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -273,9 +274,12 @@ export default function Transactions() {
         </Card>
       ) : null}
       <Card>
-        <Title className="text-left whitespace-nowrap">
-          {!transactions || transactions.length ? t.transactionsHistoric : t.noTransactionFound}
-        </Title>
+        <Flex>
+          <Title className="text-left whitespace-nowrap">
+            {!transactions || transactions.length ? t.transactionsHistoric : t.noTransactionFound}
+          </Title>
+          {!transactions || transactions.length ? <PrivacyButton /> : null}
+        </Flex>
         {!transactions || transactions?.length ? (
           <>
             <Grid style={{ gap: '16px' }} className="mt-4" numItemsSm={2} numItemsLg={3}>
@@ -372,7 +376,7 @@ export default function Transactions() {
                         className={cls('font-bold', transaction.movement >= 0 ? 'text-green-400' : 'text-red-400')}
                       >
                         <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
-                          {transaction.movement.toLocaleCurrency()}
+                          <Privacy amount={transaction.movement} />
                           {transaction.type === TransactionType.withdrawal && transaction.cost < 0 && (
                             <Icon
                               className="self-center"

@@ -1,6 +1,7 @@
 import { Flex, MarkerBar, Subtitle } from '@tremor/react';
 import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
+import { Privacy } from './privacy';
 
 const t: Dataset = {
   invested: 'Investi',
@@ -34,12 +35,15 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
       <Flex className="mt-4 mb-1">
         {invested || !loaded ? (
           <Subtitle className={cls('truncate w-0 text-left sm:w-1/2', !loaded ? 'blur-sm' : 'animate-unblur')}>
-            {`${t.invested} : ${invested.toLocaleCurrency()}`}
+            {t.invested}&nbsp;:&nbsp;
+            <Privacy amount={invested} />
           </Subtitle>
         ) : null}
         {invested || !loaded ? (
           <Subtitle className={!loaded ? 'blur-sm' : 'animate-unblur'}>
-            {`${t.gains} : ${profitValue.toLocaleCurrency()}${profitRatio ? ' (' + profitRatio.toRatio() + ')' : ''}`}
+            {t.gains}&nbsp;:&nbsp;
+            <Privacy amount={profitValue} />
+            {profitRatio ? ' (' + profitRatio.toRatio() + ')' : ''}
           </Subtitle>
         ) : null}
       </Flex>

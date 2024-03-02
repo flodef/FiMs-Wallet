@@ -14,10 +14,11 @@ import {
   TableRow,
   Title,
 } from '@tremor/react';
-
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import GainsBar from '../components/gainsBar';
+import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
+import { usePrivacy } from '../contexts/privacyProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { TOKEN_PATH } from '../utils/constants';
@@ -79,6 +80,7 @@ const thisPage = Page.Portfolio;
 export default function Portfolio() {
   const { user } = useUser();
   const { page, needRefresh, setNeedRefresh } = useNavigation();
+  const { hasPrivacy } = usePrivacy();
 
   const [wallet, setWallet] = useState<Wallet[]>();
   const [portfolio, setPortfolio] = useState<Portfolio>();
@@ -170,12 +172,15 @@ export default function Portfolio() {
       <Accordion defaultOpen={true}>
         <AccordionHeader>
           <Flex alignItems="start">
-            <div>
+            <Flex flexDirection="col" alignItems="start">
               <Title className="text-left">{t.totalValue}</Title>
-              <Metric color="green" className={!portfolio ? 'blur-sm' : 'animate-unblur'}>
-                {(portfolio?.total ?? 0).toLocaleCurrency()}
-              </Metric>
-            </div>
+              <Flex justifyContent="start">
+                <Metric color="green" className={!portfolio ? 'blur-sm' : 'animate-unblur'}>
+                  <Privacy amount={portfolio?.total} />
+                </Metric>
+                <PrivacyButton />
+              </Flex>
+            </Flex>
             <BadgeDelta
               className={portfolio?.yearlyYield ? 'visible' : 'hidden'}
               deltaType={
@@ -218,7 +223,9 @@ export default function Portfolio() {
                       </Flex>
                       <Flex justifyContent="between">
                         <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
-                        <div className="font-bold text-lg">{asset.total.toLocaleCurrency()}</div>
+                        <div className="font-bold text-lg">
+                          <Privacy amount={asset.total} />
+                        </div>
                       </Flex>
                     </TableCell>
                   </TableRow>
@@ -274,7 +281,7 @@ export default function Portfolio() {
               categories={[t.transfered, t.total]}
               index="stringDate"
               colors={['indigo', 'fuchsia']}
-              valueFormatter={number => number.toShortCurrency()}
+              valueFormatter={amount => toPrivacy(amount, hasPrivacy, true)}
               yAxisWidth={50}
               showAnimation={true}
               animationDuration={2000}
