@@ -148,7 +148,7 @@ export default function Portfolio() {
           })
           .catch(console.error),
       )
-      .then(() => loadData(user.name))
+      .then(() => loadData(String(user.id)))
       .then(setHistoric)
       .catch(console.error)
       .finally(() => (isLoading.current = false));
