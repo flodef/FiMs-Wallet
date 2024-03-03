@@ -3,6 +3,7 @@ import { Button, Divider, Flex, Metric, Title } from '@tremor/react';
 import { useState } from 'react';
 import { useIsMobile } from '../utils/mobile';
 import { Dataset } from '../utils/types';
+import { marked } from 'marked';
 
 const t: Dataset = {
   close: 'Fermer',
@@ -36,7 +37,7 @@ export default function VersionNotes({ versionNotes, onClose }: { versionNotes: 
           >
             {versionNote.notes.map((note, noteIndex) => (
               <li className="text-left" key={noteIndex}>
-                {note}
+                <span dangerouslySetInnerHTML={{ __html: marked.parse(note) }}></span>
               </li>
             ))}
           </ul>

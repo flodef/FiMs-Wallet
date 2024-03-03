@@ -28,6 +28,7 @@
     "@vercel/postgres": "latest",
     "autoprefixer": "latest",
     "js-cookie": "latest",
+    "marked": "latest",
     "next": "latest",
     "postcss": "latest",
     "prop-types": "latest",
