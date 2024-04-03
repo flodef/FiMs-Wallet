@@ -249,7 +249,7 @@ export default function AdminPage() {
 
     fetch(`/api/database/${action}User`, {
       method: 'POST',
-      body: JSON.stringify({ name: name.normalize(), address: address, isPublic: isPublic, id: userIndex }),
+      body: JSON.stringify({ name: name.toFirstUpperCase(), address: address, isPublic: isPublic, id: userIndex }),
     })
       .then(result => {
         if (result.ok) {
@@ -420,7 +420,7 @@ export default function AdminPage() {
                 <SelectItem key={id} value={String(id)}>
                   {id +
                     ' - ' +
-                    TransactionType[getTransactionType({ movement, cost })].normalize() +
+                    TransactionType[getTransactionType({ movement, cost })].toFirstUpperCase() +
                     ' - ' +
                     Math.abs(movement).toCurrency()}
                 </SelectItem>
@@ -459,7 +459,7 @@ export default function AdminPage() {
           >
             {users?.map(({ name, address }) => (
               <SelectItem key={name} value={address}>
-                {name.normalize()}
+                {name.toFirstUpperCase()}
               </SelectItem>
             ))}
           </Select>
@@ -474,7 +474,7 @@ export default function AdminPage() {
               .filter(key => isNaN(Number(key)))
               .map(type => (
                 <SelectItem key={type} value={type}>
-                  {type.normalize()}
+                  {type.toFirstUpperCase()}
                 </SelectItem>
               ))}
           </Select>
@@ -503,7 +503,7 @@ export default function AdminPage() {
           >
             {tokens?.map(({ symbol }) => (
               <SelectItem key={symbol} value={symbol}>
-                {symbol.normalize()}
+                {symbol.toFirstUpperCase()}
               </SelectItem>
             ))}
           </Select>
@@ -585,7 +585,7 @@ export default function AdminPage() {
                 <TableRow key={new Date(date).getTime()}>
                   <TableCell>{date.toLocaleString()}</TableCell>
                   <TableCell>{address}</TableCell>
-                  <TableCell>{type !== undefined ? TransactionType[type].normalize() : ''}</TableCell>
+                  <TableCell>{type !== undefined ? TransactionType[type].toFirstUpperCase() : ''}</TableCell>
                   <TableCell>
                     {amount?.toFixed(2)} {token}
                   </TableCell>

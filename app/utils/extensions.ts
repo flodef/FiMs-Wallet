@@ -15,7 +15,7 @@ declare global {
   }
   interface String {
     fromCurrency(locale?: string): number;
-    normalize(): string;
+    toFirstUpperCase(): string;
     testLimit(limit: MinMax): boolean;
   }
   interface Date {
@@ -92,7 +92,7 @@ String.prototype.fromCurrency = function (locale?: string) {
   return parseFloat(number.replace(/[^0-9\.\-]/g, ''));
 };
 
-String.prototype.normalize = function () {
+String.prototype.toFirstUpperCase = function () {
   const label = this.trim();
   return label.charAt(0).toUpperCase() + label.slice(1);
 };
