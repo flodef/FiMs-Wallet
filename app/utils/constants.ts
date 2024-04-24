@@ -1,14 +1,33 @@
 import { PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { SyntheticEvent } from 'react';
+import { Data } from './types';
+import { DeltaType } from '@tremor/react';
 
 export const handleEvent = (event: SyntheticEvent) => {
   if (event instanceof KeyboardEvent) {
-    const keyEvent = event as KeyboardEvent;
-    if (keyEvent.key !== 'Enter') return false;
-    keyEvent.preventDefault();
+    if (event.key !== 'Enter') return false;
+    event.preventDefault();
   }
   return true;
 };
+
+export const findValue = (data: Data[], label: string | undefined) => {
+  return label ? data.find(d => d.label.toLowerCase().includes(label.toLowerCase())) : undefined;
+};
+export const getCurrency = (data: Data[], label: string | undefined, defaultValue = 0) => {
+  return (findValue(data, label)?.value ?? defaultValue).toLocaleCurrency();
+};
+export const getRatio = (data: Data[], label: string | undefined, defaultValue = 0) => {
+  return (findValue(data, label)?.ratio ?? defaultValue).toRatio();
+};
+export const getDeltaType = (ratio: number | string | undefined) => {
+  const r = parseFloat(String(ratio ?? 0));
+  const decrease = r < 10 ? 'decrease' : 'moderateDecrease';
+  const increase = r > 10 ? 'increase' : 'moderateIncrease';
+  const delta = r ? decrease : increase;
+  return (r ? delta : 'unchanged') as DeltaType;
+};
+
 export const getFormattedDate = (date = new Date(), precision = 3) =>
   !isNaN(date.getTime())
     ? date.getFullYear() +

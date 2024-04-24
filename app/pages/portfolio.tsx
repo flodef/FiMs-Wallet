@@ -21,7 +21,7 @@ import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
 import { usePrivacy } from '../contexts/privacyProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
-import { TOKEN_PATH } from '../utils/constants';
+import { TOKEN_PATH, getDeltaType } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, forceData, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
@@ -183,13 +183,7 @@ export default function Portfolio() {
             </Flex>
             <BadgeDelta
               className={portfolio?.yearlyYield ? 'visible' : 'hidden'}
-              deltaType={
-                portfolio && portfolio?.yearlyYield < 0
-                  ? 'moderateDecrease'
-                  : portfolio && portfolio?.yearlyYield > 0
-                    ? 'moderateIncrease'
-                    : 'unchanged'
-              }
+              deltaType={getDeltaType(portfolio?.yearlyYield)}
             >
               {(portfolio?.yearlyYield ?? 0).toRatio()}
             </BadgeDelta>

@@ -109,94 +109,92 @@ export default function Users() {
   const [tooltipText, setTooltipText] = useState(t.appearance + ' ');
 
   return (
-    <>
-      <Card>
-        <Flex justifyContent="between">
-          <Title className="text-left whitespace-nowrap">{t.usersList}</Title>
-          {isPublic !== undefined && (
-            <Flex justifyContent="end">
-              <Icon
-                icon={InformationCircleIcon}
-                tooltip={tooltipText}
-                color="gray"
-                onClick={
-                  isMobileDevice() ? () => setTooltipText(tooltipText !== t.appearance ? t.appearance : '') : undefined
-                }
-              />
-              <Text className="mr-2">{isPublic ? t.public : t.private}</Text>
-              <Switch disabled={isUpdatingUserPrivacy.current} checked={isPublic} onChange={handleSwitchChange} />
-            </Flex>
-          )}
-        </Flex>
-        {users?.length && (
-          <Flex className="relative mt-5 max-w-md">
-            <label htmlFor="search" className="sr-only">
-              {t.searchByName}
-            </label>
-            <MultiSelect
-              autoFocus
-              ref={inputRef}
-              className="max-w-full sm:max-w-xs"
-              id="search"
-              icon={MagnifyingGlassIcon}
-              placeholder={t.selectUser}
-              placeholderSearch={t.search}
-              spellCheck={false}
-              value={selectedUsers}
-              onValueChange={setSelectedUsers}
-            >
-              {users?.map(item => (
-                <MultiSelectItem key={item.name} value={item.name}>
-                  {item.name}
-                </MultiSelectItem>
-              ))}
-            </MultiSelect>
+    <Card>
+      <Flex justifyContent="between">
+        <Title className="text-left whitespace-nowrap">{t.usersList}</Title>
+        {isPublic !== undefined && (
+          <Flex justifyContent="end">
+            <Icon
+              icon={InformationCircleIcon}
+              tooltip={tooltipText}
+              color="gray"
+              onClick={
+                isMobileDevice() ? () => setTooltipText(tooltipText !== t.appearance ? t.appearance : '') : undefined
+              }
+            />
+            <Text className="mr-2">{isPublic ? t.public : t.private}</Text>
+            <Switch disabled={isUpdatingUserPrivacy.current} checked={isPublic} onChange={handleSwitchChange} />
           </Flex>
         )}
-        <Table>
-          <SortTableHead labels={[t.name, t.address, t.copy]} table={users} setTable={setUsers} />
-          <TableBody>
-            {users?.length ? (
-              users.filter(isUserSelected).map(user => (
-                <TableRow
-                  key={user.name}
-                  className={cls(
-                    'cursor-pointer',
-                    'hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle',
-                    user.name === currentUser?.name ? 'bg-tremor-border dark:bg-dark-tremor-border' : '',
-                  )}
-                  onClick={() => {
-                    navigator.clipboard.writeText(user.address);
-                  }}
-                >
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>
-                    <Text>{getShortAddress(user.address)}</Text>
-                  </TableCell>
-                  <TableCell>
-                    <DocumentDuplicateIcon
-                      className={cls(
-                        'h-5 w-5 ml-3 cursor-pointer',
-                        'text-tremor-content-subtle dark:text-dark-tremor-content-subtle',
-                        'hover:text-tremor-content dark:hover:text-dark-tremor-content',
-                      )}
-                      onClick={() => {
-                        navigator.clipboard.writeText(user.address);
-                      }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  {users ? t.noUserFound : t.userLoading}
+      </Flex>
+      {users?.length && (
+        <Flex className="relative mt-5 max-w-md">
+          <label htmlFor="search" className="sr-only">
+            {t.searchByName}
+          </label>
+          <MultiSelect
+            autoFocus
+            ref={inputRef}
+            className="max-w-full sm:max-w-xs"
+            id="search"
+            icon={MagnifyingGlassIcon}
+            placeholder={t.selectUser}
+            placeholderSearch={t.search}
+            spellCheck={false}
+            value={selectedUsers}
+            onValueChange={setSelectedUsers}
+          >
+            {users?.map(item => (
+              <MultiSelectItem key={item.name} value={item.name}>
+                {item.name}
+              </MultiSelectItem>
+            ))}
+          </MultiSelect>
+        </Flex>
+      )}
+      <Table>
+        <SortTableHead labels={[t.name, t.address, t.copy]} table={users} setTable={setUsers} />
+        <TableBody>
+          {users?.length ? (
+            users.filter(isUserSelected).map(user => (
+              <TableRow
+                key={user.name}
+                className={cls(
+                  'cursor-pointer',
+                  'hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle',
+                  user.name === currentUser?.name ? 'bg-tremor-border dark:bg-dark-tremor-border' : '',
+                )}
+                onClick={() => {
+                  navigator.clipboard.writeText(user.address);
+                }}
+              >
+                <TableCell>{user.name}</TableCell>
+                <TableCell>
+                  <Text>{getShortAddress(user.address)}</Text>
+                </TableCell>
+                <TableCell>
+                  <DocumentDuplicateIcon
+                    className={cls(
+                      'h-5 w-5 ml-3 cursor-pointer',
+                      'text-tremor-content-subtle dark:text-dark-tremor-content-subtle',
+                      'hover:text-tremor-content dark:hover:text-dark-tremor-content',
+                    )}
+                    onClick={() => {
+                      navigator.clipboard.writeText(user.address);
+                    }}
+                  />
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </Card>
-    </>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={3} className="text-center">
+                {users ? t.noUserFound : t.userLoading}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </Card>
   );
 }

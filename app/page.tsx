@@ -77,45 +77,45 @@ export default function IndexPage() {
       .catch(console.error);
   }, [version, openPopup, closePopup, setVersion]);
 
+  const MainScreen = () => {
+    return isConnected && isMobileDevice() ? (
+      <Swiper
+        pagination={true}
+        modules={[Pagination, EffectCube, EffectCreative]}
+        effect={'creative'}
+        creativeEffect={SwiperEffect(SwipingType.Rotate)}
+        onSlideChange={swiper => setPage(pages[swiper.activeIndex])}
+        className={rootClassName}
+      >
+        {pages.map(page => (
+          <SwiperSlide key={page} className={pageClassName} style={{ overflowY: 'auto', overflowX: 'hidden' }}>
+            <MainPage page={page} />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    ) : (
+      <div className={rootClassName}>
+        {isConnected ? (
+          pages.map(page => (
+            <div key={page} className={cls(pageClassName, page === currentPage ? 'visible' : 'hidden')}>
+              <MainPage page={page} />
+            </div>
+          ))
+        ) : (
+          <div className={pageClassName}>
+            <MainPage page={Page.Dashboard} />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       <Dialog open={isPopupOpen} onClose={autoClosePopup}>
         <DialogPanel>{popup}</DialogPanel>
       </Dialog>
-      {currentPage ? (
-        isConnected && isMobileDevice() ? (
-          <Swiper
-            pagination={true}
-            modules={[Pagination, EffectCube, EffectCreative]}
-            effect={'creative'}
-            creativeEffect={SwiperEffect(SwipingType.Rotate)}
-            onSlideChange={swiper => setPage(pages[swiper.activeIndex])}
-            className={rootClassName}
-          >
-            {pages.map(page => (
-              <SwiperSlide key={page} className={pageClassName} style={{ overflowY: 'auto', overflowX: 'hidden' }}>
-                <MainPage page={page} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        ) : (
-          <div className={rootClassName}>
-            {isConnected ? (
-              pages.map(page => (
-                <div key={page} className={cls(pageClassName, page === currentPage ? 'visible' : 'hidden')}>
-                  <MainPage page={page} />
-                </div>
-              ))
-            ) : (
-              <div className={pageClassName}>
-                <MainPage page={Page.Dashboard} />
-              </div>
-            )}
-          </div>
-        )
-      ) : (
-        <LoadingDot />
-      )}
+      {currentPage ? <MainScreen /> : <LoadingDot />}
     </>
   );
 }

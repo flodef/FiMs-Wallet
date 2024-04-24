@@ -6,6 +6,7 @@ import {
   AreaChart,
   BadgeDelta,
   BarList,
+  DeltaType,
   Flex,
   Grid,
   Metric,
@@ -21,7 +22,7 @@ import GainsBar from '../components/gainsBar';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';
-import { cls } from '../utils/constants';
+import { cls, getCurrency, getDeltaType, getRatio } from '../utils/constants';
 import {} from '../utils/extensions';
 import { isMobileSize, useIsMobile } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
@@ -76,54 +77,35 @@ export default function Dashboard() {
   const [tokenHistoric, setTokenHistoric] = useState<TokenHistoric[][]>([]);
   const [tokenHistoricLimit, setTokenHistoricLimit] = useState<{ min: number; max: number }>();
 
-  const findValue = useCallback((data: Data[], label: string | undefined) => {
-    return label ? data.find(d => d.label.toLowerCase().includes(label.toLowerCase())) : undefined;
+  const generateTokenHistoric = useCallback((token: DashboardToken[]) => {
+    token = token.filter(({ label, available }) => available && label !== 'Euro'); // TODO : remove this line when Euro is removed from the spreadsheet
+
+    setToken(token);
+
+    let min = tokenValueStart;
+    let max = tokenValueStart;
+    const tokenHistoric: TokenHistoric[][] = [];
+    token.forEach(t => {
+      const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(token, t.label)) / 100);
+      tokenHistoric.push([
+        {
+          date: new Date(today.getTime() - t.duration * 24 * 60 * 60 * 1000).toShortDate(),
+          Montant: tokenValueStart,
+        },
+        {
+          date: today.toShortDate(),
+          Montant: tokenValueEnd,
+        },
+      ]);
+      min = Math.min(min, tokenValueEnd);
+      max = Math.max(max, tokenValueEnd);
+    });
+    setTokenHistoric(tokenHistoric);
+    setTokenHistoricLimit({
+      min: min,
+      max: max,
+    });
   }, []);
-  const getValue = useCallback(
-    (data: Data[], label: string | undefined, defaultValue = 0) => {
-      return (findValue(data, label)?.value ?? defaultValue).toLocaleCurrency();
-    },
-    [findValue],
-  );
-  const getRatio = useCallback(
-    (data: Data[], label: string | undefined, defaultValue = 0) => {
-      return (findValue(data, label)?.ratio ?? defaultValue).toRatio();
-    },
-    [findValue],
-  );
-
-  const generateTokenHistoric = useCallback(
-    (token: DashboardToken[]) => {
-      token = token.filter(({ label, available }) => available && label !== 'Euro'); // TODO : remove this line when Euro is removed from the spreadsheet
-
-      setToken(token);
-
-      let min = tokenValueStart;
-      let max = tokenValueStart;
-      const tokenHistoric: TokenHistoric[][] = [];
-      token.forEach(t => {
-        const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(token, t.label)) / 100);
-        tokenHistoric.push([
-          {
-            date: new Date(today.getTime() - t.duration * 24 * 60 * 60 * 1000).toShortDate(),
-            Montant: tokenValueStart,
-          },
-          {
-            date: today.toShortDate(),
-            Montant: tokenValueEnd,
-          },
-        ]);
-        min = Math.min(min, tokenValueEnd);
-        max = Math.max(max, tokenValueEnd);
-      });
-      setTokenHistoric(tokenHistoric);
-      setTokenHistoricLimit({
-        min: min,
-        max: max,
-      });
-    },
-    [getRatio],
-  );
 
   const isLoading = useRef(false);
   useEffect(() => {
@@ -146,22 +128,22 @@ export default function Dashboard() {
     (labels: string[]) => {
       return labels
         .map(label => {
-          return getBarData(t[label] ?? label, getValue(dashboard, label).fromCurrency());
+          return getBarData(t[label] ?? label, getCurrency(dashboard, label).fromCurrency());
         })
         .sort((a, b) => b.value - a.value);
     },
-    [getValue, dashboard],
+    [dashboard],
   );
 
   const result = [
     {
       category: t.total,
-      total: getValue(dashboard, 'total', 100000),
+      total: getCurrency(dashboard, 'total', 100000),
       data: getBarList(['Solana', 'Bitcoin', 'Nexo', 'FiMs']),
     },
     {
       category: t.profit,
-      total: getValue(dashboard, 'profit', 10000),
+      total: getCurrency(dashboard, 'profit', 10000),
       data: getBarList(['transfer cost', 'strategy cost', 'price change', 'charity']),
     },
   ];
@@ -175,7 +157,7 @@ export default function Dashboard() {
   const changeToken = useCallback(
     (increment = true) => {
       setTimeout(() => {
-        setPriceIndex(((priceIndex ? priceIndex : token.length) + (increment ? 1 : -1)) % token.length);
+        setPriceIndex(((priceIndex || token.length) + (increment ? 1 : -1)) % token.length);
       }, 100); // Wait for indexChange event to be triggered
     },
     [priceIndex, token.length],
@@ -189,18 +171,10 @@ export default function Dashboard() {
             <div>
               <Title className="text-left">{t.assets}</Title>
               <Metric color="green" className={!dashboard.length ? 'blur-sm' : 'animate-unblur'}>
-                {getValue(dashboard, 'assets', 500000)}
+                {getCurrency(dashboard, 'assets', 500000)}
               </Metric>
             </div>
-            <BadgeDelta
-              deltaType={
-                parseFloat(getRatio(dashboard, 'price @')) < 0
-                  ? 'moderateDecrease'
-                  : parseFloat(getRatio(dashboard, 'price @')) > 0
-                    ? 'moderateIncrease'
-                    : 'unchanged'
-              }
-            >
+            <BadgeDelta deltaType={getDeltaType(getRatio(dashboard, 'price @'))}>
               {getRatio(dashboard, 'price @')}
             </BadgeDelta>
           </Flex>
@@ -208,8 +182,8 @@ export default function Dashboard() {
         <AccordionBody>
           <GainsBar
             values={{
-              invested: getValue(dashboard, 'transfered').fromCurrency(),
-              profitValue: getValue(dashboard, 'gains').fromCurrency(),
+              invested: getCurrency(dashboard, 'transfered').fromCurrency(),
+              profitValue: getCurrency(dashboard, 'gains').fromCurrency(),
               profitRatio: parseFloat(getRatio(dashboard, 'gains')) / 100,
             }}
             loaded={!!dashboard.length}
@@ -241,16 +215,7 @@ export default function Dashboard() {
                 >
                   {result[resultIndex].total}
                 </Metric>
-                <BadgeDelta
-                  className="mt-2"
-                  deltaType={
-                    parseFloat(getRatio(dashboard, 'profit')) < 0
-                      ? 'moderateDecrease'
-                      : parseFloat(getRatio(dashboard, 'profit')) > 0
-                        ? 'moderateIncrease'
-                        : 'unchanged'
-                  }
-                >
+                <BadgeDelta className="mt-2" deltaType={getDeltaType(getRatio(dashboard, 'profit'))}>
                   {getRatio(dashboard, 'profit')}
                 </BadgeDelta>
               </Flex>
@@ -305,18 +270,9 @@ export default function Dashboard() {
               </Flex>
               <Flex alignItems="start">
                 <Metric color="green" className={!token.length ? 'blur-sm' : 'animate-unblur'}>
-                  {getValue(token, token.at(priceIndex)?.label)}
+                  {getCurrency(token, token.at(priceIndex)?.label)}
                 </Metric>
-                <BadgeDelta
-                  className="mt-2"
-                  deltaType={
-                    parseFloat(getRatio(token, token.at(priceIndex)?.label)) < 0
-                      ? 'moderateDecrease'
-                      : parseFloat(getRatio(token, token.at(priceIndex)?.label)) > 0
-                        ? 'moderateIncrease'
-                        : 'unchanged'
-                  }
-                >
+                <BadgeDelta className="mt-2" deltaType={getDeltaType(getRatio(token, token.at(priceIndex)?.label))}>
                   {getRatio(token, token.at(priceIndex)?.label)}
                 </BadgeDelta>
               </Flex>

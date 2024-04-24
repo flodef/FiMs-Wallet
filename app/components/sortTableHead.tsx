@@ -2,7 +2,6 @@ import { ChevronDownIcon, ChevronUpDownIcon, ChevronUpIcon } from '@heroicons/re
 import { Flex, Icon, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
 import { useState } from 'react';
 import { Filter } from '../utils/types';
-import { log } from 'console';
 
 export function SortHeader({
   label,

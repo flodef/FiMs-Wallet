@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, createContext, useContext } from 'react';
+import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { useLocalStorage } from '../utils/localStorage';
 
 interface PrivacyContextState {
@@ -13,13 +13,15 @@ const PrivacyContext = createContext<PrivacyContextState>({} as PrivacyContextSt
 export const PrivacyProvider = ({ children }: { children: ReactNode }) => {
   const [hasPrivacy, setHasPrivacy] = useLocalStorage('hasPrivacy', false);
 
-  return (
-    <PrivacyContext.Provider
-      value={{ hasPrivacy: hasPrivacy, setHasPrivacy: (hasPrivacy: boolean) => setHasPrivacy(hasPrivacy) }}
-    >
-      {children}
-    </PrivacyContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      hasPrivacy,
+      setHasPrivacy,
+    }),
+    [hasPrivacy, setHasPrivacy],
   );
+
+  return <PrivacyContext.Provider value={contextValue}>{children}</PrivacyContext.Provider>;
 };
 
 export function usePrivacy(): PrivacyContextState {

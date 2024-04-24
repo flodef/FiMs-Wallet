@@ -92,12 +92,14 @@ export interface HeliusTransaction {
   timestamp: number;
 }
 
-export const getTransactionType = (transaction: Transaction | { movement: number | string; cost: number | string }) =>
-  Number(transaction.movement) > 0
-    ? Number(transaction.cost) > 0
-      ? TransactionType.donation
-      : TransactionType.deposit
-    : TransactionType.withdrawal;
+export const getTransactionType = (transaction: Transaction | { movement: number | string; cost: number | string }) => {
+  const depositType = Number(transaction.cost) > 0 ? TransactionType.donation : TransactionType.deposit;
+  return Number(transaction.movement) > 0 ? depositType : TransactionType.withdrawal;
+};
+const getTransactionIcon = (transaction: Transaction) => {
+  const transactionIcon = transaction.type === TransactionType.deposit ? ArrowDownRightIcon : ArrowUpRightIcon;
+  return transaction.type === TransactionType.donation ? HeartIcon : transactionIcon;
+};
 
 const thisPage = Page.Transactions;
 
@@ -158,22 +160,21 @@ export default function Transactions() {
 
   const getFilteredTransactions = useCallback(
     (filters: TransactionFilter[]) => {
-      const isTypeSelected = (t: Transaction) => selectedType === TransactionType[t.type ?? -1] || !selectedType;
       const isDateSelected = (t: Transaction) =>
         selectedDates.includes(new Date(t.date).getFullYear().toString()) || !selectedDates.length;
       const isMovementSelected = (t: Transaction) =>
         selectedMovements.includes(String(t.movement.toClosestPowerOfTen())) || !selectedMovements.length;
+      const isTypeSelected = (t: Transaction) => selectedType === TransactionType[t.type ?? -1] || !selectedType;
+
+      const dateFilter = (filter: TransactionFilter) =>
+        filter === TransactionFilter.date ? isDateSelected : () => true;
+      const movementFilter = (filter: TransactionFilter) =>
+        filter === TransactionFilter.movement ? isMovementSelected : () => true;
+      const typeFilter = (filter: TransactionFilter) =>
+        filter === TransactionFilter.type ? isTypeSelected : () => true;
       return filters.reduce(
         (filteredTransactions, filter) =>
-          filteredTransactions?.filter(
-            filter === TransactionFilter.date
-              ? isDateSelected
-              : filter === TransactionFilter.movement
-                ? isMovementSelected
-                : filter === TransactionFilter.type
-                  ? isTypeSelected
-                  : () => true,
-          ),
+          filteredTransactions?.filter(dateFilter(filter)).filter(movementFilter(filter)).filter(typeFilter(filter)),
         transactions?.filter(t => (costFilter ? t.cost < 0 : true)),
       );
     },
@@ -222,7 +223,7 @@ export default function Transactions() {
                           setSelectedType(TransactionType[index]);
                           setCostFilter(false);
                         }}
-                        key={index}
+                        key={type}
                       >
                         <TableCell>{t[type]}</TableCell>
                         <TableCell className="ml-4">{transactions?.filter(t => t.type === index).length}</TableCell>
@@ -365,9 +366,9 @@ export default function Transactions() {
                     TransactionFilter.date,
                     TransactionFilter.movement,
                     TransactionFilter.type,
-                  ])?.map((transaction, index) => (
+                  ])?.map(transaction => (
                     <TableRow
-                      key={index}
+                      key={transaction.id}
                       className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
                       onClick={() => openPopup(<TransactionDetails transaction={transaction} />, true)}
                     >
@@ -391,13 +392,7 @@ export default function Transactions() {
                         <Flex justifyContent="start" alignItems="start" className="flex-col sm:flex-row">
                           <Icon
                             className="sm:hover:animate-pulse cursor-pointer"
-                            icon={
-                              transaction.type === TransactionType.deposit
-                                ? ArrowDownRightIcon
-                                : transaction.type === TransactionType.withdrawal
-                                  ? ArrowUpRightIcon
-                                  : HeartIcon
-                            }
+                            icon={getTransactionIcon(transaction)}
                             tooltip={isMobileSize() ? t[TransactionType[transaction?.type ?? 0]] : undefined}
                             size="lg"
                             color={transaction.type === TransactionType.deposit ? 'green' : 'red'}

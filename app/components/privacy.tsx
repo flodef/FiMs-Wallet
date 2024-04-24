@@ -7,7 +7,7 @@ export function toPrivacy(amount: number | undefined, hasPrivacy: boolean, isSho
   return convert(amount ?? 0).replace(hasPrivacy ? /[0-9.,;-\s]/g : /^$/, '*');
 }
 
-export function Privacy({ amount, isShort }: { amount: number | undefined; isShort?: boolean }) {
+export function Privacy({ amount, isShort }: { amount: Readonly<number | undefined>; isShort?: Readonly<boolean> }) {
   const { hasPrivacy } = usePrivacy();
 
   return <>{toPrivacy(amount, hasPrivacy, isShort)}</>;

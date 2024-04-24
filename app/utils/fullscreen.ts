@@ -27,12 +27,12 @@ export function isFullscreen(): boolean {
   return (
     typeof document !== 'undefined' &&
     !!(
-      document.fullscreenElement ||
-      document.webkitCurrentFullScreenElement ||
-      document.webkitFullscreenElement ||
-      document.mozFullScreenElement ||
-      document.msFullscreenElement ||
-      document.webkitIsFullScreen ||
+      document.fullscreenElement ??
+      document.webkitCurrentFullScreenElement ??
+      document.webkitFullscreenElement ??
+      document.mozFullScreenElement ??
+      document.msFullscreenElement ??
+      document.webkitIsFullScreen ??
       document.mozFullScreen
     )
   );
@@ -45,7 +45,7 @@ export function exitFullscreen(): void {
     document.mozCancelFullScreen ||
     document.msExitFullscreen;
   if (exitFullscreen) {
-    exitFullscreen.call(document).catch((error) => console.warn(error));
+    exitFullscreen.call(document).catch(console.warn);
   }
 }
 
@@ -56,9 +56,7 @@ export function requestFullscreen(): void {
     document.documentElement.mozRequestFullScreen ||
     document.documentElement.msRequestFullscreen;
   if (requestFullscreen && !IS_LOCAL) {
-    requestFullscreen
-      .call(document.documentElement)
-      .catch((error) => console.warn(error));
+    requestFullscreen.call(document.documentElement).catch(console.warn);
   }
 }
 

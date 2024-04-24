@@ -15,7 +15,7 @@ interface GainsBarProps {
 }
 
 export default function GainsBar({ values, loaded }: { values: GainsBarProps | undefined; loaded: boolean }) {
-  const { invested, profitValue, profitRatio } = values || {
+  const { invested, profitValue, profitRatio } = values ?? {
     invested: 0,
     profitValue: 0,
     profitRatio: 0,
