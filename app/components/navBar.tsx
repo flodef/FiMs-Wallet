@@ -33,6 +33,9 @@ export default function Navbar() {
     setIsAdmin(window.location.pathname === '/admin' && window.location.hostname === 'localhost');
   }, []);
 
+  const goHome = () => (window.location.href = window.location.origin);
+  const goToDashboard = () => isConnected && currentPage !== Page.Dashboard && setPage(Page.Dashboard);
+
   return (
     <Disclosure
       as="nav"
@@ -52,7 +55,8 @@ export default function Navbar() {
                       'flex flex-shrink-0 items-center',
                       isConnected && currentPage !== Page.Dashboard ? 'cursor-pointer' : '',
                     )}
-                    onClick={isConnected && currentPage !== Page.Dashboard ? () => setPage(Page.Dashboard) : undefined}
+                    onClick={goToDashboard}
+                    onKeyDown={goToDashboard}
                   >
                     <FiMsLogo />
                   </a>
@@ -126,7 +130,8 @@ export default function Navbar() {
                   'flex flex-shrink-0 items-center',
                   isConnected && currentPage !== Page.Dashboard ? 'cursor-pointer' : '',
                 )}
-                onClick={() => (window.location.href = window.location.origin)}
+                onClick={goHome}
+                onKeyDown={goHome}
               >
                 <FiMsLogo />
               </a>

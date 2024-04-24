@@ -263,7 +263,7 @@ export default function Transactions() {
                 <TableCell
                   className={cls(
                     'font-bold',
-                    transactions?.reduce((a, b) => a + b.movement, 0) ?? 0 >= 0 ? 'text-green-400' : 'text-red-400',
+                    (transactions?.reduce((a, b) => a + b.movement, 0) ?? 0) >= 0 ? 'text-green-400' : 'text-red-400',
                   )}
                 >
                   <Privacy amount={transactions?.reduce((a, b) => a + b.movement, 0)} />

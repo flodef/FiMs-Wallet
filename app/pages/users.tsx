@@ -119,9 +119,9 @@ export default function Users() {
                 icon={InformationCircleIcon}
                 tooltip={tooltipText}
                 color="gray"
-                onClick={() => {
-                  isMobileDevice() ? setTooltipText(tooltipText !== t.appearance ? t.appearance : '') : null;
-                }}
+                onClick={
+                  isMobileDevice() ? () => setTooltipText(tooltipText !== t.appearance ? t.appearance : '') : undefined
+                }
               />
               <Text className="mr-2">{isPublic ? t.public : t.private}</Text>
               <Switch disabled={isUpdatingUserPrivacy.current} checked={isPublic} onChange={handleSwitchChange} />

@@ -144,7 +144,7 @@ export default function AdminPage() {
       setTransactionType(TransactionType[getTransactionType(transaction)]);
       setSelectedToken(transaction.token);
       setMovement(Number(transaction.movement));
-      setTokenAmount(Number(transaction.amount) ?? 0);
+      setTokenAmount(Number(transaction.amount ?? 0));
       setTokenPrice(
         Number(transaction.amount) ? Math.abs(Number(transaction.movement) / Number(transaction.amount)) : 0,
       );

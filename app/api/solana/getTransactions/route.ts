@@ -40,12 +40,13 @@ export async function GET(request: Request) {
 
     const result = (await response.json()) as HeliusData[];
     const data = result
-      .filter(d =>
-        !d.transactionError && d.tokenTransfers.length === 1
-          ? d.tokenTransfers[0].mint !== getSymbol(d.description)
-          : true &&
-            ((d.tokenTransfers.length === 1 && d.tokenTransfers[0].tokenStandard === 'Fungible') ||
-              d.nativeTransfers.length === 1),
+      .filter(
+        d =>
+          !d.transactionError &&
+          ((d.tokenTransfers.length === 1 &&
+            d.tokenTransfers[0].tokenStandard === 'Fungible' &&
+            d.tokenTransfers[0].mint !== getSymbol(d.description)) ||
+            d.nativeTransfers.length === 1),
       )
       .map(d => {
         return {
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
           timestamp: d.timestamp,
         };
       })
-      .filter(d => d.amount * 1000 > 1);
+      .filter(d => d.amount * 1000 >= 1);
 
     return NextResponse.json(data);
   } catch (error) {

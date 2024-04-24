@@ -3,8 +3,8 @@
 // inspired by https://codepen.io/altreiter/pen/EedZRQ
 import { Open_Sans } from 'next/font/google';
 import Link from 'next/link';
-import { useEffect } from 'react';
-import { EMAIL, cls } from './utils/constants';
+import { SyntheticEvent, useEffect } from 'react';
+import { EMAIL, cls, handleEvent } from './utils/constants';
 
 const openSans = Open_Sans({ subsets: ['latin'], weight: ['400', '700'] });
 
@@ -14,8 +14,12 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
     console.error(error);
   }, [error]);
 
-  const retry = () => setTimeout(reset, 100); // Attempt to recover by trying to re-render the segment
-  const reload = () => setTimeout(() => location.reload, 100); // Hard reset by reloading the page
+  const retry = (event: SyntheticEvent) => {
+    handleEvent(event) && setTimeout(reset, 100); // Attempt to recover by trying to re-render the segment
+  };
+  const reload = (event: SyntheticEvent) => {
+    handleEvent(event) && setTimeout(() => location.reload(), 100); // Hard reset by reloading the page
+  };
 
   const zeroClassName =
     'relative before:rotate-45 before:scale-x-0 before:scale-y-75 before:animate-cross1$ ' +
@@ -56,6 +60,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
             )}
             style={{ textShadow: '0 1vmin 5vmin rgba(0, 0, 0, 0.5)' }}
             onClick={retry}
+            onKeyDown={retry}
           >
             <span className="five">5</span>
             <span className={zeroAClassName}>0</span>
@@ -95,7 +100,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
                             0
                         </span> */}
           </h1>
-          <p className="px-6 cursor-pointer" onClick={reload}>
+          <p className="px-6 cursor-pointer" onClick={reload} onKeyDown={reload}>
             Recharger la page
           </p>
         </div>
