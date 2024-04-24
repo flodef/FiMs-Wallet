@@ -27,6 +27,7 @@
     "@vercel/analytics": "latest",
     "@vercel/postgres": "latest",
     "autoprefixer": "latest",
+    "firebase": "latest",
     "js-cookie": "latest",
     "marked": "latest",
     "next": "latest",
