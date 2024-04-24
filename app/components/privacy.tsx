@@ -4,7 +4,9 @@ import { usePrivacy } from '../contexts/privacyProvider';
 
 export function toPrivacy(amount: number | undefined, hasPrivacy: boolean, isShort?: boolean): string {
   const convert = isShort ? (a: number) => a.toShortCurrency() : (a: number) => a.toLocaleCurrency();
-  return convert(amount ?? 0).replace(hasPrivacy ? /[0-9.,;-\s]/g : /^$/, '*');
+  return convert(amount ?? 0)
+    .replace('-', '')
+    .replace(hasPrivacy ? /[0-9.,;-\s]/g : /^$/, '*');
 }
 
 export function Privacy({ amount, isShort }: { amount: Readonly<number | undefined>; isShort?: Readonly<boolean> }) {
