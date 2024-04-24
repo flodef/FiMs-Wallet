@@ -1,6 +1,6 @@
 {
   "name": "fims_wallet",
-  "version": "1.4",
+  "version": "1.5",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -49,7 +49,7 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@vercel/speed-insights": "latest",
-    "eslint": "latest",
+    "eslint": "^8.41.0",
     "eslint-config-next": "latest",
     "eslint-plugin-testing-library": "latest",
     "husky": "latest",
@@ -67,5 +67,10 @@
     "printWidth": 120,
     "trailingComma": "all",
     "semi": true
-  }
+  },
+  "lint-staged": {
+    "*.ts*": "eslint"
+  },
+  "module": "index.ts",
+  "type": "commonjs"
 }
