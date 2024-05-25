@@ -31,6 +31,7 @@ export async function GET(request: Request) {
   try {
     const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
       method: 'POST',
+      cache: 'no-store',
       headers: {
         Referer: 'https://www.fims.fi',
         ContentType: 'application/json',

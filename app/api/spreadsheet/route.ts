@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   if ((!process.env.GOOGLE_SPREADSHEET_ID && !id) || !sheetName)
     return NextResponse.json(
       { error: 'Missing required environment variables or parameters : id, sheetname.' },
-      { status: 500 }
+      { status: 500 },
     );
 
   const range = searchParams.get('range') ?? 'A:ZZ';
@@ -24,11 +24,12 @@ export async function GET(request: Request) {
         process.env.GOOGLE_API_KEY
       }`,
       {
+        cache: 'no-store',
         headers: {
           Referer: 'https://www.fims.fi',
           ContentType: 'application/json',
         },
-      }
+      },
     );
     const data = await response.json();
 

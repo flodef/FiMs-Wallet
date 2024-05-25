@@ -34,6 +34,7 @@ export async function GET(request: Request) {
   try {
     const response = await fetch(
       `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=${process.env.HELIUS_API_KEY}&type=TRANSFER`,
+      { cache: 'no-store' },
     );
 
     const getSymbol = (description: string) => description.split(' ')[3].trim();
