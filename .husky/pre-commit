@@ -1,2 +1,2 @@
-#bun test
+#bun jest
 bun lint
