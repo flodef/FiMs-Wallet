@@ -24,7 +24,7 @@ export const getDeltaType = (ratio: number | string | undefined) => {
   const r = parseFloat(String(ratio ?? 0));
   const decrease = r < 10 ? 'decrease' : 'moderateDecrease';
   const increase = r > 10 ? 'increase' : 'moderateIncrease';
-  const delta = r ? decrease : increase;
+  const delta = r > 0 ? increase : decrease;
   return (r ? delta : 'unchanged') as DeltaType;
 };
 
