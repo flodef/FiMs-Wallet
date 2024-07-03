@@ -370,7 +370,7 @@ export default function Transactions() {
                     <TableRow
                       key={transaction.id}
                       className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
-                      onClick={() => openPopup(<TransactionDetails transaction={transaction} />, true)}
+                      // onClick={() => openPopup(<TransactionDetails transaction={transaction} />, true)}
                     >
                       <TableCell>{transaction.date.toShortDate()}</TableCell>
                       <TableCell
