@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocalStorage } from '@solana/wallet-adapter-react';
+import { useLocalStorage } from './utils/localStorage';
 import { Dialog, DialogPanel } from '@tremor/react';
 import { useEffect } from 'react';
 import { EffectCreative, EffectCube, Pagination } from 'swiper/modules';
