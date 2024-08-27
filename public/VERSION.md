@@ -1,3 +1,11 @@
+# 1.6
+
+**Correction de bugs**
+
+- _Cache des données_ : effacements de tous les comptes quand erreur de chargement
+- _Affichage des badges_ : badges toujours affichés en tant que négatifs même si le solde est positif
+- _Popups_ : les popups sur les transactions empêchent le chargement des données
+
 # 1.5
 
 - **Ajout d'un mode privé (cliquer sur l'oeil)**. Au cas où vous voulez frimer auprès des copains, sans tout dévoiler ;-)
