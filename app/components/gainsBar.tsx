@@ -5,7 +5,8 @@ import { Privacy } from './privacy';
 
 const t: Dataset = {
   invested: 'Investi',
-  gains: 'Gains',
+  profits: 'Gains',
+  loss: 'Pertes',
 };
 
 interface GainsBarProps {
@@ -41,7 +42,7 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
         ) : null}
         {invested || !loaded ? (
           <Subtitle className={!loaded ? 'blur-sm' : 'animate-unblur'}>
-            {t.gains}&nbsp;:&nbsp;
+            {isPositive ? t.profits : t.loss}&nbsp;:&nbsp;
             <Privacy amount={profitValue} />
             {profitRatio ? ' (' + profitRatio.toRatio() + ')' : ''}
           </Subtitle>
@@ -50,7 +51,7 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
 
       {profitRatio || !loaded ? (
         <MarkerBar
-          title="Gains"
+          title={isPositive ? t.profits : t.loss}
           color={isPositive ? 'green' : 'red'}
           value={isOverKill ? overKillValue : isPositive ? 0 : 100}
           minValue={isOverKill ? overKillValue : isPositive ? 0 : 100 - Math.abs(profitRatio) * 100}
