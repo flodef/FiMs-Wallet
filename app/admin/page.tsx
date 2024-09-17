@@ -196,13 +196,10 @@ export default function AdminPage() {
   const getTransactionDetails = useCallback(() => {
     const value = tokenAmount * tokenPrice;
     const isDonation = isTransactionType(TransactionType.donation);
+    const cost = hasCost ? -((Math.abs(value) * transactionCost) / 100).toDecimalPlace(2, 'down') : 0;
     return {
-      value: isDonation ? movement : value,
-      cost: isDonation
-        ? movement
-        : hasCost
-          ? -((Math.abs(value) * transactionCost) / 100).toDecimalPlace(2, 'down')
-          : 0,
+      value: isDonation ? movement : value - cost,
+      cost: isDonation ? movement : cost,
     };
   }, [hasCost, isTransactionType, tokenAmount, tokenPrice, movement]);
 
@@ -525,12 +522,12 @@ export default function AdminPage() {
           />
           <NumberInput
             className={cls('max-w-sm min-w-32', !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden')}
-            value={tokenPrice}
+            value={tokenPrice.toFixed(3)}
             onValueChange={setTokenPrice}
             onFocus={handleFocus}
             placeholder="Token Price"
             icon={CurrencyEuroIcon}
-            step={1}
+            step={0.001}
             min={0}
             max={10000}
             disabled={transactionTabIndex === 2}
