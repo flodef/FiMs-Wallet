@@ -21,7 +21,7 @@ import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
 import { usePrivacy } from '../contexts/privacyProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
-import { TOKEN_PATH, getDeltaType } from '../utils/constants';
+import { FIMS_TOKEN_PATH, getDeltaType, SPL_TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, forceData, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
@@ -42,6 +42,7 @@ export interface PortfolioToken extends Data {
 }
 
 interface Asset {
+  id: string;
   name: string;
   symbol: string;
   balance: number;
@@ -86,13 +87,10 @@ export default function Portfolio() {
   const [portfolio, setPortfolio] = useState<Portfolio>();
   const [historic, setHistoric] = useState<UserHistoric[]>([]);
 
-  const loadAssets = async (address: string, hasFiMsToken: boolean) => {
-    return await fetch(
-      `/api/solana/getAssets?address=${address}${hasFiMsToken ? '&creator=CCLcWAJX6fubUqGyZWz8dyUGEddRj8h4XZZCNSDzMVx4' : ''}`,
-    )
+  const loadAssets = async (address: string) => {
+    return (await fetch(`/api/solana/getAssets?address=${address}`)
       .then(async result => await (result.ok ? result.json() : undefined))
-      .then((tokens: Asset[]) => tokens)
-      .catch(console.error);
+      .catch(console.error)) as Asset[];
   };
 
   const isLoading = useRef(false);
@@ -120,26 +118,35 @@ export default function Portfolio() {
               yearlyYield: 0,
               solProfitPrice: 0,
             };
-            const assets = await loadAssets(user.address, !!p.invested);
-            if (assets?.length) {
-              p.total = assets.reduce(
-                (a, b) => a + (b.balance ?? 0) * (tokens.find(t => t.label === b.name)?.value ?? 0),
-                0,
-              );
-              p.profitValue = p.total - p.invested;
+
+            const getAsset = (symbol: string) => assets.find(a => a.symbol === symbol);
+            const assets = await loadAssets(user.address);
+            if (assets.length) {
+              const computeBalance = (filter = '') =>
+                assets.reduce(
+                  (a, b) =>
+                    a +
+                    (b.balance ?? 0) *
+                      (tokens.find(t => t.symbol === b.symbol && t.label.includes(filter))?.value ?? 0),
+                  0,
+                );
+              p.total = computeBalance();
+              p.profitValue = computeBalance('FiMs') - p.invested;
               p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
-              p.token = tokens.map(t => assets.find(a => a.name === t.label)?.balance ?? 0);
+              p.token = tokens.map(t => getAsset(t.symbol)?.balance ?? 0).filter(b => b);
             }
             setPortfolio(p);
 
             setWallet(
               tokens
+                .filter(t => getAsset(t.symbol))
                 .map((t, i) => ({
-                  image: TOKEN_PATH + t.label.replaceAll(' ', '') + '.png',
+                  ...t,
+                  image: t.label.includes('FiMs')
+                    ? FIMS_TOKEN_PATH + t.label.replaceAll(' ', '') + '.png'
+                    : SPL_TOKEN_PATH + getAsset(t.symbol)?.id + '.webp',
                   name: t.label,
-                  symbol: t.symbol,
                   balance: p.token[i],
-                  value: t.value,
                   total: p.token[i] * t.value,
                 }))
                 .filter(t => t.balance)

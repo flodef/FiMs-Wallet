@@ -42,7 +42,8 @@ export const TRANSACTION_TIME_OUT = 60; // Time out in seconds
 export const IS_LOCAL = !process.env.NEXT_PUBLIC_VERCEL_ENV;
 
 // Solana
-export const TOKEN_PATH = 'https://raw.githubusercontent.com/flodef/FiMs-Token/main/';
+export const FIMS_TOKEN_PATH = 'https://raw.githubusercontent.com/flodef/FiMs-Token/main/';
+export const SPL_TOKEN_PATH = 'https://raw.githubusercontent.com/sonarwatch/token-lists/main/images/solana/';
 export const MEMO_PROGRAM_ID = new PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr');
 export const IS_DEV = process.env.NEXT_PUBLIC_IS_DEV === 'true';
 export const SPL_TOKEN = new PublicKey(
