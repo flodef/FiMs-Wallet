@@ -17,7 +17,7 @@ import {
   Title,
 } from '@tremor/react';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import GainsBar from '../components/gainsBar';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
@@ -135,18 +135,21 @@ export default function Dashboard() {
     [dashboard],
   );
 
-  const result = [
-    {
-      category: t.total,
-      total: getCurrency(dashboard, 'total', 100000),
-      data: getBarList(['Solana', 'Bitcoin', 'Nexo', 'FiMs']),
-    },
-    {
-      category: t.profit,
-      total: getCurrency(dashboard, 'profit', 10000),
-      data: getBarList(['transfer cost', 'strategy cost', 'price change', 'charity']),
-    },
-  ];
+  const result = useMemo(
+    () => [
+      {
+        category: t.total,
+        total: getCurrency(dashboard, 'total', 100000),
+        data: getBarList(['Solana', 'Bitcoin', 'Nexo', 'FiMs']),
+      },
+      {
+        category: t.profit,
+        total: getCurrency(dashboard, 'profit', 10000),
+        data: getBarList(['transfer cost', 'strategy cost', 'price change', 'charity']),
+      },
+    ],
+    [dashboard],
+  );
 
   const isDesktop = useIsMobile(1280); // xl for tailwindcss breakpoints
   const width = useWindowParam().width;
