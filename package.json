@@ -1,6 +1,6 @@
 {
   "name": "fims_wallet",
-  "version": "1.5",
+  "version": "1.7",
   "private": true,
   "license": "MIT",
   "scripts": {

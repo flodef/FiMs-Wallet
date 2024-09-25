@@ -1,3 +1,8 @@
+# 1.7
+
+- **Ajout de nouvelles monnaies** : Bitcoin, EURC, USDC, USDT
+- **Amélioration graphique** : les barres affichent les pertes avec montant négatif
+
 # 1.6
 
 **Correction de bugs**
