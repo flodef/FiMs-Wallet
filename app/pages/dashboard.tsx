@@ -77,7 +77,7 @@ export default function Dashboard() {
   const [tokenHistoricLimit, setTokenHistoricLimit] = useState<{ min: number; max: number }>();
 
   const generateTokenHistoric = useCallback((token: DashboardToken[]) => {
-    token = token.filter(({ label, available }) => available && label !== 'Euro'); // TODO : remove this line when Euro is removed from the spreadsheet
+    token = token.filter(({ available }) => available);
 
     setToken(token);
 
@@ -139,7 +139,7 @@ export default function Dashboard() {
       {
         category: t.total,
         total: getCurrency(dashboard, 'total', 100000),
-        data: getBarList(['Solana', 'Bitcoin', 'Nexo', 'FiMs']),
+        data: getBarList(['FiMs SOL', 'FiMs Token', 'FiMs Liquidity Provider', 'Jupiter']),
       },
       {
         category: t.profit,
@@ -152,7 +152,7 @@ export default function Dashboard() {
 
   const isDesktop = useIsMobile(1280); // xl for tailwindcss breakpoints
   const width = useWindowParam().width;
-  const isTokenListExpanded = (width > 400 && width < 640) || width > 970;
+  const isTokenListExpanded = (width > 525 && width < 640) || width > 1070;
 
   const [resultIndex, setResultIndex] = useState(0);
   const [priceIndex, setPriceIndex] = useState(0);
