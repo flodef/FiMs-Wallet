@@ -74,31 +74,33 @@ export async function GET(request: Request) {
               : [],
           )
           .sort((a, b) => (tokens?.length ? tokens.indexOf(a.id) - tokens.indexOf(b.id) : 0))
-      : tokens.map(token => {
-          const item =
-            token !== solanaTokenId
-              ? result?.items.find(
-                  d => d.id === token && (!creators || d.creators.some(c => creators.includes(c.address))),
-                )
-              : result?.nativeBalance.lamports
-                ? {
-                    token_info: {
-                      name: 'Solana',
-                      symbol: 'SOL',
-                      decimals: 9,
-                      balance: result?.nativeBalance.lamports,
-                    },
-                    content: { metadata: { name: '', symbol: '' } },
-                  }
-                : undefined;
+      : tokens
+          .map(token => {
+            const item =
+              token !== solanaTokenId
+                ? result?.items.find(
+                    d => d.id === token && (!creators || d.creators.some(c => creators.includes(c.address))),
+                  )
+                : result?.nativeBalance.lamports
+                  ? {
+                      token_info: {
+                        name: 'Solana',
+                        symbol: 'SOL',
+                        decimals: 9,
+                        balance: result?.nativeBalance.lamports,
+                      },
+                      content: { metadata: { name: '', symbol: '' } },
+                    }
+                  : undefined;
 
-          return {
-            id: token,
-            name: item ? (item.content.metadata.name ?? item.token_info.name) : '',
-            symbol: item ? (item.content.metadata.symbol ?? item.token_info.symbol) : '',
-            balance: item ? item.token_info.balance / Math.pow(10, item.token_info.decimals) : 0,
-          };
-        });
+            return {
+              id: token,
+              name: item ? item.content.metadata.name || item.token_info.name : '',
+              symbol: item ? item.content.metadata.symbol || item.token_info.symbol : '',
+              balance: item ? item.token_info.balance / Math.pow(10, item.token_info.decimals) : 0,
+            };
+          })
+          .filter(token => token.name && token.symbol);
 
     return NextResponse.json(data);
   } catch (error) {
