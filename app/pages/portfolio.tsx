@@ -208,7 +208,7 @@ export default function Portfolio() {
                     key={asset.name}
                     className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
                   >
-                    <TableCell>
+                    <TableCell className="pr-0">
                       <Image
                         className="rounded-full"
                         src={asset.image}
@@ -219,7 +219,7 @@ export default function Portfolio() {
                     </TableCell>
                     <TableCell>
                       <Flex justifyContent="between">
-                        <div className="text-xl truncate">{asset.name}</div>
+                        <div className="text-xl max-w-36 xs:max-w-full truncate">{asset.name}</div>
                         <div>{`${asset.balance.toShortFixed()} ${asset.symbol}`}</div>
                       </Flex>
                       <Flex justifyContent="between">

@@ -10,6 +10,10 @@ export default {
   theme: {
     transparent: 'transparent',
     current: 'currentColor',
+    screens: {
+      '2xs': '320px',
+      xs: '480px',
+    },
     extend: {
       animation: {
         blink: 'blink 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
