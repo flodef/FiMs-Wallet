@@ -72,7 +72,7 @@ export default function Navbar() {
                         {pages.map(page => (
                           <Tab
                             className={cls(
-                              'text-[20px] hover:text-gray-700 hover:font-bold',
+                              'text-sm hover:text-gray-700 hover:font-bold',
                               page === currentPage
                                 ? 'cursor-default font-bold border-b-2 mb-0 border-b-blue-500 text-blue-500'
                                 : 'cursor-pointer',

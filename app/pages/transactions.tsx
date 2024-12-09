@@ -366,9 +366,9 @@ export default function Transactions() {
                     TransactionFilter.date,
                     TransactionFilter.movement,
                     TransactionFilter.type,
-                  ])?.map(transaction => (
+                  ])?.map((transaction, index) => (
                     <TableRow
-                      key={transaction.id}
+                      key={index}
                       className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
                       // onClick={() => openPopup(<TransactionDetails transaction={transaction} />, true)}
                     >

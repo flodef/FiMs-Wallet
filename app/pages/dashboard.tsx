@@ -6,7 +6,6 @@ import {
   AreaChart,
   BadgeDelta,
   BarList,
-  DeltaType,
   Flex,
   Grid,
   Metric,
@@ -148,7 +147,7 @@ export default function Dashboard() {
         data: getBarList(['transfer cost', 'strategy cost', 'price change', 'charity']),
       },
     ],
-    [dashboard],
+    [dashboard, getBarList],
   );
 
   const isDesktop = useIsMobile(1280); // xl for tailwindcss breakpoints

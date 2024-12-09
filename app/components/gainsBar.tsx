@@ -1,4 +1,4 @@
-import { Flex, MarkerBar, Subtitle } from '@tremor/react';
+import { CategoryBar, Flex, MarkerBar, Subtitle } from '@tremor/react';
 import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
 import { Privacy } from './privacy';
@@ -21,9 +21,10 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
     profitValue: 0,
     profitRatio: 0,
   };
-  const isPositive = profitRatio >= 0;
-  const isOverKill = profitRatio * 100 > 100;
-  const overKillValue = 10000 / (profitRatio * 100 + 100);
+  const value = profitRatio * 100;
+  const isPositive = value >= 0;
+  const isOverKill = value > 100;
+  const overKillValue = 10000 / (value + 100);
 
   return (
     <>
@@ -54,10 +55,16 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
           title={isPositive ? t.profits : t.loss}
           color={isPositive ? 'green' : 'red'}
           value={isOverKill ? overKillValue : isPositive ? 0 : 100}
-          minValue={isOverKill ? overKillValue : isPositive ? 0 : 100 - Math.abs(profitRatio) * 100}
-          maxValue={isOverKill ? 100 : isPositive ? profitRatio * 100 : 100}
+          minValue={isOverKill ? overKillValue : isPositive ? 0 : 100 - Math.abs(value)}
+          maxValue={isOverKill ? 100 : isPositive ? value : 100}
         />
-      ) : null}
+      ) : // <CategoryBar
+      //   values={isOverKill ? [100, value] : isPositive ? [value, 100 - value] : [100 + value, -value]}
+      //   markerValue={isOverKill ? 100.01 : isPositive ? value : 100 + value + 0.01}
+      //   colors={isOverKill ? ['neutral', 'green'] : isPositive ? ['green', 'zinc'] : ['neutral', 'red']}
+      //   showLabels={false}
+      // />
+      null}
     </>
   );
 }
