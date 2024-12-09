@@ -143,7 +143,7 @@ export default function Portfolio() {
                 .map((t, i) => ({
                   ...t,
                   image: t.label.includes('FiMs')
-                    ? FIMS_TOKEN_PATH + t.label.replaceAll(' ', '') + '.png'
+                    ? FIMS_TOKEN_PATH + t.symbol + '.png'
                     : SPL_TOKEN_PATH + getAsset(t.symbol)?.id + '.webp',
                   name: t.label,
                   balance: p.token[i],
