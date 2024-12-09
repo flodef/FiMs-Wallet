@@ -23,8 +23,8 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const address = searchParams.get('address');
-  const creator = searchParams.get('creator');
-  const tokens = searchParams.get('tokens')?.split(',');
+  const creators = searchParams.get('creators')?.split(',').filter(Boolean);
+  const tokens = searchParams.get('tokens')?.split(',').filter(Boolean);
 
   if (!address) return NextResponse.json({ error: 'Missing required parameter: address.' }, { status: 500 });
 
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
 
     const data = !tokens?.length
       ? result?.items
-          .filter(d => !creator || d.creators.some(c => c.address === creator))
+          .filter(d => !creators || d.creators.some(c => creators.includes(c.address)))
           .map(d => {
             return {
               id: d.id,
@@ -77,7 +77,9 @@ export async function GET(request: Request) {
       : tokens.map(token => {
           const item =
             token !== solanaTokenId
-              ? result?.items.find(d => d.id === token && (!creator || d.creators.some(c => c.address === creator)))
+              ? result?.items.find(
+                  d => d.id === token && (!creators || d.creators.some(c => creators.includes(c.address))),
+                )
               : result?.nativeBalance.lamports
                 ? {
                     token_info: {
@@ -92,8 +94,8 @@ export async function GET(request: Request) {
 
           return {
             id: token,
-            name: item ? item.content.metadata.name ?? item.token_info.name : '',
-            symbol: item ? item.content.metadata.symbol ?? item.token_info.symbol : '',
+            name: item ? (item.content.metadata.name ?? item.token_info.name) : '',
+            symbol: item ? (item.content.metadata.symbol ?? item.token_info.symbol) : '',
             balance: item ? item.token_info.balance / Math.pow(10, item.token_info.decimals) : 0,
           };
         });
