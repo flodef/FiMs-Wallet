@@ -27,10 +27,7 @@ export default function IndexPage() {
 
   const [version, setVersion] = useLocalStorage('version', '0.0');
 
-  const rootClassName = cls(
-    'flex-grow overflow-auto w-full h-screen max-w-7xl self-center',
-    isPopupOpen ? 'blur-sm' : '',
-  );
+  const rootClassName = cls('flex-grow w-full h-screen self-center', isPopupOpen ? 'blur-sm' : '');
   const pageClassName =
     'space-y-6 p-4 md:p-10 mx-auto text-center w-full center overflow-auto bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle';
 
