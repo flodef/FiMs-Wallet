@@ -9,24 +9,34 @@ export enum LoadingType {
 export default function Loading({
   type = LoadingType.Dot,
   fullscreen = true,
+  className,
 }: {
   type?: LoadingType;
   fullscreen?: boolean;
+  className?: string;
 }) {
   switch (type) {
     case LoadingType.Text:
-      return <LoadingText text="Loading" fullscreen={fullscreen} />;
+      return <LoadingText className={className} text="Loading" fullscreen={fullscreen} />;
     case LoadingType.Dot:
-      return <LoadingDot fullscreen={fullscreen} />;
+      return <LoadingDot className={className} fullscreen={fullscreen} />;
     case LoadingType.Spinner:
-      return <LoadingSpinner fullscreen={fullscreen} />;
+      return <LoadingSpinner className={className} fullscreen={fullscreen} />;
     default:
-      return <LoadingDot fullscreen={fullscreen} />;
+      return <LoadingDot className={className} fullscreen={fullscreen} />;
   }
 }
 
 // inspired by https://codepen.io/42EG4M1/pen/bVMzze/
-export function LoadingText({ text, fullscreen = true }: { text: string; fullscreen?: boolean }) {
+export function LoadingText({
+  text,
+  fullscreen = true,
+  className,
+}: {
+  text: string;
+  fullscreen?: boolean;
+  className?: string;
+}) {
   const phrase = text
     .toUpperCase()
     .split('')
@@ -49,7 +59,8 @@ export function LoadingText({ text, fullscreen = true }: { text: string; fullscr
     <div
       className={cls(
         'text-center w-full h-full flex items-center justify-center font-semibold text-2xl',
-        fullscreen ? 'absolute inset-0' : ''
+        fullscreen ? 'absolute inset-0' : '',
+        className,
       )}
       style={{ background: 'inherit' }}
     >
@@ -63,13 +74,14 @@ export function LoadingText({ text, fullscreen = true }: { text: string; fullscr
 }
 
 // inspired by https://codepen.io/sudeepgumaste/pen/abdrorB
-export function LoadingDot({ fullscreen = true }: { fullscreen?: boolean }) {
+export function LoadingDot({ fullscreen = true, className }: { fullscreen?: boolean; className?: string }) {
   const circleClassName = ' h-4 w-4 rounded-full bg-tremor-brand dark:bg-tremor-brand-dark ';
   return (
     <div
       className={cls(
         'text-center w-full h-full flex items-center justify-center',
-        fullscreen ? 'absolute inset-0' : ''
+        fullscreen ? 'absolute inset-0' : '',
+        className,
       )}
       style={{ background: 'inherit' }}
     >
@@ -84,12 +96,13 @@ export function LoadingDot({ fullscreen = true }: { fullscreen?: boolean }) {
 }
 
 // inspired by https://codepen.io/jkantner/pen/mdKOpbe
-export function LoadingSpinner({ fullscreen = true }: { fullscreen?: boolean }) {
+export function LoadingSpinner({ fullscreen = true, className }: { fullscreen?: boolean; className?: string }) {
   return (
     <div
       className={cls(
         'text-center w-full h-full flex items-center justify-center',
-        fullscreen ? 'absolute inset-0' : ' scale-75'
+        fullscreen ? 'absolute inset-0' : ' scale-75',
+        className,
       )}
       style={{ background: 'inherit' }}
     >
