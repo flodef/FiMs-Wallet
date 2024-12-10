@@ -3,7 +3,7 @@
 import { Firestore, collection, onSnapshot, query } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
-export function useData() {
+export function useDatabase() {
   const [firestore, setFirestore] = useState<Firestore>();
 
   useEffect(() => {
