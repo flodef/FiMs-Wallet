@@ -15,9 +15,11 @@ import {
   Title,
 } from '@tremor/react';
 import Image from 'next/image';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
+import { PortfolioToken, useData } from '../contexts/dataProvider';
+import type { Portfolio } from '../contexts/dataProvider';
 import { usePrivacy } from '../contexts/privacyProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
@@ -37,43 +39,11 @@ const t: Dataset = {
   loading: 'Chargement...',
 };
 
-export interface PortfolioToken extends Data {
-  symbol: string;
-}
-
 interface Asset {
   id: string;
   name: string;
   symbol: string;
   balance: number;
-}
-
-export interface Portfolio {
-  id: number;
-  address: string;
-  token: number[];
-  total: number;
-  invested: number;
-  profitValue: number;
-  profitRatio: number;
-  yearlyYield: number;
-  solProfitPrice: number;
-}
-
-interface Wallet {
-  image: string;
-  name: string;
-  symbol: string;
-  balance: number;
-  value: number;
-  total: number;
-}
-
-export interface UserHistoric {
-  date: number;
-  stringDate: string;
-  Investi: number;
-  Total: number;
 }
 
 const thisPage = Page.Portfolio;
@@ -83,9 +53,7 @@ export default function Portfolio() {
   const { page, needRefresh, setNeedRefresh } = useNavigation();
   const { hasPrivacy } = usePrivacy();
 
-  const [wallet, setWallet] = useState<Wallet[]>();
-  const [portfolio, setPortfolio] = useState<Portfolio>();
-  const [historic, setHistoric] = useState<UserHistoric[]>([]);
+  const { wallet, setWallet, portfolio, setPortfolio, userHistoric, setUserHistoric } = useData();
 
   const loadAssets = async (address: string) => {
     return (await fetch(`/api/solana/getAssets?address=${address}`)
@@ -156,23 +124,21 @@ export default function Portfolio() {
           .catch(console.error),
       )
       .then(() => loadData(String(user.id)))
-      .then(setHistoric)
+      .then(setUserHistoric)
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, user]);
 
   const { minHisto, maxHisto } = useMemo(() => {
-    const minHisto = Math.min(...[...historic.map(d => d.Investi), ...historic.map(d => d.Total)]).toDecimalPlace(
-      3,
-      'down',
-    );
-    const maxHisto = Math.max(...[...historic.map(d => d.Investi), ...historic.map(d => d.Total)]).toDecimalPlace(
-      3,
-      'up',
-    );
+    const minHisto = Math.min(
+      ...[...userHistoric.map(d => d.Investi), ...userHistoric.map(d => d.Total)],
+    ).toDecimalPlace(3, 'down');
+    const maxHisto = Math.max(
+      ...[...userHistoric.map(d => d.Investi), ...userHistoric.map(d => d.Total)],
+    ).toDecimalPlace(3, 'up');
 
     return { minHisto, maxHisto };
-  }, [historic]);
+  }, [userHistoric]);
 
   return (
     <>
@@ -208,7 +174,7 @@ export default function Portfolio() {
                     key={asset.name}
                     className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
                   >
-                    <TableCell className="pr-0">
+                    <TableCell className="px-0 2xs:pr-0">
                       <Image
                         className="rounded-full"
                         src={asset.image}
@@ -261,10 +227,10 @@ export default function Portfolio() {
         <Accordion className="group" defaultOpen={!isMobileSize()}>
           <AccordionHeader>
             <Title>Performance</Title>
-            {historic.length > 1 && (
+            {userHistoric.length > 1 && (
               <Flex className="w-full" justifyContent="center">
                 <SparkAreaChart
-                  data={historic.sort((a, b) => a.date - b.date)}
+                  data={userHistoric.sort((a, b) => a.date - b.date)}
                   categories={[t.total]}
                   index={'stringDate'}
                   colors={['emerald']}
@@ -278,7 +244,7 @@ export default function Portfolio() {
           <AccordionBody>
             <AreaChart
               className="h-80"
-              data={historic.sort((a, b) => a.date - b.date)}
+              data={userHistoric.sort((a, b) => a.date - b.date)}
               categories={[t.transfered, t.total]}
               index="stringDate"
               colors={['indigo', 'fuchsia']}

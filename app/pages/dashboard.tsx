@@ -18,6 +18,7 @@ import {
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import GainsBar from '../components/gainsBar';
+import { DashboardToken, TokenHistoric, useData } from '../contexts/dataProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';
@@ -47,34 +48,23 @@ const t: Dataset = {
   amount: 'Montant',
 };
 
-export interface DashboardToken extends Data {
-  available: number;
-  duration: number;
-}
-
-export interface Historic {
-  date: number;
-  stringDate: string;
-  Investi: number;
-  Trésorerie: number;
-}
-
-interface TokenHistoric {
-  date: string;
-  Montant: number;
-}
-
 const today = new Date();
 const thisPage = Page.Dashboard;
 
 export default function Dashboard() {
   const { page, needRefresh, setNeedRefresh } = useNavigation();
-
-  const [dashboard, setDashboard] = useState<Data[]>([]);
-  const [token, setToken] = useState<DashboardToken[]>([]);
-  const [historic, setHistoric] = useState<Historic[]>([]);
-  const [tokenHistoric, setTokenHistoric] = useState<TokenHistoric[][]>([]);
-  const [tokenHistoricLimit, setTokenHistoricLimit] = useState<{ min: number; max: number }>();
+  const {
+    dashboard,
+    setDashboard,
+    token,
+    setToken,
+    historic,
+    setHistoric,
+    tokenHistoric,
+    setTokenHistoric,
+    tokenHistoricLimit,
+    setTokenHistoricLimit,
+  } = useData();
 
   const generateTokenHistoric = useCallback((token: DashboardToken[]) => {
     token = token.filter(({ available }) => available);

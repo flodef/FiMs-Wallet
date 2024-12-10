@@ -4,6 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ReactNode } from 'react';
 import Navbar from './components/navBar';
 import Toast from './components/toast';
+import { DataProvider } from './contexts/dataProvider';
 import { NavigationProvider } from './contexts/navigationProvider';
 import { PopupProvider } from './contexts/popupProvider';
 import { PrivacyProvider } from './contexts/privacyProvider';
@@ -19,16 +20,18 @@ export default function RootLayout({ children }: { children: Readonly<ReactNode>
     <html lang="fr">
       <body className="flex flex-col h-screen bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle">
         <NavigationProvider>
-          <UserProvider>
-            <PopupProvider>
-              <PrivacyProvider>
-                <Navbar />
-                {children}
-                <SpeedInsights />
-                <Toast />
-              </PrivacyProvider>
-            </PopupProvider>
-          </UserProvider>
+          <DataProvider>
+            <UserProvider>
+              <PopupProvider>
+                <PrivacyProvider>
+                  <Navbar />
+                  {children}
+                  <SpeedInsights />
+                  <Toast />
+                </PrivacyProvider>
+              </PopupProvider>
+            </UserProvider>
+          </DataProvider>
         </NavigationProvider>
       </body>
     </html>

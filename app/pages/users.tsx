@@ -16,6 +16,7 @@ import {
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
+import { useData } from '../contexts/dataProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, useUser } from '../hooks/useUser';
 import { cls, getShortAddress } from '../utils/constants';
@@ -46,10 +47,9 @@ const thisPage = Page.Users;
 export default function Users() {
   const { user: currentUser } = useUser();
   const { page, needRefresh, setNeedRefresh } = useNavigation();
+  const { users, setUsers, isPublic, setIsPublic } = useData();
 
-  const [users, setUsers] = useState<User[] | undefined>();
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [isPublic, setIsPublic] = useState<boolean>();
 
   const isUserSelected = (user: User) => selectedUsers.includes(user.name) || !selectedUsers.length;
 

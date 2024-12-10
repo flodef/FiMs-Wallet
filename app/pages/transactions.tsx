@@ -19,7 +19,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Privacy, PrivacyButton } from '../components/privacy';
 import SortTableHead from '../components/sortTableHead';
-import { TransactionDetails } from '../components/transactionDetails';
+import { Transaction, TransactionType, useData } from '../contexts/dataProvider';
 import { usePopup } from '../contexts/popupProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
@@ -54,32 +54,10 @@ const t: Dataset = {
   search: 'Rechercher',
 };
 
-export enum TransactionType {
-  deposit,
-  withdrawal,
-  donation,
-  swap,
-  payment,
-}
-
 enum TransactionFilter {
   date,
   movement,
   type,
-}
-
-export interface Transaction {
-  [key: string]: string | number | Date | TransactionType | undefined;
-  id?: number;
-  date: Date;
-  address: string;
-  movement: number;
-  cost: number;
-  userid?: number;
-  type?: TransactionType;
-  token: string;
-  amount?: number;
-  rate?: number | string;
 }
 
 export interface HeliusTransaction {
@@ -112,7 +90,8 @@ export default function Transactions() {
   const { page, needRefresh, setNeedRefresh } = useNavigation();
   const { openPopup } = usePopup();
 
-  const [transactions, setTransactions] = useState<Transaction[] | undefined>();
+  const { transactions, setTransactions } = useData();
+
   const [selectedType, setSelectedType] = useState<string>();
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [selectedMovements, setSelectedMovements] = useState<string[]>([]);
