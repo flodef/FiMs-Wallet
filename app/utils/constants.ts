@@ -34,7 +34,7 @@ export const getFormattedDate = (date = new Date(), precision = 3) =>
       (precision > 1 ? '-' + ('0' + (date.getMonth() + 1)).slice(-2) : '') +
       (precision > 2 ? '-' + ('0' + date.getDate()).slice(-2) : '')
     : '';
-export const cls = (...classes: string[]) => classes.filter(Boolean).join(' ');
+export const cls = (...classes: (string | undefined)[]) => classes.filter(Boolean).join(' ');
 
 // UI
 export const EMAIL = 'flo@fims.fi';
