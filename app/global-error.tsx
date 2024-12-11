@@ -4,7 +4,7 @@
 import { Open_Sans } from 'next/font/google';
 import Link from 'next/link';
 import { SyntheticEvent, useEffect } from 'react';
-import { EMAIL, cls, handleEvent } from './utils/constants';
+import { EMAIL, cls } from './utils/constants';
 
 const openSans = Open_Sans({ subsets: ['latin'], weight: ['400', '700'] });
 

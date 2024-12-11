@@ -18,7 +18,7 @@ import {
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import GainsBar from '../components/gainsBar';
-import { DashboardToken, TokenHistoric, useData } from '../contexts/dataProvider';
+import { DashboardToken, Historic, TokenHistoric, useData } from '../contexts/dataProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';
@@ -26,7 +26,7 @@ import { cls, getCurrency, getDeltaType, getRatio } from '../utils/constants';
 import {} from '../utils/extensions';
 import { isMobileSize, useIsMobile } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
-import { Dataset } from '../utils/types';
+import { Data, Dataset } from '../utils/types';
 
 const tokenValueStart = 100;
 
@@ -107,11 +107,11 @@ export default function Dashboard() {
     setNeedRefresh(false);
 
     loadData(DataName.dashboard)
-      .then(setDashboard)
+      .then(dashboard => setDashboard(dashboard as Data[]))
       .then(() => loadData(DataName.token))
-      .then(generateTokenHistoric)
+      .then(token => generateTokenHistoric(token as DashboardToken[]))
       .then(() => loadData(DataName.historic))
-      .then(setHistoric)
+      .then(historic => setHistoric(historic as Historic[]))
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, generateTokenHistoric, setDashboard, setHistoric]);

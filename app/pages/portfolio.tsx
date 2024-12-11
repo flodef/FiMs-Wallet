@@ -18,14 +18,14 @@ import Image from 'next/image';
 import { useEffect, useMemo, useRef } from 'react';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
-import type { Portfolio } from '../contexts/dataProvider';
-import { PortfolioToken, useData } from '../contexts/dataProvider';
+import type { UserHistoric } from '../contexts/dataProvider';
+import { useData } from '../contexts/dataProvider';
 import { usePrivacy } from '../contexts/privacyProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { FIMS_TOKEN_PATH, getDeltaType, SPL_TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
-import { DataName, forceData, loadData } from '../utils/processData';
+import { convertedData, DataName, forceData, loadData, PortfolioData, TokenData } from '../utils/processData';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
@@ -69,13 +69,15 @@ export default function Portfolio() {
     setNeedRefresh(false);
 
     loadData(DataName.token)
-      .then((tokens: PortfolioToken[]) =>
+      .then((tokens: convertedData[]) =>
         loadData(DataName.portfolio)
-          .then(async (data: Portfolio[]) => {
-            if (!data.length) data = await forceData(DataName.portfolio);
-            if (!tokens.length) tokens = await forceData(DataName.token);
+          .then(async (portfolio: convertedData[]) => {
+            const tokenData = (!tokens.length ? tokens : await forceData(DataName.token)) as TokenData[];
+            const portfolioData = (
+              !portfolio.length ? portfolio : await forceData(DataName.portfolio)
+            ) as PortfolioData[];
 
-            const p = data.find(d => d.id === user.id) ?? {
+            const p = portfolioData.find(d => d.id === user.id) ?? {
               id: user.id,
               address: user.address,
               token: [],
@@ -95,18 +97,18 @@ export default function Portfolio() {
                   (a, b) =>
                     a +
                     (b.balance ?? 0) *
-                      (tokens.find(t => t.symbol === b.symbol && t.label.includes(filter))?.value ?? 0),
+                      (tokenData.find(t => t.symbol === b.symbol && t.label.includes(filter))?.value ?? 0),
                   0,
                 );
               p.total = computeBalance();
               p.profitValue = computeBalance('FiMs') - p.invested;
               p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
-              p.token = tokens.map(t => getAsset(t.symbol)?.balance ?? 0).filter(b => b);
+              p.token = tokenData.map(t => getAsset(t.symbol)?.balance ?? 0).filter(b => b);
             }
             setPortfolio(p);
 
             setWallet(
-              tokens
+              tokenData
                 .filter(t => getAsset(t.symbol))
                 .map((t, i) => ({
                   ...t,
@@ -124,7 +126,7 @@ export default function Portfolio() {
           .catch(console.error),
       )
       .then(() => loadData(String(user.id)))
-      .then(setUserHistoric)
+      .then(historic => setUserHistoric(historic as UserHistoric[]))
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, user, setPortfolio, setWallet, setUserHistoric]);

@@ -29,7 +29,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PortfolioToken, Transaction, TransactionType } from '../contexts/dataProvider';
 import Loading from '../loading';
-import { HeliusTransaction, getTransactionType } from '../pages/transactions';
+import { getTransactionType } from '../pages/transactions';
 import { DBUser } from '../pages/users';
 import { cls, getShortAddress } from '../utils/constants';
 import {} from '../utils/extensions';
@@ -44,6 +44,16 @@ const actions = ['Add', 'Edit', 'Delete'];
 const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
   if (e.target.value === '0') e.target.value = '';
 };
+
+interface HeliusTransaction {
+  from: string;
+  to: string;
+  amount: number;
+  symbol: string;
+  fee: number;
+  feePayer: string;
+  timestamp: number;
+}
 
 export default function AdminPage() {
   const [name, setName] = useState('');
@@ -114,7 +124,7 @@ export default function AdminPage() {
 
     loadUsers();
     loadTransactions();
-    loadData(DataName.token).then(setTokens);
+    loadData(DataName.token).then(tokens => setTokens(tokens as PortfolioToken[]));
     setIsAuthorized(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

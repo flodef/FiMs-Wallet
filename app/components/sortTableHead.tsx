@@ -3,7 +3,11 @@ import { Flex, Icon, TableHead, TableHeaderCell, TableRow } from '@tremor/react'
 import { useState } from 'react';
 import { Filter } from '../utils/types';
 
-export function SortHeader({
+type tableObject = {
+  [key: string]: string | number | number[] | Date | boolean | undefined;
+};
+
+export function SortHeader<T extends tableObject>({
   label,
   index,
   filters,
@@ -13,8 +17,8 @@ export function SortHeader({
   label: string;
   index: number;
   filters: Filter[];
-  table: any[] | undefined;
-  setTable: (table: any[] | undefined) => void;
+  table: T[] | undefined;
+  setTable: (table: T[] | undefined) => void;
 }) {
   const changeFilter = (index: number) => {
     filters.forEach((filter, i) => {
@@ -34,6 +38,8 @@ export function SortHeader({
         if (
           typeof propertyA === 'object' &&
           typeof propertyB === 'object' &&
+          !Array.isArray(propertyA) &&
+          !Array.isArray(propertyB) &&
           !isNaN(getTime(propertyA)) &&
           !isNaN(getTime(propertyB))
         ) {
@@ -74,14 +80,14 @@ export function SortHeader({
   );
 }
 
-export default function SortTableHead({
+export default function SortTableHead<T extends tableObject>({
   labels,
   table,
   setTable,
 }: {
   labels: string[];
-  table: any[] | undefined;
-  setTable: (table: any[] | undefined) => void;
+  table: T[] | undefined;
+  setTable: (table: T[] | undefined) => void;
 }) {
   const [filters] = useState<Filter[]>(Array.from({ length: labels.length }, () => 'none'));
 

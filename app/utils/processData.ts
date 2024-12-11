@@ -37,9 +37,14 @@ export enum DataName {
   transactions = 'Transactions',
 }
 
+type extractedData = { values: string[][]; error: string };
+export type TokenData = DashboardToken & PortfolioToken;
+export type PortfolioData = Portfolio & DBUser;
+export type convertedData = Data | TokenData | Historic | PortfolioData | UserHistoric | Transaction;
+
 // Set a value that return all parameters needed to process data (convertFunction, hasFilter, minColInRow, minColInHeader)
 type Parameter = {
-  convert: (item: string[]) => any;
+  convert: (item: string[]) => convertedData;
   range: string;
   isHeaderLess?: boolean;
   minColInRow?: number;
@@ -53,7 +58,7 @@ const dataNameParameters = new Map<DataName, Parameter>([
   [DataName.transactions, { convert: convertTransactionsData, range: 'A:H' }],
 ]);
 
-const dataCache = new Map<DataName, { data: any[]; expire: number }>();
+const dataCache = new Map<DataName, { data: convertedData[]; expire: number }>();
 
 export function getPublicKey() {
   let publicKey = localStorage.getItem('PublicKey');
@@ -99,7 +104,7 @@ export async function loadData(name: DataName | string) {
 }
 
 export async function forceData(name: DataName | string) {
-  let data: any[] = [];
+  let data: convertedData[] = [];
   while (!data.length) {
     await new Promise(resolve => setTimeout(resolve, 1000));
     data = await loadData(name);
@@ -119,7 +124,7 @@ async function cacheData(sheetName: string, dataName: DataName, parameter: Param
   const data =
     (await fetch(`./api/spreadsheet?sheetName=${sheetName}&range=${parameter.range}&isRaw=true`)
       .then(result => (result.ok ? result.json() : undefined))
-      .then((data: { values: string[][]; error: string }) => {
+      .then((data: extractedData) => {
         checkData(data, numberOfColumns);
 
         return data.values
@@ -141,9 +146,9 @@ async function cacheData(sheetName: string, dataName: DataName, parameter: Param
   return data;
 }
 
-function checkData(data: any, minCol: number, maxCol = minCol, minRow = 1, maxRow = 100000) {
+function checkData(data: extractedData, minCol: number, maxCol = minCol, minRow = 1, maxRow = 100000) {
   if (!data) throw new Error('data not fetched');
-  if (data.error) throw new Error(data.error.message ?? data.error);
+  if (data.error) throw new Error(data.error);
   if (!data.values?.length) throw new MissingDataError();
   if (
     data.values &&
@@ -155,7 +160,7 @@ function checkData(data: any, minCol: number, maxCol = minCol, minRow = 1, maxRo
     throw new WrongDataPatternError();
 }
 
-function checkColumn(item: any[], minCol: number) {
+function checkColumn(item: string[], minCol: number) {
   if (item.length < minCol) throw new WrongDataPatternError();
 }
 
@@ -168,7 +173,7 @@ function convertDashboardData(item: string[]): Data {
   };
 }
 
-function convertTokenData(item: string[]): DashboardToken & PortfolioToken {
+function convertTokenData(item: string[]): TokenData {
   return {
     symbol: String(item.at(0)).trim(), // token symbol
     label: String(item.at(1)).trim(), // token name
@@ -200,7 +205,7 @@ function convertHistoricData(item: string[]): Historic {
   };
 }
 
-function convertPortfolioData(item: string[]): Portfolio & DBUser {
+function convertPortfolioData(item: string[]): PortfolioData {
   return {
     id: Number(item.at(0)),
     name: String(item.at(1)).trim(),

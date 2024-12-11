@@ -74,7 +74,7 @@ export default function Users() {
     setNeedRefresh(false);
 
     loadData(DataName.portfolio)
-      .then(processUsers)
+      .then(users => processUsers(users as DBUser[]))
       .then(() => fetch('/api/database/getUsers'))
       .then(result => (result.ok ? result.json() : undefined))
       .then(processUsers)

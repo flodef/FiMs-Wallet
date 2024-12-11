@@ -60,16 +60,6 @@ enum TransactionFilter {
   type,
 }
 
-export interface HeliusTransaction {
-  from: string;
-  to: string;
-  amount: number;
-  symbol: string;
-  fee: number;
-  feePayer: string;
-  timestamp: number;
-}
-
 export const getTransactionType = (transaction: Transaction | { movement: number | string; cost: number | string }) => {
   const depositType = Number(transaction.cost) > 0 ? TransactionType.donation : TransactionType.deposit;
   return Number(transaction.movement) > 0 ? depositType : TransactionType.withdrawal;
@@ -129,7 +119,7 @@ export default function Transactions() {
     setNeedRefresh(false);
 
     loadData(DataName.transactions)
-      .then(processTransactions)
+      .then(data => processTransactions(data as Transaction[]))
       .then(() => fetch('/api/database/getTransactions'))
       .then(result => (result.ok ? result.json() : undefined))
       .then(processTransactions)

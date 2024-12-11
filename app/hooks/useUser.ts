@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 
 export interface User {
+  [key: string]: string | number | number[] | boolean;
   id: number;
   name: string;
   address: string;
