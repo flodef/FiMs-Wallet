@@ -19,8 +19,8 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Privacy, PrivacyButton } from '../components/privacy';
 import SortTableHead from '../components/sortTableHead';
-import { Transaction, TransactionType, useData } from '../contexts/dataProvider';
 import { usePopup } from '../contexts/popupProvider';
+import { Transaction, TransactionType, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { cls } from '../utils/constants';

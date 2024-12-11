@@ -27,7 +27,7 @@ import {
   Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { PortfolioToken, Transaction, TransactionType } from '../contexts/dataProvider';
+import { PortfolioToken, Transaction, TransactionType } from '../hooks/useData';
 import Loading from '../loading';
 import { getTransactionType } from '../pages/transactions';
 import { DBUser } from '../pages/users';

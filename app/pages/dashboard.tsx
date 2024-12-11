@@ -18,7 +18,7 @@ import {
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import GainsBar from '../components/gainsBar';
-import { DashboardToken, Historic, TokenHistoric, useData } from '../contexts/dataProvider';
+import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';

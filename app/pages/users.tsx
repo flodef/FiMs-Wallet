@@ -16,7 +16,7 @@ import {
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import SortTableHead from '../components/sortTableHead';
-import { useData } from '../contexts/dataProvider';
+import { useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, useUser } from '../hooks/useUser';
 import { cls, getShortAddress } from '../utils/constants';
