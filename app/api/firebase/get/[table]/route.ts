@@ -40,7 +40,7 @@ export async function GET(request: Request, params: { params: { table: string } 
 
   try {
     const db = init();
-    const data: any[] = [];
+    const data: Dataset[] = [];
     const c = collection(db, table);
     const q = query(
       c,

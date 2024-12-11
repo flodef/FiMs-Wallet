@@ -26,7 +26,7 @@ import { cls, getCurrency, getDeltaType, getRatio } from '../utils/constants';
 import {} from '../utils/extensions';
 import { isMobileSize, useIsMobile } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
-import { Data, Dataset } from '../utils/types';
+import { Dataset } from '../utils/types';
 
 const tokenValueStart = 100;
 
@@ -66,35 +66,38 @@ export default function Dashboard() {
     setTokenHistoricLimit,
   } = useData();
 
-  const generateTokenHistoric = useCallback((token: DashboardToken[]) => {
-    token = token.filter(({ available }) => available);
+  const generateTokenHistoric = useCallback(
+    (token: DashboardToken[]) => {
+      token = token.filter(({ available }) => available);
 
-    setToken(token);
+      setToken(token);
 
-    let min = tokenValueStart;
-    let max = tokenValueStart;
-    const tokenHistoric: TokenHistoric[][] = [];
-    token.forEach(t => {
-      const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(token, t.label)) / 100);
-      tokenHistoric.push([
-        {
-          date: new Date(today.getTime() - t.duration * 24 * 60 * 60 * 1000).toShortDate(),
-          Montant: tokenValueStart,
-        },
-        {
-          date: today.toShortDate(),
-          Montant: tokenValueEnd,
-        },
-      ]);
-      min = Math.min(min, tokenValueEnd);
-      max = Math.max(max, tokenValueEnd);
-    });
-    setTokenHistoric(tokenHistoric);
-    setTokenHistoricLimit({
-      min: min,
-      max: max,
-    });
-  }, []);
+      let min = tokenValueStart;
+      let max = tokenValueStart;
+      const tokenHistoric: TokenHistoric[][] = [];
+      token.forEach(t => {
+        const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(token, t.label)) / 100);
+        tokenHistoric.push([
+          {
+            date: new Date(today.getTime() - t.duration * 24 * 60 * 60 * 1000).toShortDate(),
+            Montant: tokenValueStart,
+          },
+          {
+            date: today.toShortDate(),
+            Montant: tokenValueEnd,
+          },
+        ]);
+        min = Math.min(min, tokenValueEnd);
+        max = Math.max(max, tokenValueEnd);
+      });
+      setTokenHistoric(tokenHistoric);
+      setTokenHistoricLimit({
+        min: min,
+        max: max,
+      });
+    },
+    [setToken, setTokenHistoric, setTokenHistoricLimit],
+  );
 
   const isLoading = useRef(false);
   useEffect(() => {
@@ -111,7 +114,7 @@ export default function Dashboard() {
       .then(setHistoric)
       .catch(console.error)
       .finally(() => (isLoading.current = false));
-  }, [needRefresh, setNeedRefresh, page, generateTokenHistoric]);
+  }, [needRefresh, setNeedRefresh, page, generateTokenHistoric, setDashboard, setHistoric]);
 
   const getBarList = useCallback(
     (labels: string[]) => {

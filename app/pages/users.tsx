@@ -63,7 +63,7 @@ export default function Users() {
           .sort((a, _) => (a.name === currentUser?.name ? -1 : 0)), // Put the current user on top
       );
     },
-    [currentUser?.name],
+    [currentUser?.name, setIsPublic, setUsers],
   );
 
   const isLoading = useRef(false);

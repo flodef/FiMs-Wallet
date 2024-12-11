@@ -27,9 +27,9 @@ import {
   Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { PortfolioToken, Transaction, TransactionType } from '../contexts/dataProvider';
 import Loading from '../loading';
-import { PortfolioToken } from '../pages/portfolio';
-import { HeliusTransaction, Transaction, TransactionType, getTransactionType } from '../pages/transactions';
+import { HeliusTransaction, getTransactionType } from '../pages/transactions';
 import { DBUser } from '../pages/users';
 import { cls, getShortAddress } from '../utils/constants';
 import {} from '../utils/extensions';
@@ -223,7 +223,7 @@ export default function AdminPage() {
     try {
       const pubkey = new PublicKey(address);
       return PublicKey.isOnCurve(pubkey.toBuffer());
-    } catch (error) {
+    } catch {
       return false;
     }
   }, [address, users, userTabIndex, userIndex]);

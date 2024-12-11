@@ -1,4 +1,4 @@
-import { CategoryBar, Flex, MarkerBar, Subtitle } from '@tremor/react';
+import { Flex, MarkerBar, Subtitle } from '@tremor/react';
 import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
 import { Privacy } from './privacy';

@@ -18,15 +18,15 @@ import Image from 'next/image';
 import { useEffect, useMemo, useRef } from 'react';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
-import { PortfolioToken, useData } from '../contexts/dataProvider';
 import type { Portfolio } from '../contexts/dataProvider';
+import { PortfolioToken, useData } from '../contexts/dataProvider';
 import { usePrivacy } from '../contexts/privacyProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { FIMS_TOKEN_PATH, getDeltaType, SPL_TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, forceData, loadData } from '../utils/processData';
-import { Data, Dataset } from '../utils/types';
+import { Dataset } from '../utils/types';
 
 const t: Dataset = {
   totalValue: 'Valeur totale',
@@ -127,7 +127,7 @@ export default function Portfolio() {
       .then(setUserHistoric)
       .catch(console.error)
       .finally(() => (isLoading.current = false));
-  }, [needRefresh, setNeedRefresh, page, user]);
+  }, [needRefresh, setNeedRefresh, page, user, setPortfolio, setWallet, setUserHistoric]);
 
   const { minHisto, maxHisto } = useMemo(() => {
     const minHisto = Math.min(

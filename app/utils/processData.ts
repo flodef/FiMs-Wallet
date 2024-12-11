@@ -1,7 +1,12 @@
 import { Keypair } from '@solana/web3.js';
-import { DashboardToken, Historic } from '../pages/dashboard';
-import { Portfolio, PortfolioToken, UserHistoric } from '../pages/portfolio';
-import { Transaction } from '../pages/transactions';
+import {
+  DashboardToken,
+  Historic,
+  Portfolio,
+  PortfolioToken,
+  Transaction,
+  UserHistoric,
+} from '../contexts/dataProvider';
 import { DBUser } from '../pages/users';
 import { Data } from './types';
 

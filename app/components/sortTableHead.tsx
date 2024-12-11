@@ -83,7 +83,7 @@ export default function SortTableHead({
   table: any[] | undefined;
   setTable: (table: any[] | undefined) => void;
 }) {
-  const [filters, _] = useState<Filter[]>(Array.from({ length: labels.length }, () => 'none'));
+  const [filters] = useState<Filter[]>(Array.from({ length: labels.length }, () => 'none'));
 
   const length = table?.length ? Object.keys(table[0]).length : 0;
 

@@ -37,7 +37,8 @@ export default function Connect() {
     connect(currentUserName)
       .then(user => {
         setHasConnectionError(user === undefined);
-        user ? closePopup() : setFocus();
+        if (user) closePopup();
+        else setFocus();
       })
       .catch(error => {
         console.error(error);
@@ -75,7 +76,7 @@ export default function Connect() {
         defaultValue={currentUserName}
         onValueChange={changeUserName}
         onKeyDown={event => {
-          event.key === 'Enter' && handleConnect();
+          if (event.key === 'Enter') handleConnect();
         }}
       />
       <Button

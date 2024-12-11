@@ -15,10 +15,12 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
   }, [error]);
 
   const retry = (event: SyntheticEvent) => {
-    handleEvent(event) && setTimeout(reset, 100); // Attempt to recover by trying to re-render the segment
+    event.preventDefault();
+    setTimeout(reset, 100); // Attempt to recover by trying to re-render the segment
   };
   const reload = (event: SyntheticEvent) => {
-    handleEvent(event) && setTimeout(() => location.reload(), 100); // Hard reset by reloading the page
+    event.preventDefault();
+    setTimeout(window.location.reload, 100); // Hard reset by reloading the page
   };
 
   const zeroClassName =

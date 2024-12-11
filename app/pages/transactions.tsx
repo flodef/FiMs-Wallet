@@ -118,7 +118,7 @@ export default function Transactions() {
           })),
       );
     },
-    [user],
+    [user, setTransactions],
   );
 
   const isLoading = useRef(false);
