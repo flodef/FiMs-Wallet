@@ -1,8 +1,6 @@
 'use client';
 
-import { ReactNode, useContext, useState } from 'react';
-import { User } from '../hooks/useUser';
-import { Data, MinMax } from '../utils/types';
+import { ReactNode, useState } from 'react';
 import {
   DashboardToken,
   DataContext,
@@ -13,6 +11,8 @@ import {
   Transaction,
   UserHistoric,
 } from '../hooks/useData';
+import { User } from '../hooks/useUser';
+import { Data, MinMax } from '../utils/types';
 
 export function DataProvider({ children }: { children: ReactNode }) {
   // Dashboard

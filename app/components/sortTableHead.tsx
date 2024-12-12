@@ -1,11 +1,25 @@
 import { ChevronDownIcon, ChevronUpDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid';
 import { Flex, Icon, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
 import { useState } from 'react';
-import { Filter } from '../utils/types';
+import { cls } from '../utils/constants';
+import { Filter, Sizes } from '../utils/types';
 
 type tableObject = {
   [key: string]: string | number | number[] | Date | boolean | undefined;
 };
+
+function getVisibilityClassName(index: number, sizes: Sizes | undefined): string {
+  if (!sizes || Object.keys(sizes).length === 0) return 'visible';
+
+  // Find the minimum size for the given index
+  let minSizeKey = '';
+  for (const key of Object.keys(sizes)) {
+    const value = sizes[key as keyof Sizes] ?? 0;
+    if (value <= index + 1) minSizeKey = key;
+  }
+
+  return !minSizeKey ? 'visible' : 'hidden ' + minSizeKey + ':table-cell';
+}
 
 export function SortHeader<T extends tableObject>({
   label,
@@ -84,21 +98,26 @@ export default function SortTableHead<T extends tableObject>({
   labels,
   table,
   setTable,
+  sizes,
 }: {
   labels: string[];
   table: T[] | undefined;
   setTable: (table: T[] | undefined) => void;
+  sizes?: Sizes;
 }) {
   const [filters] = useState<Filter[]>(Array.from({ length: labels.length }, () => 'none'));
 
-  const length = table?.length ? Object.keys(table[0]).length : 0;
+  const tableLength = table?.length ? Object.keys(table[0]).length : 0;
 
   return (
     <TableHead>
       <TableRow>
         {labels.map((label, index) => (
-          <TableHeaderCell key={index} className={`w-[${(100 / labels.length).toFixed(6)}%] px-1`}>
-            {index < length ? (
+          <TableHeaderCell
+            key={index}
+            className={cls(getVisibilityClassName(index, sizes), `w-[${(100 / labels.length).toFixed(6)}%] px-1`)}
+          >
+            {index < tableLength ? (
               <SortHeader label={label} index={index} table={table} setTable={setTable} filters={filters} />
             ) : (
               label

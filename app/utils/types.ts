@@ -13,6 +13,16 @@ export type MinMax = {
   max: number;
 };
 
+export type Sizes = {
+  '2xs'?: number;
+  xs?: number;
+  sm?: number;
+  md?: number;
+  lg?: number;
+  xl?: number;
+  '2xl'?: number;
+};
+
 export type Filter = 'ascending' | 'descending' | 'none';
 
 export type SymbolPosition = 'before' | 'after';
