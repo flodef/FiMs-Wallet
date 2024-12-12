@@ -1,12 +1,12 @@
 'use client';
 
-import { Disclosure } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Button, Tab, TabGroup, TabList } from '@tremor/react';
 import { useEffect, useState } from 'react';
 import { FiMsLogo } from '../../public/FiMsLogo';
-import { usePopup } from '../contexts/popupProvider';
 import { Page, useNavigation } from '../hooks/useNavigation';
+import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
 import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
@@ -86,7 +86,7 @@ export default function Navbar() {
                       </TabList>
                     </TabGroup>
                     <div className="-mr-2 ml-2 flex items-center sm:hidden">
-                      <Disclosure.Button
+                      <DisclosureButton
                         className={cls(
                           'inline-flex items-center justify-center rounded-md p-2 focus:outline-none',
                           'bg-tremor-background dark:bg-dark-tremor-background',
@@ -107,7 +107,7 @@ export default function Navbar() {
                             aria-hidden="true"
                           />
                         )}
-                      </Disclosure.Button>
+                      </DisclosureButton>
                     </div>
                   </div>
                 </div>
@@ -116,7 +116,7 @@ export default function Navbar() {
                   <Button
                     className="flex font-bold"
                     style={{ borderRadius: 24 }}
-                    onClick={() => openPopup(!isConnected ? <Connect /> : <Disconnect />)}
+                    onClick={() => openPopup(!isConnected ? <Connect /> : <Disconnect />, !isConnected)}
                   >
                     {!isConnected ? t.connect : user?.name}
                   </Button>
@@ -139,10 +139,10 @@ export default function Navbar() {
           )}
 
           {isConnected && !isAdmin && (
-            <Disclosure.Panel className="sm:hidden animate-display">
+            <DisclosurePanel className="sm:hidden animate-display">
               <div className="space-y-1 pt-2 pb-3">
                 {pages.map(page => (
-                  <Disclosure.Button
+                  <DisclosureButton
                     key={page}
                     className={cls(
                       page === currentPage
@@ -159,10 +159,10 @@ export default function Navbar() {
                     aria-current={page === currentPage ? 'page' : undefined}
                   >
                     {t[page.toLowerCase()]}
-                  </Disclosure.Button>
+                  </DisclosureButton>
                 ))}
               </div>
-            </Disclosure.Panel>
+            </DisclosurePanel>
           )}
         </>
       )}

@@ -1,17 +1,16 @@
 'use client';
 
-import { useLocalStorage } from './utils/localStorage';
-import { Dialog, DialogPanel } from '@tremor/react';
 import { useEffect } from 'react';
 import { EffectCreative, EffectCube, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import VersionNotes, { VersionNote } from './components/versionNotes';
-import { usePopup } from './contexts/popupProvider';
 import { Page, useNavigation } from './hooks/useNavigation';
+import { usePopup } from './hooks/usePopup';
 import { useUser } from './hooks/useUser';
 import { LoadingDot } from './loading';
 import MainPage from './main';
 import { cls } from './utils/constants';
+import { useLocalStorage } from './utils/localStorage';
 import { isMobileDevice } from './utils/mobile';
 import { SwiperEffect, SwipingType } from './utils/swiperEffect';
 
@@ -21,13 +20,16 @@ import 'swiper/css/effect-creative';
 import 'swiper/css/pagination';
 
 export default function IndexPage() {
-  const { isPopupOpen, popup, openPopup, closePopup, autoClosePopup } = usePopup();
+  const { isPopupOpen, openPopup, closePopup } = usePopup();
   const { isConnected } = useUser();
   const { page: currentPage, setPage, pages, setNeedRefresh } = useNavigation();
 
   const [version, setVersion] = useLocalStorage('version', '0.0');
 
-  const rootClassName = cls('flex-grow w-full h-screen max-w-7xl self-center', isPopupOpen ? 'blur-sm' : '');
+  const rootClassName = cls(
+    'flex-grow w-full h-screen max-w-7xl self-center',
+    isPopupOpen ? 'blur-sm' : 'overflow-auto',
+  );
   const pageClassName =
     'space-y-6 p-4 md:p-10 mx-auto text-center w-full center overflow-auto bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle';
 
@@ -68,7 +70,7 @@ export default function IndexPage() {
         };
 
         if (versions.length && version !== versions[0].version) {
-          openPopup(<VersionNotes versionNotes={versions} onClose={handleClose} />, true);
+          openPopup(<VersionNotes versionNotes={versions} onClose={handleClose} />);
         }
       })
       .catch(console.error);
@@ -107,12 +109,5 @@ export default function IndexPage() {
     );
   };
 
-  return (
-    <>
-      <Dialog open={isPopupOpen} onClose={autoClosePopup}>
-        <DialogPanel>{popup}</DialogPanel>
-      </Dialog>
-      {currentPage ? <MainScreen /> : <LoadingDot />}
-    </>
-  );
+  return currentPage ? <MainScreen /> : <LoadingDot />;
 }

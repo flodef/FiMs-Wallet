@@ -19,7 +19,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Privacy, PrivacyButton } from '../components/privacy';
 import SortTableHead from '../components/sortTableHead';
-import { usePopup } from '../contexts/popupProvider';
+import { usePopup } from '../hooks/usePopup';
 import { Transaction, TransactionType, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
@@ -27,6 +27,7 @@ import { cls } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
+import { TransactionDetails } from '../components/transactionDetails';
 
 const t: Dataset = {
   transactionSummary: 'Résumé des transactions',
@@ -323,11 +324,10 @@ export default function Transactions() {
             </Grid>
             <Table>
               <SortTableHead
-                labels={[t.date, t.movement, t.type].concat(
-                  !isMobileSize() && hasTokenTransactions ? [t.token, t.rate] : [],
-                )}
+                labels={[t.date, t.movement, t.type].concat(hasTokenTransactions ? [t.token, t.rate] : [])}
                 table={transactions}
                 setTable={setTransactions}
+                sizes={{ xs: 4, sm: 5 }}
               />
               <TableBody>
                 {transactions ? (
@@ -339,7 +339,7 @@ export default function Transactions() {
                     <TableRow
                       key={index}
                       className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
-                      // onClick={() => openPopup(<TransactionDetails transaction={transaction} />, true)}
+                      onClick={() => openPopup(<TransactionDetails transaction={transaction} />)}
                     >
                       <TableCell>{transaction.date.toShortDate()}</TableCell>
                       <TableCell
@@ -371,12 +371,8 @@ export default function Transactions() {
                           )}
                         </Flex>
                       </TableCell>
-                      {!isMobileSize() && (
-                        <>
-                          <TableCell>{getTokenLabel(transaction)}</TableCell>
-                          <TableCell>{getTokenRate(transaction)}</TableCell>
-                        </>
-                      )}
+                      <TableCell className="hidden xs:table-cell">{getTokenLabel(transaction)}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{getTokenRate(transaction)}</TableCell>
                     </TableRow>
                   ))
                 ) : (
