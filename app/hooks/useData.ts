@@ -7,6 +7,7 @@ import { User } from './useUser';
 export interface DashboardToken extends Data {
   available: number;
   duration: number;
+  yearlyYield: number;
 }
 
 export interface Historic {
