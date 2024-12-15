@@ -17,18 +17,20 @@ export const PopupProvider = ({ children }: { children: ReactNode }) => {
   const [popupContent, setPopupContent] = useState<ReactNode>();
   const [shouldCloseManually, setShouldCloseManually] = useState<boolean>();
   const [hasTextInput, setHasTextInput] = useState<boolean>(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   return (
     <PopupContext.Provider
       value={{
-        isPopupOpen: !!popupContent,
+        isPopupOpen,
         openPopup: (popupContent, hasTextInput = false, shouldCloseManually = false) => {
+          setIsPopupOpen(true);
           setPopupContent(popupContent);
           setHasTextInput(hasTextInput);
           setShouldCloseManually(shouldCloseManually);
         },
-        closePopup: () => setPopupContent(undefined),
-        autoClosePopup: () => (!shouldCloseManually ? setPopupContent(undefined) : undefined),
+        closePopup: () => setIsPopupOpen(false),
+        autoClosePopup: () => (!shouldCloseManually ? setIsPopupOpen(false) : undefined),
         popupContent,
         hasTextInput,
       }}
