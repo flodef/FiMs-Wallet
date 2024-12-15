@@ -3,10 +3,8 @@ import {
   AccordionBody,
   AccordionHeader,
   AreaChart,
-  BadgeDelta,
   Divider,
   Flex,
-  Metric,
   SparkAreaChart,
   Table,
   TableBody,
@@ -15,7 +13,9 @@ import {
   Title,
 } from '@tremor/react';
 import Image from 'next/image';
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import AnimatedMetric from '../components/animatedMetric';
+import Badge from '../components/badge';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
 import { usePrivacy } from '../contexts/privacyProvider';
@@ -23,7 +23,7 @@ import type { UserHistoric } from '../hooks/useData';
 import { useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
-import { FIMS_TOKEN_PATH, getDeltaType, SPL_TOKEN_PATH } from '../utils/constants';
+import { FIMS_TOKEN_PATH, SPL_TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { convertedData, DataName, forceData, loadData, PortfolioData, TokenData } from '../utils/processData';
 import { Dataset } from '../utils/types';
@@ -61,6 +61,63 @@ export default function Portfolio() {
       .catch(console.error)) as Asset[];
   };
 
+  const computeAssets = useCallback(
+    async (tokenData: TokenData[], portfolioData: PortfolioData[]) => {
+      if (!user) return;
+
+      tokenData = (!tokenData.length ? tokenData : await forceData(DataName.token)) as TokenData[];
+      portfolioData = (!portfolioData.length ? portfolioData : await forceData(DataName.portfolio)) as PortfolioData[];
+
+      const p = portfolioData.find(d => d.id === user.id) ?? {
+        id: user.id,
+        address: user.address,
+        token: [],
+        total: 0,
+        invested: 0,
+        profitValue: 0,
+        profitRatio: 0,
+        yearlyYield: 0,
+        solProfitPrice: 0,
+      };
+
+      const getAsset = (symbol: string) => assets.find(a => a.symbol === symbol);
+      const assets = await loadAssets(user.address);
+      if (assets.length) {
+        const computeBalance = (filter = '') =>
+          assets.reduce(
+            (a, b) =>
+              a +
+              (b.balance ?? 0) * (tokenData.find(t => t.symbol === b.symbol && t.label.includes(filter))?.value ?? 0),
+            0,
+          );
+        p.total = computeBalance();
+        p.profitValue = computeBalance('FiMs') - p.invested;
+        p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
+        p.token = tokenData.map(t => getAsset(t.symbol)?.balance ?? 0).filter(b => b);
+      }
+
+      if (p.total === portfolio?.total) return;
+
+      setPortfolio(p);
+      setWallet(
+        tokenData
+          .filter(t => getAsset(t.symbol))
+          .map((t, i) => ({
+            ...t,
+            image: t.label.includes('FiMs')
+              ? FIMS_TOKEN_PATH + t.symbol + '.png'
+              : SPL_TOKEN_PATH + getAsset(t.symbol)?.id + '.webp',
+            name: t.label,
+            balance: p.token[i],
+            total: p.token[i] * t.value,
+          }))
+          .filter(t => t.balance)
+          .sort((a, b) => b.total - a.total),
+      );
+    },
+    [setPortfolio, setWallet, user, portfolio],
+  );
+
   const isLoading = useRef(false);
   useEffect(() => {
     if (!user || isLoading.current || !needRefresh || page !== thisPage) return;
@@ -71,65 +128,18 @@ export default function Portfolio() {
     loadData(DataName.token)
       .then((tokens: convertedData[]) =>
         loadData(DataName.portfolio)
-          .then(async (portfolio: convertedData[]) => {
-            const tokenData = (!tokens.length ? tokens : await forceData(DataName.token)) as TokenData[];
-            const portfolioData = (
-              !portfolio.length ? portfolio : await forceData(DataName.portfolio)
-            ) as PortfolioData[];
-
-            const p = portfolioData.find(d => d.id === user.id) ?? {
-              id: user.id,
-              address: user.address,
-              token: [],
-              total: 0,
-              invested: 0,
-              profitValue: 0,
-              profitRatio: 0,
-              yearlyYield: 0,
-              solProfitPrice: 0,
-            };
-
-            const getAsset = (symbol: string) => assets.find(a => a.symbol === symbol);
-            const assets = await loadAssets(user.address);
-            if (assets.length) {
-              const computeBalance = (filter = '') =>
-                assets.reduce(
-                  (a, b) =>
-                    a +
-                    (b.balance ?? 0) *
-                      (tokenData.find(t => t.symbol === b.symbol && t.label.includes(filter))?.value ?? 0),
-                  0,
-                );
-              p.total = computeBalance();
-              p.profitValue = computeBalance('FiMs') - p.invested;
-              p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
-              p.token = tokenData.map(t => getAsset(t.symbol)?.balance ?? 0).filter(b => b);
-            }
-            setPortfolio(p);
-
-            setWallet(
-              tokenData
-                .filter(t => getAsset(t.symbol))
-                .map((t, i) => ({
-                  ...t,
-                  image: t.label.includes('FiMs')
-                    ? FIMS_TOKEN_PATH + t.symbol + '.png'
-                    : SPL_TOKEN_PATH + getAsset(t.symbol)?.id + '.webp',
-                  name: t.label,
-                  balance: p.token[i],
-                  total: p.token[i] * t.value,
-                }))
-                .filter(t => t.balance)
-                .sort((a, b) => b.total - a.total),
-            );
+          .then(async (portfolios: convertedData[]) => {
+            await computeAssets(tokens as TokenData[], portfolios as PortfolioData[]);
           })
           .catch(console.error),
       )
-      .then(() => loadData(String(user.id)))
-      .then(historic => setUserHistoric(historic as UserHistoric[]))
+      .then(() => {
+        if (!userHistoric.length)
+          loadData(String(user.id)).then(historic => setUserHistoric(historic as UserHistoric[]));
+      })
       .catch(console.error)
       .finally(() => (isLoading.current = false));
-  }, [needRefresh, setNeedRefresh, page, user, setPortfolio, setWallet, setUserHistoric]);
+  }, [needRefresh, setNeedRefresh, page, user, setUserHistoric, computeAssets, userHistoric]);
 
   const { minHisto, maxHisto } = useMemo(() => {
     const minHisto = Math.min(
@@ -150,22 +160,17 @@ export default function Portfolio() {
             <Flex flexDirection="col" alignItems="start">
               <Title className="text-left">{t.totalValue}</Title>
               <Flex justifyContent="start">
-                <Metric color="green" className={!portfolio ? 'blur-sm' : 'animate-unblur'}>
+                <AnimatedMetric isReady={!!portfolio}>
                   <Privacy amount={portfolio?.total} />
-                </Metric>
+                </AnimatedMetric>
                 <PrivacyButton />
               </Flex>
             </Flex>
-            <BadgeDelta
-              className={portfolio?.yearlyYield ? 'visible' : 'hidden'}
-              deltaType={getDeltaType(portfolio?.yearlyYield)}
-            >
-              {(portfolio?.yearlyYield ?? 0).toRatio()}
-            </BadgeDelta>
+            <Badge className={portfolio?.yearlyYield ? 'visible' : 'hidden'} data={portfolio?.yearlyYield ?? 0} />
           </Flex>
         </AccordionHeader>
         <AccordionBody>
-          {!portfolio || portfolio.invested ? <GainsBar values={portfolio} loaded={!!portfolio} /> : null}
+          {!portfolio || portfolio.invested ? <GainsBar values={portfolio} isReady={!!portfolio} /> : null}
           {!wallet || wallet.length ? <Divider style={{ fontSize: 18 }}>{t.assets}</Divider> : null}
 
           {wallet ? (
@@ -176,7 +181,7 @@ export default function Portfolio() {
                     key={asset.name}
                     className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
                   >
-                    <TableCell className="px-0 2xs:pr-0">
+                    <TableCell className="px-0 hidden 2xs:table-cell xs:px-2 sm:px-4">
                       <Image
                         className="rounded-full"
                         src={asset.image}
@@ -185,7 +190,7 @@ export default function Portfolio() {
                         height={50}
                       ></Image>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="px-2 xs:px-4">
                       <Flex justifyContent="between">
                         <div className="text-xl max-w-36 xs:max-w-full truncate">{asset.name}</div>
                         <div>{`${asset.balance.toShortFixed()} ${asset.symbol}`}</div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { EffectCreative, EffectCube, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import VersionNotes, { VersionNote } from './components/versionNotes';
@@ -18,6 +18,7 @@ import { SwiperEffect, SwipingType } from './utils/swiperEffect';
 import 'swiper/css';
 import 'swiper/css/effect-creative';
 import 'swiper/css/pagination';
+import tailwindConfig from '@/tailwind.config';
 
 export default function IndexPage() {
   const { isPopupOpen, openPopup, closePopup } = usePopup();
@@ -25,10 +26,11 @@ export default function IndexPage() {
   const { page: currentPage, setPage, pages, setNeedRefresh } = useNavigation();
 
   const [version, setVersion] = useLocalStorage('version', '0.0');
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const rootClassName = cls(
     'flex-grow w-full h-screen max-w-7xl self-center',
-    isPopupOpen ? 'blur-sm' : 'overflow-auto',
+    isPopupOpen ? 'animate-blur overflow-hidden' : !isLoaded ? 'animate-unblur overflow-auto' : 'overflow-auto',
   );
   const pageClassName =
     'space-y-6 p-4 md:p-10 mx-auto text-center w-full center overflow-auto bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle';
@@ -44,6 +46,17 @@ export default function IndexPage() {
   }, [setNeedRefresh]);
 
   useEffect(() => {
+    if (isPopupOpen) {
+      setIsLoaded(false);
+    } else {
+      setTimeout(() => {
+        setIsLoaded(true);
+      }, parseInt(tailwindConfig.theme.extend.transitionDuration.DEFAULT));
+    }
+  }, [isPopupOpen]);
+
+  useEffect(() => {
+    setIsLoaded(true);
     fetch('/VERSION.md')
       .then(response => response.text())
       .then(text => {
@@ -74,7 +87,7 @@ export default function IndexPage() {
         }
       })
       .catch(console.error);
-  }, [version, openPopup, closePopup, setVersion]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const MainScreen = () => {
     return isConnected && isMobileDevice() ? (

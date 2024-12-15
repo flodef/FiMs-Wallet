@@ -4,11 +4,9 @@ import {
   AccordionBody,
   AccordionHeader,
   AreaChart,
-  BadgeDelta,
   BarList,
   Flex,
   Grid,
-  Metric,
   SparkAreaChart,
   Tab,
   TabGroup,
@@ -17,12 +15,14 @@ import {
 } from '@tremor/react';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import AnimatedMetric from '../components/animatedMetric';
+import Badge from '../components/badge';
 import GainsBar from '../components/gainsBar';
 import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';
-import { cls, getCurrency, getDeltaType, getRatio } from '../utils/constants';
+import { cls, getCurrency, getRatio } from '../utils/constants';
 import {} from '../utils/extensions';
 import { isMobileSize, useIsMobile } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
@@ -131,12 +131,12 @@ export default function Dashboard() {
     () => [
       {
         category: t.total,
-        total: getCurrency(dashboard, 'total', 100000),
+        total: getCurrency(dashboard, 'total', 1000000),
         data: getBarList(['FiMs SOL', 'FiMs Token', 'FiMs Liquidity Provider', 'Jupiter']),
       },
       {
         category: t.profit,
-        total: getCurrency(dashboard, 'profit', 10000),
+        total: getCurrency(dashboard, 'profit', 750000),
         data: getBarList(['transfer cost', 'strategy cost', 'price change', 'charity']),
       },
     ],
@@ -165,13 +165,11 @@ export default function Dashboard() {
           <Flex alignItems="start">
             <div>
               <Title className="text-left">{t.assets}</Title>
-              <Metric color="green" className={!dashboard.length ? 'blur-sm' : 'animate-unblur'}>
-                {getCurrency(dashboard, 'assets', 500000)}
-              </Metric>
+              <AnimatedMetric isReady={dashboard.length > 0}>
+                {getCurrency(dashboard, 'assets', 1000000)}
+              </AnimatedMetric>
             </div>
-            <BadgeDelta deltaType={getDeltaType(getRatio(dashboard, 'price @'))}>
-              {getRatio(dashboard, 'price @')}
-            </BadgeDelta>
+            <Badge data={dashboard} label="price @" />
           </Flex>
         </AccordionHeader>
         <AccordionBody>
@@ -181,7 +179,7 @@ export default function Dashboard() {
               profitValue: getCurrency(dashboard, 'gains').fromCurrency(),
               profitRatio: parseFloat(getRatio(dashboard, 'gains')) / 100,
             }}
-            loaded={!!dashboard.length}
+            isReady={!!dashboard.length}
           />
         </AccordionBody>
       </Accordion>
@@ -204,15 +202,13 @@ export default function Dashboard() {
                 </TabGroup>
               </Flex>
               <Flex alignItems="start">
-                <Metric
+                <AnimatedMetric
                   color={result[resultIndex].total.fromCurrency() < 0 ? 'red' : 'green'}
-                  className={!dashboard.length ? 'blur-sm' : 'animate-unblur'}
+                  isReady={dashboard.length > 0}
                 >
                   {result[resultIndex].total}
-                </Metric>
-                <BadgeDelta className="mt-2" deltaType={getDeltaType(getRatio(dashboard, 'profit'))}>
-                  {getRatio(dashboard, 'profit')}
-                </BadgeDelta>
+                </AnimatedMetric>
+                <Badge className="mt-2" data={dashboard} label="profit" />
               </Flex>
             </Flex>
           </AccordionHeader>
@@ -264,12 +260,10 @@ export default function Dashboard() {
                 </TabGroup>
               </Flex>
               <Flex alignItems="start">
-                <Metric color="green" className={!token.length ? 'blur-sm' : 'animate-unblur'}>
+                <AnimatedMetric isReady={token.length > 0}>
                   {getCurrency(token, token.at(priceIndex)?.label)}
-                </Metric>
-                <BadgeDelta className="mt-2" deltaType={getDeltaType(getRatio(token, token.at(priceIndex)?.label))}>
-                  {getRatio(token, token.at(priceIndex)?.label)}
-                </BadgeDelta>
+                </AnimatedMetric>
+                <Badge className="mt-2" data={token.at(priceIndex)?.yearlyYield ?? 0} />
               </Flex>
             </Flex>
           </AccordionHeader>

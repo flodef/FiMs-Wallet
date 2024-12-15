@@ -41,7 +41,7 @@ export function LoadingText({
     .toUpperCase()
     .split('')
     .filter((_, i) => i < 10);
-  const rootClassName = 'inline-block my-0 mx-1 blur-0 ';
+  const rootClassName = 'inline-block my-0 mx-1 blur-none';
   const animateClassNames = [
     'animate-loading0',
     'animate-loading1',

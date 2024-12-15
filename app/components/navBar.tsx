@@ -40,8 +40,9 @@ export default function Navbar() {
     <Disclosure
       as="nav"
       className={cls(
-        'bg-tremor-background dark:bg-dark-tremor-background shadow-sm flex-shrink-0 z-10',
-        isPopupOpen ? 'blur-sm' : '',
+        'z-10 shadow-sm flex-shrink-0 transition-all',
+        'bg-tremor-background dark:bg-dark-tremor-background',
+        isPopupOpen ? 'blur-sm' : 'blur-none',
       )}
     >
       {({ open }) => (

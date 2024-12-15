@@ -2,6 +2,8 @@ import { Flex, MarkerBar, Subtitle } from '@tremor/react';
 import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
 import { Privacy } from './privacy';
+import { useEffect, useState } from 'react';
+import tailwindConfig from '@/tailwind.config';
 
 const t: Dataset = {
   invested: 'Investi',
@@ -15,7 +17,7 @@ interface GainsBarProps {
   profitRatio: number;
 }
 
-export default function GainsBar({ values, loaded }: { values: GainsBarProps | undefined; loaded: boolean }) {
+export default function GainsBar({ values, isReady }: { values: GainsBarProps | undefined; isReady: boolean }) {
   const { invested, profitValue, profitRatio } = values ?? {
     invested: 0,
     profitValue: 0,
@@ -26,6 +28,16 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
   const isOverKill = value > 100;
   const overKillValue = 10000 / (value + 100);
 
+  const [isLoaded, setIsLoaded] = useState(isReady);
+
+  useEffect(() => {
+    if (isReady) {
+      setTimeout(() => {
+        setIsLoaded(true);
+      }, parseInt(tailwindConfig.theme.extend.transitionDuration.DEFAULT));
+    }
+  }, [isReady]);
+
   return (
     <>
       <style>
@@ -35,14 +47,19 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
         `}
       </style>
       <Flex className="mt-4 mb-1">
-        {invested || !loaded ? (
-          <Subtitle className={cls('truncate w-0 text-left xs:w-1/2', !loaded ? 'blur-sm' : 'animate-unblur')}>
+        {invested || !isReady ? (
+          <Subtitle
+            className={cls(
+              'truncate w-0 text-left xs:w-1/2',
+              !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '',
+            )}
+          >
             {t.invested}&nbsp;:&nbsp;
             <Privacy amount={invested} />
           </Subtitle>
         ) : null}
-        {invested || !loaded ? (
-          <Subtitle className={!loaded ? 'blur-sm' : 'animate-unblur'}>
+        {invested || !isReady ? (
+          <Subtitle className={!isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : ''}>
             {isPositive ? t.profits : t.loss}&nbsp;:&nbsp;
             <Privacy amount={profitValue} />
             {profitRatio ? ' (' + profitRatio.toRatio() + ')' : ''}
@@ -50,7 +67,7 @@ export default function GainsBar({ values, loaded }: { values: GainsBarProps | u
         ) : null}
       </Flex>
 
-      {profitRatio || !loaded ? (
+      {profitRatio || !isReady ? (
         <MarkerBar
           title={isPositive ? t.profits : t.loss}
           color={isPositive ? 'green' : 'red'}
