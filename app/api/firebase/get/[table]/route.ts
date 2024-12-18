@@ -1,7 +1,7 @@
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { NextResponse } from 'next/server';
-import { init } from '../../init';
+import { NextRequest, NextResponse } from 'next/server';
 import { Dataset } from '../../../../utils/types';
+import { init } from '../../init';
 
 const usersOrder = ['id', 'name', 'address', 'isPublic', 'isPro'];
 const transactionsOrder = ['id', 'date', 'userId', 'address', 'movement', 'cost', 'token', 'amount'];
@@ -31,9 +31,11 @@ function processData(data: Dataset[], table: string) {
   return processedData;
 }
 
-export async function GET(request: Request, params: { params: { table: string } }) {
-  const table = params.params.table;
-
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ table: string }> },
+): Promise<NextResponse> {
+  const { table } = await params;
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name');
   const isPro = searchParams.get('isPro') ? searchParams.get('isPro') === 'true' : undefined;
@@ -53,6 +55,6 @@ export async function GET(request: Request, params: { params: { table: string } 
     return NextResponse.json(processData(data, table));
   } catch (error) {
     console.error(error);
-    return NextResponse.error();
+    return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });
   }
 }
