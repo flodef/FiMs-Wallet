@@ -1,13 +1,15 @@
 'use client';
 
 import tailwindConfig from '@/tailwind.config';
-import { Metric, MetricProps } from '@tremor/react';
+import { Typography } from 'antd';
 import { useEffect, useState } from 'react';
-import { cls } from '../utils/constants';
+import { twMerge } from 'tailwind-merge';
+
+const { Title } = Typography;
 
 interface AnimatedMetricProps {
   isReady: boolean;
-  color?: MetricProps['color'];
+  color?: string;
   className?: string;
   children: React.ReactNode;
 }
@@ -24,8 +26,8 @@ export default function AnimatedMetric({ isReady = false, color = 'green', class
   }, [isReady]);
 
   return (
-    <Metric color={color} className={cls(className, !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}>
+    <Title color={color} className={twMerge(className, !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}>
       {children}
-    </Metric>
+    </Title>
   );
 }

@@ -17,17 +17,17 @@ import {
   Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { Privacy, PrivacyButton } from '../components/privacy';
 import SortTableHead from '../components/sortTableHead';
-import { usePopup } from '../hooks/usePopup';
+import { TransactionDetails } from '../components/transactionDetails';
 import { Transaction, TransactionType, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
+import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
-import { cls } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
-import { TransactionDetails } from '../components/transactionDetails';
 
 const t: Dataset = {
   transactionSummary: 'Résumé des transactions',
@@ -232,7 +232,7 @@ export default function Transactions() {
                 <TableCell>{t.total}</TableCell>
                 <TableCell className="ml-4">{transactions?.length}</TableCell>
                 <TableCell
-                  className={cls(
+                  className={twMerge(
                     'font-bold',
                     (transactions?.reduce((a, b) => a + b.movement, 0) ?? 0) >= 0 ? 'text-green-400' : 'text-red-400',
                   )}
@@ -343,7 +343,7 @@ export default function Transactions() {
                     >
                       <TableCell>{transaction.date.toShortDate()}</TableCell>
                       <TableCell
-                        className={cls('font-bold', transaction.movement >= 0 ? 'text-green-400' : 'text-red-400')}
+                        className={twMerge('font-bold', transaction.movement >= 0 ? 'text-green-400' : 'text-red-400')}
                       >
                         <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
                           <Privacy amount={transaction.movement} />

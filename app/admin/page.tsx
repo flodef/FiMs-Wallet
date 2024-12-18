@@ -27,11 +27,12 @@ import {
   Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { PortfolioToken, Transaction, TransactionType } from '../hooks/useData';
 import Loading from '../loading';
 import { getTransactionType } from '../pages/transactions';
 import { DBUser } from '../pages/users';
-import { cls, getShortAddress } from '../utils/constants';
+import { getShortAddress } from '../utils/constants';
 import {} from '../utils/extensions';
 import { DataName, loadData } from '../utils/processData';
 import { MinMax } from '../utils/types';
@@ -310,7 +311,7 @@ export default function AdminPage() {
       <Card>
         <Title>User</Title>
         <TabGroup
-          className={cls('mt-4', users?.length ? 'visible' : 'hidden')}
+          className={twMerge('mt-4', users?.length ? 'visible' : 'hidden')}
           index={userTabIndex}
           onIndexChange={setUserTabIndex}
         >
@@ -320,7 +321,7 @@ export default function AdminPage() {
             ))}
           </TabList>
         </TabGroup>
-        <Flex className={cls('mt-4', userTabIndex ? 'visible' : 'hidden')} flexDirection="col">
+        <Flex className={twMerge('mt-4', userTabIndex ? 'visible' : 'hidden')} flexDirection="col">
           <Select value={userIndex} onValueChange={setUserIndex} enableClear={false}>
             {users
               ?.sort((a, b) => a.id - b.id)
@@ -364,7 +365,7 @@ export default function AdminPage() {
             }
           />
           <Flex
-            className={cls(userTabIndex !== 2 ? 'visible' : 'hidden', 'space-x-2')}
+            className={twMerge(userTabIndex !== 2 ? 'visible' : 'hidden', 'space-x-2')}
             flexDirection="row"
             justifyContent="start"
             alignItems="center"
@@ -388,7 +389,7 @@ export default function AdminPage() {
       <Card>
         <Title>Transaction</Title>
         <TabGroup
-          className={cls('mt-4', transactions?.length ? 'visible' : 'hidden')}
+          className={twMerge('mt-4', transactions?.length ? 'visible' : 'hidden')}
           index={transactionTabIndex}
           onIndexChange={setTransactionTabIndex}
         >
@@ -398,7 +399,7 @@ export default function AdminPage() {
             ))}
           </TabList>
         </TabGroup>
-        <Flex style={{ gap: 16 }} className={cls('mt-4', transactionTabIndex ? 'visible' : 'hidden')}>
+        <Flex style={{ gap: 16 }} className={twMerge('mt-4', transactionTabIndex ? 'visible' : 'hidden')}>
           <Select
             style={{ minWidth: 125, maxWidth: 125, width: 125 }}
             value={transactionFilter}
@@ -437,7 +438,7 @@ export default function AdminPage() {
         <Divider className={transactionTabIndex && transactionIndex ? 'visible' : 'hidden'} />
         <Grid
           style={{ gap: 16 }}
-          className={cls(
+          className={twMerge(
             !transactionTabIndex ? 'mt-4' : '',
             transactionIndex || !transactionTabIndex ? 'visible' : 'hidden',
           )}
@@ -486,7 +487,7 @@ export default function AdminPage() {
               ))}
           </Select>
           <NumberInput
-            className={cls('max-w-sm min-w-32', isTransactionType(TransactionType.donation) ? 'visible' : 'hidden')}
+            className={twMerge('max-w-sm min-w-32', isTransactionType(TransactionType.donation) ? 'visible' : 'hidden')}
             value={movement}
             onValueChange={setMovement}
             onFocus={handleFocus}
@@ -500,7 +501,10 @@ export default function AdminPage() {
             disabled={transactionTabIndex === 2}
           />
           <Select
-            className={cls('max-w-sm min-w-32', !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden')}
+            className={twMerge(
+              'max-w-sm min-w-32',
+              !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden',
+            )}
             value={selectedToken}
             onValueChange={setSelectedToken}
             enableClear={false}
@@ -515,7 +519,10 @@ export default function AdminPage() {
             ))}
           </Select>
           <NumberInput
-            className={cls('max-w-sm min-w-32', !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden')}
+            className={twMerge(
+              'max-w-sm min-w-32',
+              !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden',
+            )}
             value={tokenAmount}
             onValueChange={setTokenAmount}
             onFocus={handleFocus}
@@ -531,7 +538,10 @@ export default function AdminPage() {
             disabled={transactionTabIndex === 2}
           />
           <NumberInput
-            className={cls('max-w-sm min-w-32', !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden')}
+            className={twMerge(
+              'max-w-sm min-w-32',
+              !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden',
+            )}
             value={tokenPrice.toFixed(3)}
             onValueChange={setTokenPrice}
             onFocus={handleFocus}
@@ -545,7 +555,7 @@ export default function AdminPage() {
             errorMessage="The token price / amount should be set!"
           />
           <Flex
-            className={cls(
+            className={twMerge(
               'max-w-sm min-w-32 space-x-2',
               !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden',
             )}
@@ -574,7 +584,7 @@ export default function AdminPage() {
           </Button>
         </Grid>
       </Card>
-      <Card className={cls('col-span-2', cryptoTransactions ? 'visible' : 'hidden')}>
+      <Card className={twMerge('col-span-2', cryptoTransactions ? 'visible' : 'hidden')}>
         <Title>Crypto Transactions</Title>
         <Table className="w-full">
           <TableHead>

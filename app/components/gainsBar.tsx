@@ -1,9 +1,9 @@
+import tailwindConfig from '@/tailwind.config';
 import { Flex, MarkerBar, Subtitle } from '@tremor/react';
-import { cls } from '../utils/constants';
+import { useEffect, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { Dataset } from '../utils/types';
 import { Privacy } from './privacy';
-import { useEffect, useState } from 'react';
-import tailwindConfig from '@/tailwind.config';
 
 const t: Dataset = {
   invested: 'Investi',
@@ -43,7 +43,7 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
       <Flex className="mt-4 mb-1">
         {invested || !isReady ? (
           <Subtitle
-            className={cls(
+            className={twMerge(
               'truncate w-0 text-left xs:w-1/2',
               !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '',
             )}

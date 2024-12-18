@@ -1,8 +1,8 @@
 import { Button, Flex, List, ListItem, Title } from '@tremor/react';
+import { twMerge } from 'tailwind-merge';
 import { Transaction, TransactionType } from '../hooks/useData';
 import { usePopup } from '../hooks/usePopup';
 import { getTokenLabel, getTokenRate } from '../pages/transactions';
-import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
@@ -36,7 +36,7 @@ export const TransactionDetails = ({ transaction }: { transaction: Transaction }
               <ListItem key={index}>
                 <span>{t[item]}</span>
                 <span
-                  className={cls(
+                  className={twMerge(
                     'font-bold',
                     item !== 'token' && item !== 'rate' && !isNaN(Number(transaction[item]))
                       ? Number(transaction[item]) >= 0

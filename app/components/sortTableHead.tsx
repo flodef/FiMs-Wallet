@@ -1,7 +1,7 @@
 import { ChevronDownIcon, ChevronUpDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid';
 import { Flex, Icon, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
 import { useState } from 'react';
-import { cls } from '../utils/constants';
+import { twMerge } from 'tailwind-merge';
 import { Filter, Sizes } from '../utils/types';
 
 type tableObject = {
@@ -115,7 +115,7 @@ export default function SortTableHead<T extends tableObject>({
         {labels.map((label, index) => (
           <TableHeaderCell
             key={index}
-            className={cls(getVisibilityClassName(index, sizes), `w-[${(100 / labels.length).toFixed(6)}%] px-1`)}
+            className={twMerge(getVisibilityClassName(index, sizes), `w-[${(100 / labels.length).toFixed(6)}%] px-1`)}
           >
             {index < tableLength ? (
               <SortHeader label={label} index={index} table={table} setTable={setTable} filters={filters} />

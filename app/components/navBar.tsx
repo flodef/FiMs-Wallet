@@ -4,11 +4,11 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Button, Tab, TabGroup, TabList } from '@tremor/react';
 import { useEffect, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { FiMsLogo } from '../../public/FiMsLogo';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
-import { cls } from '../utils/constants';
 import { Dataset } from '../utils/types';
 import Connect from './connect';
 import Disconnect from './disconnect';
@@ -39,7 +39,7 @@ export default function Navbar() {
   return (
     <Disclosure
       as="nav"
-      className={cls(
+      className={twMerge(
         'z-10 shadow-sm flex-shrink-0 transition-all',
         'bg-theme-background dark:bg-dark-theme-background',
         isPopupOpen ? 'blur-sm' : 'blur-none',
@@ -52,7 +52,7 @@ export default function Navbar() {
               <div className="flex h-16 justify-between">
                 <div className="flex">
                   <a
-                    className={cls(
+                    className={twMerge(
                       'flex flex-shrink-0 items-center',
                       isConnected && currentPage !== Page.Dashboard ? 'cursor-pointer' : '',
                     )}
@@ -61,7 +61,7 @@ export default function Navbar() {
                   >
                     <FiMsLogo />
                   </a>
-                  <div className={cls('contents', isConnected ? 'animate-display' : 'hidden')}>
+                  <div className={twMerge('contents', isConnected ? 'animate-display' : 'hidden')}>
                     <TabGroup
                       className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8"
                       style={{ marginTop: '15px' }}
@@ -72,7 +72,7 @@ export default function Navbar() {
                       <TabList>
                         {pages.map(page => (
                           <Tab
-                            className={cls(
+                            className={twMerge(
                               'text-sm hover:text-gray-700 hover:font-bold',
                               page === currentPage
                                 ? 'cursor-default font-bold border-b-2 mb-0 border-b-blue-500 text-blue-500'
@@ -88,7 +88,7 @@ export default function Navbar() {
                     </TabGroup>
                     <div className="-mr-2 ml-2 flex items-center sm:hidden">
                       <DisclosureButton
-                        className={cls(
+                        className={twMerge(
                           'inline-flex items-center justify-center rounded-md p-2 focus:outline-none',
                           'bg-theme-background dark:bg-dark-theme-background',
                           'text-theme-content-subtle dark:text-dark-theme-content-subtle',
@@ -113,7 +113,7 @@ export default function Navbar() {
                   </div>
                 </div>
 
-                <div className={cls('ml-6 flex items-center', currentPage ? 'animate-display' : 'hidden')}>
+                <div className={twMerge('ml-6 flex items-center', currentPage ? 'animate-display' : 'hidden')}>
                   <Button
                     className="flex font-bold"
                     style={{ borderRadius: 24 }}
@@ -127,7 +127,7 @@ export default function Navbar() {
           ) : (
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex h-16 justify-between">
               <a
-                className={cls(
+                className={twMerge(
                   'flex flex-shrink-0 items-center',
                   isConnected && currentPage !== Page.Dashboard ? 'cursor-pointer' : '',
                 )}
@@ -145,7 +145,7 @@ export default function Navbar() {
                 {pages.map(page => (
                   <DisclosureButton
                     key={page}
-                    className={cls(
+                    className={twMerge(
                       page === currentPage
                         ? 'bg-theme-background-subtle dark:bg-dark-theme-background-subtle ' +
                             'border-theme-content dark:border-dark-theme-content ' +

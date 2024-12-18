@@ -15,11 +15,12 @@ import {
   Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import SortTableHead from '../components/sortTableHead';
 import { useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, useUser } from '../hooks/useUser';
-import { cls, getShortAddress } from '../utils/constants';
+import { getShortAddress } from '../utils/constants';
 import { isMobileDevice } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
@@ -159,7 +160,7 @@ export default function Users() {
             users.filter(isUserSelected).map(user => (
               <TableRow
                 key={user.name}
-                className={cls(
+                className={twMerge(
                   'cursor-pointer',
                   'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle',
                   user.name === currentUser?.name ? 'bg-theme-border dark:bg-dark-theme-border' : '',
@@ -174,7 +175,7 @@ export default function Users() {
                 </TableCell>
                 <TableCell>
                   <DocumentDuplicateIcon
-                    className={cls(
+                    className={twMerge(
                       'h-5 w-5 ml-3 cursor-pointer',
                       'text-theme-content-subtle dark:text-dark-theme-content-subtle',
                       'hover:text-theme-content dark:hover:text-dark-theme-content',

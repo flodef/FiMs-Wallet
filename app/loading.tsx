@@ -1,4 +1,4 @@
-import { cls } from './utils/constants';
+import { twMerge } from 'tailwind-merge';
 
 export enum LoadingType {
   Text,
@@ -57,7 +57,7 @@ export function LoadingText({
 
   return (
     <div
-      className={cls(
+      className={twMerge(
         'text-center w-full h-full flex items-center justify-center font-semibold text-2xl',
         fullscreen ? 'absolute inset-0' : '',
         className,
@@ -65,7 +65,7 @@ export function LoadingText({
       style={{ background: 'inherit' }}
     >
       {phrase.map((item, i) => (
-        <span key={i} className={cls(rootClassName, animateClassNames[i])}>
+        <span key={i} className={twMerge(rootClassName, animateClassNames[i])}>
           {item}
         </span>
       ))}
@@ -78,7 +78,7 @@ export function LoadingDot({ fullscreen = true, className }: { fullscreen?: bool
   const circleClassName = ' h-4 w-4 rounded-full bg-theme-brand dark:bg-theme-brand-dark ';
   return (
     <div
-      className={cls(
+      className={twMerge(
         'text-center w-full h-full flex items-center justify-center',
         fullscreen ? 'absolute inset-0' : '',
         className,
@@ -86,10 +86,10 @@ export function LoadingDot({ fullscreen = true, className }: { fullscreen?: bool
       style={{ background: 'inherit' }}
     >
       <div className="h-4 w-28 flex relative">
-        <span className={cls(circleClassName, 'absolute top-0 left-0 mr-8 animate-grow')}></span>
-        <span className={cls(circleClassName, 'mr-[30px] animate-move')}></span>
-        <span className={cls(circleClassName, 'mr-[30px] animate-move')}></span>
-        <span className={cls(circleClassName, 'absolute top-0 right-0 mr-0 animate-growReverse')}></span>
+        <span className={twMerge(circleClassName, 'absolute top-0 left-0 mr-8 animate-grow')}></span>
+        <span className={twMerge(circleClassName, 'mr-[30px] animate-move')}></span>
+        <span className={twMerge(circleClassName, 'mr-[30px] animate-move')}></span>
+        <span className={twMerge(circleClassName, 'absolute top-0 right-0 mr-0 animate-growReverse')}></span>
       </div>
     </div>
   );
@@ -99,7 +99,7 @@ export function LoadingDot({ fullscreen = true, className }: { fullscreen?: bool
 export function LoadingSpinner({ fullscreen = true, className }: { fullscreen?: boolean; className?: string }) {
   return (
     <div
-      className={cls(
+      className={twMerge(
         'text-center w-full h-full flex items-center justify-center',
         fullscreen ? 'absolute inset-0' : ' scale-75',
         className,

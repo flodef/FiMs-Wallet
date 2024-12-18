@@ -3,22 +3,22 @@
 import { useEffect, useState } from 'react';
 import { EffectCreative, EffectCube, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { twMerge } from 'tailwind-merge';
 import VersionNotes, { VersionNote } from './components/versionNotes';
 import { Page, useNavigation } from './hooks/useNavigation';
 import { usePopup } from './hooks/usePopup';
 import { useUser } from './hooks/useUser';
 import { LoadingDot } from './loading';
 import MainPage from './main';
-import { cls } from './utils/constants';
 import { useLocalStorage } from './utils/localStorage';
 import { isMobileDevice } from './utils/mobile';
 import { SwiperEffect, SwipingType } from './utils/swiperEffect';
 
 // import Swiper and modules styles
+import tailwindConfig from '@/tailwind.config';
 import 'swiper/css';
 import 'swiper/css/effect-creative';
 import 'swiper/css/pagination';
-import tailwindConfig from '@/tailwind.config';
 
 export default function IndexPage() {
   const { isPopupOpen, openPopup, closePopup } = usePopup();
@@ -28,7 +28,7 @@ export default function IndexPage() {
   const [version, setVersion] = useLocalStorage('version', '0.0');
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const rootClassName = cls(
+  const rootClassName = twMerge(
     'flex-grow w-full h-screen self-center',
     isPopupOpen ? 'animate-blur overflow-hidden' : !isLoaded ? 'animate-unblur overflow-auto' : 'overflow-auto',
   );
@@ -109,7 +109,7 @@ export default function IndexPage() {
       <div className={rootClassName}>
         {isConnected ? (
           pages.map(page => (
-            <div key={page} className={cls(pageClassName, page === currentPage ? 'visible' : 'hidden')}>
+            <div key={page} className={twMerge(pageClassName, page === currentPage ? 'visible' : 'hidden')}>
               <MainPage page={page} />
             </div>
           ))

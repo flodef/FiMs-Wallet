@@ -2,22 +2,22 @@
 
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { Card, Flex } from '@tremor/react';
+import { twMerge } from 'tailwind-merge';
 import { usePopup } from '../hooks/usePopup';
-import { cls } from '../utils/constants';
 import { isMobileDevice } from '../utils/mobile';
 
 export default function Popup() {
   const { closePopup, isPopupOpen, popupContent, hasTextInput } = usePopup();
   return (
     <div
-      className={cls(
+      className={twMerge(
         'absolute inset-0 h-full w-full grid',
         isPopupOpen ? 'visible opacity-100' : 'invisible opacity-0',
         'transition-all',
       )}
     >
       <div
-        className={cls(
+        className={twMerge(
           'absolute inset-0 z-20 bg-gray-900',
           isPopupOpen ? 'opacity-50' : 'opacity-0',
           'transition-opacity',
@@ -25,7 +25,7 @@ export default function Popup() {
       ></div>
       <div
         id="popup" // id is mandatory for the screenshot to work
-        className={cls(
+        className={twMerge(
           'absolute z-30 w-[90%] max-h-[90%] max-w-[400px] overflow-y-auto overflow-x-hidden',
           'justify-self-center h-fit rounded-2xl pointer-events-auto',
           isMobileDevice() && hasTextInput ? ' mt-[15%]' : 'self-center',

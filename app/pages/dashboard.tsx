@@ -15,6 +15,7 @@ import {
 } from '@tremor/react';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import AnimatedMetric from '../components/animatedMetric';
 import Badge from '../components/badge';
 import GainsBar from '../components/gainsBar';
@@ -22,7 +23,7 @@ import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useDa
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';
-import { cls, getCurrency, getRatio } from '../utils/constants';
+import { getCurrency, getRatio } from '../utils/constants';
 import {} from '../utils/extensions';
 import { isMobileSize, useIsMobile } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
@@ -244,12 +245,12 @@ export default function Dashboard() {
                         <div className={isTokenListExpanded || priceIndex === i ? 'block' : 'hidden'} key={t.label}>
                           <Flex>
                             <ChevronLeftIcon
-                              className={cls('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
+                              className={twMerge('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
                               onClick={() => changeToken(false)}
                             />
                             <Tab onClick={!isTokenListExpanded ? () => changeToken() : undefined}>{t.label}</Tab>
                             <ChevronRightIcon
-                              className={cls('h-4 w-4 ml-2', !isTokenListExpanded ? 'block' : 'hidden')}
+                              className={twMerge('h-4 w-4 ml-2', !isTokenListExpanded ? 'block' : 'hidden')}
                               onClick={() => changeToken(true)}
                             />
                           </Flex>

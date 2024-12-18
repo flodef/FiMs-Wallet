@@ -1,7 +1,8 @@
 'use client';
 
 import { BadgeDelta, BadgeDeltaProps } from '@tremor/react';
-import { cls, getDeltaType, getRatio } from '../utils/constants';
+import { twMerge } from 'tailwind-merge';
+import { getDeltaType, getRatio } from '../utils/constants';
 import { Data } from '../utils/types';
 
 interface BadgeProps extends Omit<BadgeDeltaProps, 'className' | 'deltaType'> {
@@ -13,7 +14,7 @@ interface BadgeProps extends Omit<BadgeDeltaProps, 'className' | 'deltaType'> {
 export default function Badge({ className, data, label, ...props }: BadgeProps) {
   const ratio = Array.isArray(data) ? getRatio(data, label) : data.toRatio();
   return (
-    <BadgeDelta className={cls(className)} deltaType={getDeltaType(ratio)} {...props}>
+    <BadgeDelta className={twMerge(className)} deltaType={getDeltaType(ratio)} {...props}>
       {ratio}
     </BadgeDelta>
   );
