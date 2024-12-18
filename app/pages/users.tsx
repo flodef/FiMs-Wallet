@@ -161,8 +161,8 @@ export default function Users() {
                 key={user.name}
                 className={cls(
                   'cursor-pointer',
-                  'hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle',
-                  user.name === currentUser?.name ? 'bg-tremor-border dark:bg-dark-tremor-border' : '',
+                  'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle',
+                  user.name === currentUser?.name ? 'bg-theme-border dark:bg-dark-theme-border' : '',
                 )}
                 onClick={() => {
                   navigator.clipboard.writeText(user.address);
@@ -176,8 +176,8 @@ export default function Users() {
                   <DocumentDuplicateIcon
                     className={cls(
                       'h-5 w-5 ml-3 cursor-pointer',
-                      'text-tremor-content-subtle dark:text-dark-tremor-content-subtle',
-                      'hover:text-tremor-content dark:hover:text-dark-tremor-content',
+                      'text-theme-content-subtle dark:text-dark-theme-content-subtle',
+                      'hover:text-theme-content dark:hover:text-dark-theme-content',
                     )}
                     onClick={() => {
                       navigator.clipboard.writeText(user.address);

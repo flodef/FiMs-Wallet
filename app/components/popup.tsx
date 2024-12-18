@@ -36,7 +36,7 @@ export default function Popup() {
         <Card>
           <Flex className="w-full self-baseline justify-end">
             <XMarkIcon
-              className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0 cursor-pointer text-tremor-content-emphasis dark:text-dark-tremor-content-emphasis"
+              className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0 cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
               aria-hidden="true"
               onClick={closePopup}
             />

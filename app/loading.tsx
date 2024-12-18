@@ -75,7 +75,7 @@ export function LoadingText({
 
 // inspired by https://codepen.io/sudeepgumaste/pen/abdrorB
 export function LoadingDot({ fullscreen = true, className }: { fullscreen?: boolean; className?: string }) {
-  const circleClassName = ' h-4 w-4 rounded-full bg-tremor-brand dark:bg-tremor-brand-dark ';
+  const circleClassName = ' h-4 w-4 rounded-full bg-theme-brand dark:bg-theme-brand-dark ';
   return (
     <div
       className={cls(

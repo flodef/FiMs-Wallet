@@ -179,7 +179,7 @@ export default function Portfolio() {
                 {wallet.map(asset => (
                   <TableRow
                     key={asset.name}
-                    className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle"
+                    className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle"
                   >
                     <TableCell className="px-0 hidden 2xs:table-cell xs:px-2 sm:px-4">
                       <Image
@@ -211,16 +211,16 @@ export default function Portfolio() {
               <TableBody>
                 <TableRow className="animate-pulse">
                   <TableCell>
-                    <div className="rounded-full w-[50px] h-[50px] bg-tremor-border"></div>
+                    <div className="rounded-full w-[50px] h-[50px] bg-theme-border"></div>
                   </TableCell>
                   <TableCell>
                     <Flex justifyContent="between">
-                      <div className="bg-tremor-border w-24 h-7 mb-1 rounded-md"></div>
-                      <div className="bg-tremor-border w-10 h-5 mb-1 rounded-md"></div>
+                      <div className="bg-theme-border w-24 h-7 mb-1 rounded-md"></div>
+                      <div className="bg-theme-border w-10 h-5 mb-1 rounded-md"></div>
                     </Flex>
                     <Flex justifyContent="between">
-                      <div className="bg-tremor-border w-16 h-5 mb-1 rounded-md"></div>
-                      <div className="bg-tremor-border w-24 h-7 mb-1 rounded-md"></div>
+                      <div className="bg-theme-border w-16 h-5 mb-1 rounded-md"></div>
+                      <div className="bg-theme-border w-24 h-7 mb-1 rounded-md"></div>
                     </Flex>
                   </TableCell>
                 </TableRow>

@@ -188,7 +188,7 @@ export default function Transactions() {
                   (type, index) =>
                     transactions?.filter(t => t.type === index).length !== 0 && (
                       <TableRow
-                        className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
+                        className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
                         onClick={() => {
                           setSelectedType(TransactionType[index]);
                           setCostFilter(false);
@@ -207,7 +207,7 @@ export default function Transactions() {
                 )}
               {transactions?.filter(t => t.cost < 0).length !== 0 && (
                 <TableRow
-                  className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
+                  className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
                   onClick={() => {
                     setSelectedType(undefined);
                     setCostFilter(true);
@@ -221,7 +221,7 @@ export default function Transactions() {
                 </TableRow>
               )}
               <TableRow
-                className="font-bold hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
+                className="font-bold hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
                 onClick={() => {
                   setCostFilter(false);
                   setSelectedType(undefined);
@@ -338,7 +338,7 @@ export default function Transactions() {
                   ])?.map((transaction, index) => (
                     <TableRow
                       key={index}
-                      className="hover:bg-tremor-background-subtle dark:hover:bg-dark-tremor-background-subtle cursor-pointer"
+                      className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
                       onClick={() => openPopup(<TransactionDetails transaction={transaction} />)}
                     >
                       <TableCell>{transaction.date.toShortDate()}</TableCell>

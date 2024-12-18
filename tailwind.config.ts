@@ -194,25 +194,11 @@ export default {
         },
       },
       colors: {
-        'writing-light': colors.amber['600'], // amber-600
-        'main-from-light': colors.orange['50'], // orange-50 */
-        'main-to-light': colors.orange['200'], // orange-200 */
-        'popup-light': colors.slate['100'], // slate-100
-        'active-light': colors.orange['300'], // orange-300
-        'secondary-light': colors.lime['500'], // lime-500
-        'secondary-active-light': colors.lime['400'], // lime-300
-        'writing-dark': colors.yellow['400'], // yellow-400
-        'main-from-dark': colors.lime['600'], // lime-600 */
-        'main-to-dark': colors.green['900'], // green-900 */
-        'popup-dark': colors.yellow['900'], // yellow-900
-        'active-dark': colors.lime['500'], // lime-500
-        'secondary-dark': colors.orange['300'], // orange-300
-        'secondary-active-dark': colors.orange['500'], // orange-500
         ok: colors.green['500'], // green-500
         error: colors.red['500'], // red-500
 
         // light mode
-        tremor: {
+        theme: {
           brand: {
             faint: colors.blue[50],
             muted: colors.blue[200],
@@ -242,7 +228,7 @@ export default {
           },
         },
         // dark mode
-        'dark-tremor': {
+        'dark-theme': {
           brand: {
             faint: '#0B1229',
             muted: colors.blue[950],

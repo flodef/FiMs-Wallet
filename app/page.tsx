@@ -33,7 +33,7 @@ export default function IndexPage() {
     isPopupOpen ? 'animate-blur overflow-hidden' : !isLoaded ? 'animate-unblur overflow-auto' : 'overflow-auto',
   );
   const pageClassName =
-    'space-y-6 p-4 md:p-10 mx-auto w-full max-w-7xl text-center center overflow-auto bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle';
+    'space-y-6 p-4 md:p-10 mx-auto w-full max-w-7xl text-center center overflow-auto bg-theme-background-subtle dark:bg-dark-theme-background-subtle';
 
   useEffect(() => {
     const interval = setInterval(() => {

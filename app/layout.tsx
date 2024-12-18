@@ -1,5 +1,6 @@
 import './globals.css';
 
+import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ReactNode } from 'react';
 import Navbar from './components/navBar';
@@ -19,14 +20,14 @@ export const metadata = {
 export default function RootLayout({ children }: { children: Readonly<ReactNode> }) {
   return (
     <html lang="fr">
-      <body className="flex flex-col h-screen bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle overflow-hidden">
+      <body className="flex flex-col h-screen bg-theme-background-subtle dark:bg-dark-theme-background-subtle overflow-hidden">
         <NavigationProvider>
           <DataProvider>
             <UserProvider>
               <PopupProvider>
                 <PrivacyProvider>
                   <Navbar />
-                  {children}
+                  <AntdRegistry>{children}</AntdRegistry>
                   <SpeedInsights />
                   <Toast />
                   <Popup />

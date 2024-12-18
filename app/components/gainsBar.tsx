@@ -40,12 +40,6 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
 
   return (
     <>
-      <style>
-        {`.tremor-MarkerBar-rangeBar {
-            background-color: ${isPositive ? '#22c55e' : '#ef4444'};
-          }
-        `}
-      </style>
       <Flex className="mt-4 mb-1">
         {invested || !isReady ? (
           <Subtitle
