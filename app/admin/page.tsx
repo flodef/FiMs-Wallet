@@ -1,6 +1,6 @@
 'use client';
 
-import { CurrencyEuroIcon } from '@heroicons/react/24/solid';
+import { IconCurrencyEuro } from '@tabler/icons-react';
 import { PublicKey } from '@solana/web3.js';
 import {
   Button,
@@ -36,6 +36,7 @@ import { getShortAddress } from '../utils/constants';
 import {} from '../utils/extensions';
 import { DataName, loadData } from '../utils/processData';
 import { MinMax } from '../utils/types';
+import { message } from 'antd';
 
 const transactionCost = 0.5;
 const nameLimit: MinMax = { min: 5, max: 25 };
@@ -80,6 +81,8 @@ export default function AdminPage() {
   const [transactionFilter, setTransactionFilter] = useState('0');
   const [cryptoTransactions, setCryptoTransactions] = useState<Transaction[]>();
   const [isAuthorized, setIsAuthorized] = useState(false);
+
+  const [messageApi, contextHolder] = message.useMessage();
 
   const initUser = useCallback(() => {
     setName('');
@@ -262,7 +265,10 @@ export default function AdminPage() {
       .then(result => {
         if (result.ok) {
           console.log(`User ${action}ed`);
-          //TODO : Add a toast to notify the user
+          messageApi.open({
+            type: 'success',
+            content: `User ${action}ed`,
+          });
 
           loadUsers();
         }
@@ -297,7 +303,10 @@ export default function AdminPage() {
       .then(result => {
         if (result.ok) {
           console.log(`Transaction ${action}ed`);
-          //TODO : Add a toast to notify the user
+          messageApi.open({
+            type: 'success',
+            content: `Transaction ${action}ed`,
+          });
 
           loadTransactions();
         }
@@ -308,6 +317,7 @@ export default function AdminPage() {
 
   return isAuthorized ? (
     <Grid style={{ gap: 24, margin: 24 }} numItemsSm={2} className="w-full max-w-7xl self-center px-6">
+      {contextHolder}
       <Card>
         <Title>User</Title>
         <TabGroup
@@ -494,7 +504,7 @@ export default function AdminPage() {
             placeholder="Movement"
             error={isTransactionType(TransactionType.donation) && movement <= 0}
             errorMessage={`The movement should be positive!`}
-            icon={CurrencyEuroIcon}
+            icon={IconCurrencyEuro}
             step={1}
             min={0}
             max={100000}
@@ -546,7 +556,7 @@ export default function AdminPage() {
             onValueChange={setTokenPrice}
             onFocus={handleFocus}
             placeholder="Token Price"
-            icon={CurrencyEuroIcon}
+            icon={IconCurrencyEuro}
             step={0.001}
             min={0}
             max={10000}
