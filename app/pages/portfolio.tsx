@@ -193,7 +193,7 @@ export default function Portfolio() {
                     <TableCell className="px-2 xs:px-4">
                       <Flex justifyContent="between">
                         <div className="text-xl max-w-36 xs:max-w-full truncate">{asset.name}</div>
-                        <div>{`${asset.balance.toShortFixed()} ${asset.symbol}`}</div>
+                        <div>{`${asset.balance.toFixed(asset.balance.getPrecision())} ${asset.symbol}`}</div>
                       </Flex>
                       <Flex justifyContent="between">
                         <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
