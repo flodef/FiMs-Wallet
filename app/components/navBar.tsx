@@ -1,7 +1,6 @@
 'use client';
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Button, Tab, TabGroup, TabList } from '@tremor/react';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -35,6 +34,8 @@ export default function Navbar() {
 
   const goHome = () => (window.location.href = window.location.origin);
   const goToDashboard = () => isConnected && currentPage !== Page.Dashboard && setPage(Page.Dashboard);
+
+  const genericHamburgerLine = `h-1 w-6 my-[3px] rounded-full bg-black dark:bg-white transition ease transform`;
 
   return (
     <Disclosure
@@ -89,7 +90,8 @@ export default function Navbar() {
                     <div className="-mr-2 ml-2 flex items-center sm:hidden">
                       <DisclosureButton
                         className={twMerge(
-                          'inline-flex items-center justify-center rounded-md p-2 focus:outline-none',
+                          'flex flex-col h-12 w-12 border-0 border-black dark:border-white',
+                          'rounded justify-center items-center group ml-0 p-2 focus:outline-none bg-transparent',
                           'bg-theme-background dark:bg-dark-theme-background',
                           'text-theme-content-subtle dark:text-dark-theme-content-subtle',
                           'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle',
@@ -97,17 +99,28 @@ export default function Navbar() {
                         )}
                       >
                         <span className="sr-only">Open main menu</span>
-                        {open ? (
-                          <XMarkIcon
-                            className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
-                            aria-hidden="true"
-                          />
-                        ) : (
-                          <Bars3Icon
-                            className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0"
-                            aria-hidden="true"
-                          />
-                        )}
+                        <div
+                          className={twMerge(
+                            genericHamburgerLine,
+                            open
+                              ? 'rotate-45 translate-y-[10px] opacity-100 group-hover:opacity-100'
+                              : 'opacity-100 group-hover:opacity-100',
+                          )}
+                        />
+                        <div
+                          className={twMerge(
+                            genericHamburgerLine,
+                            open ? 'opacity-0' : 'opacity-100 group-hover:opacity-100',
+                          )}
+                        />
+                        <div
+                          className={twMerge(
+                            genericHamburgerLine,
+                            open
+                              ? '-rotate-45 -translate-y-[10px] opacity-100 group-hover:opacity-100'
+                              : 'opacity-100 group-hover:opacity-100',
+                          )}
+                        />
                       </DisclosureButton>
                     </div>
                   </div>
