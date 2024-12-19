@@ -96,7 +96,16 @@ Number.prototype.getPrecision = function () {
 
   // Determine precision based on the number's magnitude
   const log10 = Math.floor(Math.log10(absNum));
-  const precision = log10 < 0 ? Math.abs(log10) + 1 : 2; // +1 to account for numbers like 0.1 or 0.01
+  const initialPrecision = log10 <= 0 ? Math.abs(log10) + (log10 === 0 ? 3 : 2) : 2;
+
+  // Convert the number to a string with the initial precision to inspect for trailing zeros
+  const numStr = absNum.toFixed(initialPrecision);
+
+  // Remove trailing zeros after the decimal point
+  const trimmedNumStr = numStr.replace(/0*$/, '');
+
+  // Calculate the new precision based on the trimmed string
+  const precision = trimmedNumStr.includes('.') ? trimmedNumStr.length - trimmedNumStr.indexOf('.') - 1 : 0;
 
   // Limit the precision to 5
   return Math.min(precision, 5);
