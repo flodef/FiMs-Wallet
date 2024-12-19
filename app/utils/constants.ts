@@ -1,7 +1,6 @@
 import { PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { SyntheticEvent } from 'react';
 import { Data } from './types';
-import { DeltaType } from '@tremor/react';
 
 export const handleEvent = (event: SyntheticEvent) => {
   if (event instanceof KeyboardEvent) {
@@ -19,13 +18,6 @@ export const getCurrency = (data: Data[], label: string | undefined, defaultValu
 };
 export const getRatio = (data: Data[], label: string | undefined, defaultValue = 0) => {
   return (findValue(data, label)?.ratio ?? defaultValue).toRatio();
-};
-export const getDeltaType = (ratio: number | string | undefined) => {
-  const r = parseFloat(String(ratio ?? 0));
-  const decrease = r < 10 ? 'decrease' : 'moderateDecrease';
-  const increase = r > 10 ? 'increase' : 'moderateIncrease';
-  const delta = r > 0 ? increase : decrease;
-  return (r ? delta : 'unchanged') as DeltaType;
 };
 
 export const getFormattedDate = (date = new Date(), precision = 3) =>

@@ -2,19 +2,20 @@
 
 import tailwindConfig from '@/tailwind.config';
 import { Typography } from 'antd';
+import { BaseType } from 'antd/es/typography/Base';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 const { Title } = Typography;
 
-interface AnimatedMetricProps {
+interface LoadingTitleProps {
   isReady: boolean;
-  color?: string;
+  type?: BaseType;
   className?: string;
   children: React.ReactNode;
 }
 
-export default function AnimatedMetric({ isReady = false, color = 'green', className, children }: AnimatedMetricProps) {
+export default function LoadingTitle({ isReady = false, type = 'success', className, children }: LoadingTitleProps) {
   const [isLoaded, setIsLoaded] = useState(isReady);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function AnimatedMetric({ isReady = false, color = 'green', class
   }, [isReady]);
 
   return (
-    <Title color={color} className={twMerge(className, !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}>
+    <Title type={type} className={twMerge(className, !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}>
       {children}
     </Title>
   );

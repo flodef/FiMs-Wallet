@@ -16,9 +16,9 @@ import {
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import AnimatedMetric from '../components/animatedMetric';
-import Badge from '../components/badge';
+import RatioBadge from '../components/ratioBadge';
 import GainsBar from '../components/gainsBar';
+import LoadingTitle from '../components/loadingTitle';
 import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
@@ -166,11 +166,9 @@ export default function Dashboard() {
           <Flex alignItems="start">
             <div>
               <Title className="text-left">{t.assets}</Title>
-              <AnimatedMetric isReady={dashboard.length > 0}>
-                {getCurrency(dashboard, 'assets', 1000000)}
-              </AnimatedMetric>
+              <LoadingTitle isReady={dashboard.length > 0}>{getCurrency(dashboard, 'assets', 1000000)}</LoadingTitle>
             </div>
-            <Badge data={dashboard} label="price @" />
+            <RatioBadge data={dashboard} label="price @" />
           </Flex>
         </AccordionHeader>
         <AccordionBody>
@@ -203,13 +201,13 @@ export default function Dashboard() {
                 </TabGroup>
               </Flex>
               <Flex alignItems="start">
-                <AnimatedMetric
-                  color={result[resultIndex].total.fromCurrency() < 0 ? 'red' : 'green'}
+                <LoadingTitle
+                  type={result[resultIndex].total.fromCurrency() >= 0 ? 'success' : 'danger'}
                   isReady={dashboard.length > 0}
                 >
                   {result[resultIndex].total}
-                </AnimatedMetric>
-                <Badge className="mt-2" data={dashboard} label="profit" />
+                </LoadingTitle>
+                <RatioBadge className="mt-2" data={dashboard} label="profit" />
               </Flex>
             </Flex>
           </AccordionHeader>
@@ -261,10 +259,10 @@ export default function Dashboard() {
                 </TabGroup>
               </Flex>
               <Flex alignItems="start">
-                <AnimatedMetric isReady={token.length > 0}>
+                <LoadingTitle isReady={token.length > 0}>
                   {getCurrency(token, token.at(priceIndex)?.label)}
-                </AnimatedMetric>
-                <Badge className="mt-2" data={token.at(priceIndex)?.yearlyYield ?? 0} />
+                </LoadingTitle>
+                <RatioBadge className="mt-2" data={token.at(priceIndex)?.yearlyYield ?? 0} />
               </Flex>
             </Flex>
           </AccordionHeader>

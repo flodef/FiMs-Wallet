@@ -14,9 +14,9 @@ import {
 } from '@tremor/react';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import AnimatedMetric from '../components/animatedMetric';
-import Badge from '../components/badge';
+import RatioBadge from '../components/ratioBadge';
 import GainsBar from '../components/gainsBar';
+import LoadingTitle from '../components/loadingTitle';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
 import { usePrivacy } from '../contexts/privacyProvider';
 import type { UserHistoric } from '../hooks/useData';
@@ -159,14 +159,14 @@ export default function Portfolio() {
           <Flex alignItems="start">
             <Flex flexDirection="col" alignItems="start">
               <Title className="text-left">{t.totalValue}</Title>
-              <Flex justifyContent="start">
-                <AnimatedMetric isReady={!!portfolio}>
+              <Flex justifyContent="start" className="items-baseline">
+                <LoadingTitle isReady={!!portfolio}>
                   <Privacy amount={portfolio?.total} />
-                </AnimatedMetric>
+                </LoadingTitle>
                 <PrivacyButton />
               </Flex>
             </Flex>
-            <Badge className={portfolio?.yearlyYield ? 'visible' : 'hidden'} data={portfolio?.yearlyYield ?? 0} />
+            <RatioBadge className={portfolio?.yearlyYield ? 'visible' : 'hidden'} data={portfolio?.yearlyYield ?? 0} />
           </Flex>
         </AccordionHeader>
         <AccordionBody>
