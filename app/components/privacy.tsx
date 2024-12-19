@@ -9,10 +9,23 @@ export function toPrivacy(amount: number | undefined, hasPrivacy: boolean, isSho
     .replace(hasPrivacy ? /[0-9.,;-\s]/g : /^$/, '*');
 }
 
-export function Privacy({ amount, isShort }: { amount: Readonly<number | undefined>; isShort?: Readonly<boolean> }) {
+export type PrivacyType = 'blur' | 'star';
+export function Privacy({
+  amount,
+  isShort,
+  type = 'blur',
+}: {
+  amount: Readonly<number | undefined>;
+  isShort?: Readonly<boolean>;
+  type?: PrivacyType;
+}) {
   const { hasPrivacy } = usePrivacy();
 
-  return <>{toPrivacy(amount, hasPrivacy, isShort)}</>;
+  return (
+    <div className={hasPrivacy && type === 'blur' ? 'blur' : 'blur-none'}>
+      {toPrivacy(amount, hasPrivacy && type === 'star', isShort)}
+    </div>
+  );
 }
 
 export function PrivacyButton() {
