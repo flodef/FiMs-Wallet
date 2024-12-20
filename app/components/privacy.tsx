@@ -1,4 +1,4 @@
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { Icon } from '@tremor/react';
 import { usePrivacy } from '../contexts/privacyProvider';
 
@@ -33,9 +33,9 @@ export function PrivacyButton() {
 
   return (
     <Icon
-      className="ml-2 cursor-pointer"
-      icon={hasPrivacy ? EyeIcon : EyeSlashIcon}
-      size="lg"
+      className="ml-4 p-0 cursor-pointer self-center"
+      icon={hasPrivacy ? IconEye : IconEyeOff}
+      size="xl"
       color="gray"
       onClick={e => {
         e.stopPropagation();

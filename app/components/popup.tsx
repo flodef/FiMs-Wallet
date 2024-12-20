@@ -1,6 +1,6 @@
 'use client';
 
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { IconX } from '@tabler/icons-react';
 import { Card, Flex } from '@tremor/react';
 import { twMerge } from 'tailwind-merge';
 import { usePopup } from '../hooks/usePopup';
@@ -35,7 +35,7 @@ export default function Popup() {
       >
         <Card>
           <Flex className="w-full self-baseline justify-end">
-            <XMarkIcon
+            <IconX
               className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0 cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
               aria-hidden="true"
               onClick={closePopup}

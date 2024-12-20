@@ -1,5 +1,10 @@
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { ArrowDownRightIcon, ArrowUpRightIcon, ExclamationCircleIcon, HeartIcon } from '@heroicons/react/24/solid';
+import {
+  IconSearch,
+  IconArrowDownRight,
+  IconArrowUpRight,
+  IconExclamationCircleFilled,
+  IconHeartFilled,
+} from '@tabler/icons-react';
 import {
   Card,
   Flex,
@@ -66,8 +71,8 @@ export const getTransactionType = (transaction: Transaction | { movement: number
   return Number(transaction.movement) > 0 ? depositType : TransactionType.withdrawal;
 };
 const getTransactionIcon = (transaction: Transaction) => {
-  const transactionIcon = transaction.type === TransactionType.deposit ? ArrowDownRightIcon : ArrowUpRightIcon;
-  return transaction.type === TransactionType.donation ? HeartIcon : transactionIcon;
+  const transactionIcon = transaction.type === TransactionType.deposit ? IconArrowDownRight : IconArrowUpRight;
+  return transaction.type === TransactionType.donation ? IconHeartFilled : transactionIcon;
 };
 
 const thisPage = Page.Transactions;
@@ -260,7 +265,7 @@ export default function Transactions() {
               {(dateFilter?.length ?? 0) > 1 ? (
                 <MultiSelect
                   id="searchDate"
-                  icon={MagnifyingGlassIcon}
+                  icon={IconSearch}
                   placeholder={t.selectTransactionDate}
                   placeholderSearch={t.search}
                   spellCheck={false}
@@ -281,7 +286,7 @@ export default function Transactions() {
               {(movementFilter?.length ?? 0) > 1 ? (
                 <MultiSelect
                   id="searchMovement"
-                  icon={MagnifyingGlassIcon}
+                  icon={IconSearch}
                   placeholder={t.selectTransactionMovement}
                   placeholderSearch={t.search}
                   spellCheck={false}
@@ -304,7 +309,7 @@ export default function Transactions() {
               {(typeFilter?.length ?? 0) > 1 ? (
                 <Select
                   id="searchType"
-                  icon={MagnifyingGlassIcon}
+                  icon={IconSearch}
                   enableClear={true}
                   placeholder={t.selectTransactionType}
                   spellCheck={false}
@@ -350,7 +355,7 @@ export default function Transactions() {
                           {transaction.type === TransactionType.withdrawal && transaction.cost < 0 && (
                             <Icon
                               className="self-center"
-                              icon={ExclamationCircleIcon}
+                              icon={IconExclamationCircleFilled}
                               color="gray"
                               tooltip={t.withdrawalCost + ' : ' + transaction.cost.toLocaleCurrency()}
                             />

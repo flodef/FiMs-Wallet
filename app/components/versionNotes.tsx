@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline';
+import { IconArrowDown, IconArrowUp } from '@tabler/icons-react';
 import { Button, Divider, Flex, Metric, Title } from '@tremor/react';
 import { useState } from 'react';
 import { useIsMobile } from '../utils/mobile';
@@ -48,7 +48,7 @@ export default function VersionNotes({ versionNotes, onClose }: { versionNotes: 
           {t.close}
         </Button>
         <Button
-          icon={showMore ? ArrowUpIcon : ArrowDownIcon}
+          icon={showMore ? IconArrowUp : IconArrowDown}
           iconPosition="right"
           variant="light"
           onClick={() => setShowMore(!showMore)}

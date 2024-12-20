@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronUpDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid';
+import { IconChevronUp, IconChevronDown, IconSelector } from '@tabler/icons-react';
 import { Flex, Icon, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -83,10 +83,10 @@ export function SortHeader<T extends tableObject>({
           className="w-6 h-6"
           icon={
             filters[index] === 'ascending'
-              ? ChevronUpIcon
+              ? IconChevronUp
               : filters[index] === 'descending'
-                ? ChevronDownIcon
-                : ChevronUpDownIcon
+                ? IconChevronDown
+                : IconSelector
           }
         />
       )}

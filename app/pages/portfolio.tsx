@@ -160,7 +160,7 @@ export default function Portfolio() {
             <Flex flexDirection="col" alignItems="start">
               <Title className="text-left">{t.totalValue}</Title>
               <Flex justifyContent="start" className="items-baseline">
-                <LoadingTitle isReady={!!portfolio}>
+                <LoadingTitle isReady={!!portfolio} className="m-0">
                   <Privacy amount={portfolio?.total} />
                 </LoadingTitle>
                 <PrivacyButton />

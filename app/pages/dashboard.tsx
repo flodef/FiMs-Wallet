@@ -1,4 +1,4 @@
-import { ChartPieIcon, ChevronLeftIcon, ChevronRightIcon, ListBulletIcon } from '@heroicons/react/24/outline';
+import { IconChartPie, IconList, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import {
   Accordion,
   AccordionBody,
@@ -195,8 +195,8 @@ export default function Dashboard() {
                     variant={!isDesktop ? 'solid' : 'line'}
                     onClick={e => e.stopPropagation()}
                   >
-                    <Tab icon={ChartPieIcon}>{t.total}</Tab>
-                    <Tab icon={ListBulletIcon}>{t.profit}</Tab>
+                    <Tab icon={IconChartPie}>{t.total}</Tab>
+                    <Tab icon={IconList}>{t.profit}</Tab>
                   </TabList>
                 </TabGroup>
               </Flex>
@@ -242,12 +242,12 @@ export default function Dashboard() {
                       {token.map((t, i) => (
                         <div className={isTokenListExpanded || priceIndex === i ? 'block' : 'hidden'} key={t.label}>
                           <Flex>
-                            <ChevronLeftIcon
+                            <IconChevronLeft
                               className={twMerge('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
                               onClick={() => changeToken(false)}
                             />
                             <Tab onClick={!isTokenListExpanded ? () => changeToken() : undefined}>{t.label}</Tab>
-                            <ChevronRightIcon
+                            <IconChevronRight
                               className={twMerge('h-4 w-4 ml-2', !isTokenListExpanded ? 'block' : 'hidden')}
                               onClick={() => changeToken(true)}
                             />

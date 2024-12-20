@@ -16,7 +16,6 @@
   "dependencies": {
     "@ant-design/nextjs-registry": "latest",
     "@headlessui/react": "latest",
-    "@heroicons/react": "latest",
     "@solana/wallet-adapter-base": "latest",
     "@solana/wallet-adapter-react": "latest",
     "@solana/wallet-adapter-solflare": "latest",

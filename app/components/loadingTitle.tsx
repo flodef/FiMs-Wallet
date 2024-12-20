@@ -27,7 +27,11 @@ export default function LoadingTitle({ isReady = false, type = 'success', classN
   }, [isReady]);
 
   return (
-    <Title type={type} className={twMerge(className, !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}>
+    <Title
+      type={type}
+      style={{ margin: 0 }}
+      className={twMerge(className, !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}
+    >
       {children}
     </Title>
   );

@@ -1,5 +1,4 @@
-import { DocumentDuplicateIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { InformationCircleIcon } from '@heroicons/react/24/solid';
+import { IconCopy, IconSearch, IconInfoCircleFilled } from '@tabler/icons-react';
 import {
   Card,
   Flex,
@@ -116,7 +115,7 @@ export default function Users() {
         {isPublic !== undefined && (
           <Flex justifyContent="end">
             <Icon
-              icon={InformationCircleIcon}
+              icon={IconInfoCircleFilled}
               tooltip={tooltipText}
               color="gray"
               onClick={
@@ -138,7 +137,7 @@ export default function Users() {
             ref={inputRef}
             className="max-w-full sm:max-w-xs"
             id="search"
-            icon={MagnifyingGlassIcon}
+            icon={IconSearch}
             placeholder={t.selectUser}
             placeholderSearch={t.search}
             spellCheck={false}
@@ -174,7 +173,7 @@ export default function Users() {
                   <Text>{getShortAddress(user.address)}</Text>
                 </TableCell>
                 <TableCell>
-                  <DocumentDuplicateIcon
+                  <IconCopy
                     className={twMerge(
                       'h-5 w-5 ml-3 cursor-pointer',
                       'text-theme-content-subtle dark:text-dark-theme-content-subtle',
