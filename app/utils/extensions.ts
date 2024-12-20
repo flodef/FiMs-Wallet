@@ -35,7 +35,7 @@ Number.prototype.toLocaleCurrency = function (currency = 'EUR') {
   return Intl.NumberFormat(navigator.language, {
     style: 'currency',
     currency: currency,
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: precision,
   }).format(Number(this));
 };
@@ -88,26 +88,22 @@ Number.prototype.toClosestPowerOfTen = function (direction: RoundingDirection = 
 };
 
 Number.prototype.getPrecision = function () {
-  // Convert to absolute value to handle negative numbers
   const absNum = Math.abs(Number(this));
 
-  // If number is 10 or greater, return 2 (assuming no need for decimals beyond one place)
   if (absNum >= 10) return 2;
+  if (absNum === 0) return 0;
 
   // Determine precision based on the number's magnitude
   const log10 = Math.floor(Math.log10(absNum));
   const initialPrecision = log10 <= 0 ? Math.abs(log10) + (log10 === 0 ? 3 : 2) : 2;
 
-  // Convert the number to a string with the initial precision to inspect for trailing zeros
-  const numStr = absNum.toFixed(initialPrecision);
-
   // Remove trailing zeros after the decimal point
+  const numStr = absNum.toFixed(initialPrecision);
   const trimmedNumStr = numStr.replace(/0*$/, '');
 
   // Calculate the new precision based on the trimmed string
   const precision = trimmedNumStr.includes('.') ? trimmedNumStr.length - trimmedNumStr.indexOf('.') - 1 : 0;
 
-  // Limit the precision to 5
   return Math.min(precision, 5);
 };
 
