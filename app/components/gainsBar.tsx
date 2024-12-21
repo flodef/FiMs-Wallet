@@ -45,7 +45,7 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
         {invested || !isReady ? (
           <Subtitle
             className={twMerge(
-              'flex truncate w-0 text-left xs:w-1/2',
+              'flex whitespace-nowrap truncate w-0 text-left xs:w-1/2',
               !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '',
             )}
           >
@@ -54,7 +54,9 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
           </Subtitle>
         ) : null}
         {invested || !isReady ? (
-          <Subtitle className={twMerge('flex', !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}>
+          <Subtitle
+            className={twMerge('flex whitespace-nowrap', !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}
+          >
             {isPositive ? t.profits : t.loss}&nbsp;:&nbsp;
             <Privacy amount={profitValue} />
             &nbsp;{profitRatio ? '(' + profitRatio.toRatio() + ')' : ''}
