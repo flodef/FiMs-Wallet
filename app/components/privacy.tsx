@@ -3,7 +3,7 @@ import { Icon } from '@tremor/react';
 import { usePrivacy } from '../contexts/privacyProvider';
 
 export function toPrivacy(amount: number | undefined, hasPrivacy: boolean, isShort?: boolean): string {
-  const convert = isShort ? (a: number) => a.toShortCurrency() : (a: number) => a.toLocaleCurrency();
+  const convert = isShort ? (a: number) => a.toShortCurrency(2) : (a: number) => a.toLocaleCurrency();
   return convert(amount ?? 0)
     .replace(hasPrivacy ? '-' : '', '')
     .replace(hasPrivacy ? /[0-9.,;-\s]/g : /^$/, '*');

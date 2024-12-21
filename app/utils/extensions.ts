@@ -1,19 +1,19 @@
 'use client';
 
-import { MinMax, SymbolPosition } from './types';
+import { MinMax, RoundingDirection, SymbolPosition } from './types';
 
 // Extend prototype
 declare global {
   interface Number {
-    toLocaleCurrency(currency?: string): string;
+    toLocaleCurrency(maxDecimals?: number, currency?: string): string;
     toShortCurrency(maxDecimals?: number, symbol?: string): string;
-    toCurrency(maxDecimals?: number, symbol?: string): string;
+    toCurrency(maxDecimals?: number, symbol?: string, symbolPosition?: SymbolPosition): string;
     toRatio(maxDecimals?: number): string;
     toLocaleDateString(): string;
     toShortFixed(maxDecimals?: number): string;
     toDecimalPlace(decimalPlace?: number, direction?: RoundingDirection): number;
     toClosestPowerOfTen(direction?: RoundingDirection): number;
-    getPrecision(): number;
+    getPrecision(maxDecimals?: number): number;
   }
   interface String {
     fromCurrency(locale?: string): number;
@@ -29,24 +29,56 @@ declare global {
   }
 }
 
-Number.prototype.toLocaleCurrency = function (currency = 'EUR') {
-  const precision = this.getPrecision();
+Number.prototype.toLocaleCurrency = function (maxDecimals?: number, currency = 'EUR') {
+  const num = Number(this);
 
-  return Intl.NumberFormat(navigator.language, {
-    style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: precision,
-  }).format(Number(this));
+  maxDecimals = this.getPrecision(maxDecimals);
+  const formatter = (curr: string) =>
+    Intl.NumberFormat(navigator.language, {
+      style: 'currency',
+      currency: curr,
+      minimumFractionDigits: maxDecimals,
+      maximumFractionDigits: maxDecimals,
+    }).format(num);
+
+  try {
+    return formatter(currency);
+  } catch {
+    // If currency is invalid, use EUR as template and replace € with the custom currency
+    return formatter('EUR').replace('€', currency);
+  }
 };
 
-Number.prototype.toShortCurrency = function (maxDecimals = 0, symbol = '€') {
-  return (
-    this.toShortFixed(maxDecimals)
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-      .replace(/ 000 000/, 'M')
-      .replace(/ 000/, 'K') + (symbol ? (Number(this) < 1000 ? ' ' : '') + symbol : '')
-  );
+Number.prototype.toShortCurrency = function (maxDecimals?: number, currency = 'EUR') {
+  const billion = 1000000000;
+  const million = 1000000;
+  const thousand = 1000;
+
+  const addSuffix = (formattedNum: string, suffix: string) => {
+    // If currency is at the start (e.g., $123), add suffix at the end
+    if (formattedNum.match(/^[^\d]/)) {
+      return formattedNum + suffix;
+    }
+    // If currency is at the end (e.g., 123 €), add suffix before currency
+    // Look for the last number followed by any whitespace and then the currency
+    const match = formattedNum.match(/^(.*?\d)(\s*[^\d]+)$/);
+    if (match) {
+      return match[1] + suffix + match[2];
+    }
+    return formattedNum + suffix;
+  };
+
+  const num = Number(this);
+  if (num >= billion) {
+    return addSuffix((num / billion).toLocaleCurrency(maxDecimals, currency), 'B');
+  }
+  if (num >= million) {
+    return addSuffix((num / million).toLocaleCurrency(maxDecimals, currency), 'M');
+  }
+  if (num >= thousand) {
+    return addSuffix((num / thousand).toLocaleCurrency(maxDecimals, currency), 'K');
+  }
+  return num.toLocaleCurrency(maxDecimals, currency);
 };
 
 Number.prototype.toCurrency = function (maxDecimals = 2, symbol = '€', symbolPosition: SymbolPosition = 'after') {
@@ -65,7 +97,6 @@ Number.prototype.toShortFixed = function (maxDecimals = 2) {
   return Number.isInteger(this) ? this.toString() : this.toFixed(maxDecimals);
 };
 
-export type RoundingDirection = 'up' | 'down';
 Number.prototype.toDecimalPlace = function (decimalPlace = 2, direction: RoundingDirection = 'up') {
   const multiplier = 10 ** decimalPlace;
   const roundedValue =
@@ -87,10 +118,10 @@ Number.prototype.toClosestPowerOfTen = function (direction: RoundingDirection = 
   return Math.pow(10, direction === 'down' ? power : power + 1);
 };
 
-Number.prototype.getPrecision = function () {
+Number.prototype.getPrecision = function (maxDecimals = 5) {
   const absNum = Math.abs(Number(this));
 
-  if (absNum >= 10) return 2;
+  if (absNum >= 10) return Math.min(maxDecimals, 2);
   if (absNum === 0) return 0;
 
   // Determine precision based on the number's magnitude
@@ -104,7 +135,7 @@ Number.prototype.getPrecision = function () {
   // Calculate the new precision based on the trimmed string
   const precision = trimmedNumStr.includes('.') ? trimmedNumStr.length - trimmedNumStr.indexOf('.') - 1 : 0;
 
-  return Math.min(precision, 5);
+  return Math.min(precision, maxDecimals);
 };
 
 String.prototype.fromCurrency = function (locale?: string) {
