@@ -264,7 +264,6 @@ export default function AdminPage() {
     })
       .then(result => {
         if (result.ok) {
-          console.log(`User ${action}ed`);
           messageApi.open({
             type: 'success',
             content: `User ${action}ed`,
@@ -302,7 +301,6 @@ export default function AdminPage() {
     })
       .then(result => {
         if (result.ok) {
-          console.log(`Transaction ${action}ed`);
           messageApi.open({
             type: 'success',
             content: `Transaction ${action}ed`,
