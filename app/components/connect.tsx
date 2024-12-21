@@ -66,9 +66,13 @@ export default function Connect() {
   }, [isPopupOpen, setFocus]);
 
   return (
-    <Flex flexDirection="col">
-      <Title className="mb-6">{t.connect}</Title>
+    <Flex
+      flexDirection="col"
+      className="w-full space-y-6 text-center text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
+    >
+      <Title>{t.connect}</Title>
       <TextInput
+        className="max-w-xs"
         autoFocus
         ref={inputRef}
         error={hasConnectionError}

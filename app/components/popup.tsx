@@ -26,7 +26,7 @@ export default function Popup() {
       <div
         id="popup" // id is mandatory for the screenshot to work
         className={twMerge(
-          'absolute z-30 w-[90%] max-h-[90%] max-w-[400px] overflow-y-auto overflow-x-hidden',
+          'absolute z-30 max-h-[90%] w-[80%] max-w-[500px] max overflow-y-auto overflow-x-hidden',
           'justify-self-center h-fit rounded-2xl pointer-events-auto',
           isMobileDevice() && hasTextInput ? ' mt-[15%]' : 'self-center',
           isPopupOpen ? 'opacity-100 blur-none' : 'opacity-0 blur-sm',

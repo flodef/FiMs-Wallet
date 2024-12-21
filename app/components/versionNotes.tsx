@@ -1,10 +1,10 @@
 import { IconArrowDown, IconArrowUp } from '@tabler/icons-react';
-import { Button, Divider, Flex, Metric } from '@tremor/react';
+import { Button, Divider, Flex } from '@tremor/react';
 import { marked } from 'marked';
 import { useState } from 'react';
-import { useIsMobile } from '../utils/mobile';
+import { twMerge } from 'tailwind-merge';
 import { Dataset } from '../utils/types';
-import { Title } from './typography';
+import { Metric, Title } from './typography';
 
 const t: Dataset = {
   close: 'Fermer',
@@ -19,25 +19,19 @@ export type VersionNote = {
 };
 
 export default function VersionNotes({ versionNotes, onClose }: { versionNotes: VersionNote[]; onClose: () => void }) {
-  const isMobile = useIsMobile(450); // sm for tailwindcss breakpoints
-  const isTablet = useIsMobile(640); // md for tailwindcss breakpoints
-
   const [showMore, setShowMore] = useState(false);
 
   return (
-    <Flex flexDirection="col">
+    <Flex flexDirection="col" className="text-theme-content-emphasis dark:text-dark-theme-content-emphasis">
       <Metric>{t.news}</Metric>
       {versionNotes.map((versionNote, index) => (
-        <div className={index === 0 || showMore ? 'visible' : 'hidden'} key={index}>
+        <div className={twMerge('w-full', index === 0 || showMore ? 'visible' : 'hidden')} key={index}>
           <Divider>
             <Title>{versionNote.version}</Title>
           </Divider>
-          <ul
-            className="w-64 sm:w-96 md:w-[450px]"
-            style={{ listStyleType: 'disc', width: isMobile ? '250px' : isTablet ? '350px' : '450px' }}
-          >
+          <ul style={{ listStyleType: 'disc' }}>
             {versionNote.notes.map((note, noteIndex) => (
-              <li className="text-left" key={noteIndex}>
+              <li key={noteIndex}>
                 <span dangerouslySetInnerHTML={{ __html: marked.parse(note) }}></span>
               </li>
             ))}

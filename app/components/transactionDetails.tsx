@@ -25,11 +25,11 @@ export const TransactionDetails = ({ transaction }: { transaction: Transaction }
   const { closePopup } = usePopup();
 
   return (
-    <>
+    <div className="w-full space-y-6 text-center text-theme-content-emphasis dark:text-dark-theme-content-emphasis">
       <Title className="text-center mb-2">
         {t[TransactionType[transaction.type ?? 0]]} {t.from} {transaction.date.toShortDate()}
       </Title>
-      <List>
+      <List className="max-w-xs mx-auto">
         {['movement']
           .concat(transaction.type !== TransactionType.donation ? ['cost', 'token', 'rate'] : [])
           .map((item, index) =>
@@ -63,6 +63,6 @@ export const TransactionDetails = ({ transaction }: { transaction: Transaction }
           {t.close}
         </Button>
       </Flex>
-    </>
+    </div>
   );
 };

@@ -9,6 +9,12 @@ interface TitleProps {
   className?: string;
 }
 
+export const Metric = ({ children, className }: TitleProps) => (
+  <Typography.Title style={{ margin: 0, color: 'inherit' }} className={className}>
+    {children}
+  </Typography.Title>
+);
+
 export const Title = ({ children, className }: TitleProps) => (
   <Typography.Title level={4} style={{ margin: 0, color: 'inherit' }} className={className}>
     {children}

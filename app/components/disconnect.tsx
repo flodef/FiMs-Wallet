@@ -28,8 +28,11 @@ export default function Disconnect() {
   }, [isPopupOpen]);
 
   return (
-    <Flex flexDirection="col">
-      <Title className="mb-6">{t.disconnect}</Title>
+    <Flex
+      flexDirection="col"
+      className="w-full space-y-6 text-center text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
+    >
+      <Title>{t.disconnect}</Title>
       <Button ref={buttonRef} className="flex font-bold" style={{ borderRadius: 24 }} onClick={handleDisconnect}>
         {t.goodBye}
       </Button>
