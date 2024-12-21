@@ -252,8 +252,8 @@ export default {
           content: {
             subtle: colors.gray[600],
             DEFAULT: colors.gray[500],
-            emphasis: colors.gray[200],
-            strong: colors.gray[50],
+            emphasis: colors.gray[400],
+            strong: colors.gray[100],
             inverted: colors.gray[950],
           },
         },
