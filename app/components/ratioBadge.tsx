@@ -2,6 +2,7 @@
 
 import { IconArrowDown, IconArrowDownRight, IconArrowUp, IconArrowUpRight } from '@tabler/icons-react';
 import { Statistic, Tooltip } from 'antd';
+import { twMerge } from 'tailwind-merge';
 import { getRatio } from '../utils/constants';
 import { Data } from '../utils/types';
 
@@ -43,7 +44,7 @@ export default function RatioBadge({ className, data, label }: BadgeProps) {
   return (
     <Tooltip title={label}>
       <Statistic
-        className={className}
+        className={twMerge('self-center', className)}
         value={ratio}
         precision={2}
         valueStyle={{
