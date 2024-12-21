@@ -1,3 +1,8 @@
+# 1.8
+
+- **Relookage de l'application** : animations, couleurs, typographie
+- **Amélioration de l'affichage des données** : chiffres plus lisibles, affichage des décimales, menus dynamiques
+
 # 1.7
 
 - **Ajout de nouvelles monnaies** : Bitcoin, EURC, USDC, USDT
