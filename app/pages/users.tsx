@@ -1,4 +1,4 @@
-import { IconCopy, IconSearch, IconInfoCircleFilled } from '@tabler/icons-react';
+import { IconCopy, IconInfoCircleFilled, IconSearch } from '@tabler/icons-react';
 import {
   Card,
   Flex,
@@ -11,11 +11,11 @@ import {
   TableCell,
   TableRow,
   Text,
-  Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import SortTableHead from '../components/sortTableHead';
+import { Title } from '../components/typography';
 import { useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, useUser } from '../hooks/useUser';

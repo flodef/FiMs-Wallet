@@ -1,9 +1,9 @@
 import {
-  IconSearch,
   IconArrowDownRight,
   IconArrowUpRight,
   IconExclamationCircleFilled,
   IconHeartFilled,
+  IconSearch,
 } from '@tabler/icons-react';
 import {
   Card,
@@ -19,13 +19,13 @@ import {
   TableCell,
   TableRow,
   Text,
-  Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Privacy, PrivacyButton } from '../components/privacy';
 import SortTableHead from '../components/sortTableHead';
 import { TransactionDetails } from '../components/transactionDetails';
+import { Title } from '../components/typography';
 import { Transaction, TransactionType, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';

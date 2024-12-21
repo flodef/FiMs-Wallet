@@ -1,4 +1,4 @@
-import { IconChartPie, IconList, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { IconChartPie, IconChevronLeft, IconChevronRight, IconList } from '@tabler/icons-react';
 import {
   Accordion,
   AccordionBody,
@@ -11,14 +11,13 @@ import {
   Tab,
   TabGroup,
   TabList,
-  Title,
 } from '@tremor/react';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import RatioBadge from '../components/ratioBadge';
 import GainsBar from '../components/gainsBar';
-import LoadingTitle from '../components/loadingTitle';
+import RatioBadge from '../components/ratioBadge';
+import { LoadingMetric, Title } from '../components/typography';
 import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
@@ -162,11 +161,11 @@ export default function Dashboard() {
   return (
     <>
       <Accordion defaultOpen={!isMobileSize()}>
-        <AccordionHeader>
+        <AccordionHeader className="text-inherit dark:text-inherit">
           <Flex alignItems="start">
             <div>
               <Title className="text-left">{t.assets}</Title>
-              <LoadingTitle isReady={dashboard.length > 0}>{getCurrency(dashboard, 'assets', 1000000)}</LoadingTitle>
+              <LoadingMetric isReady={dashboard.length > 0}>{getCurrency(dashboard, 'assets', 1000000)}</LoadingMetric>
             </div>
             <RatioBadge data={dashboard} label="price @" />
           </Flex>
@@ -185,7 +184,7 @@ export default function Dashboard() {
 
       <Grid numItemsSm={2} numItemsLg={result.length} className="gap-6">
         <Accordion defaultOpen={!isMobileSize()}>
-          <AccordionHeader>
+          <AccordionHeader className="text-inherit dark:text-inherit">
             <Flex alignItems="start" flexDirection="col">
               <Flex alignItems="start" flexDirection={!isDesktop ? 'row' : 'col'}>
                 <Title className="text-left whitespace-nowrap">{t.result}</Title>
@@ -201,12 +200,12 @@ export default function Dashboard() {
                 </TabGroup>
               </Flex>
               <Flex alignItems="start">
-                <LoadingTitle
+                <LoadingMetric
                   type={result[resultIndex].total.fromCurrency() >= 0 ? 'success' : 'danger'}
                   isReady={dashboard.length > 0}
                 >
                   {result[resultIndex].total}
-                </LoadingTitle>
+                </LoadingMetric>
                 <RatioBadge className="mt-2" data={dashboard} label="profit" />
               </Flex>
             </Flex>
@@ -224,7 +223,7 @@ export default function Dashboard() {
           </AccordionBody>
         </Accordion>
         <Accordion defaultOpen={!isMobileSize()}>
-          <AccordionHeader>
+          <AccordionHeader className="text-inherit dark:text-inherit">
             <Flex alignItems="start" flexDirection="col">
               <Flex alignItems="start" flexDirection={!isDesktop ? 'row' : 'col'}>
                 <Title className="text-left">{t.price}</Title>
@@ -259,9 +258,9 @@ export default function Dashboard() {
                 </TabGroup>
               </Flex>
               <Flex alignItems="start">
-                <LoadingTitle isReady={token.length > 0}>
+                <LoadingMetric isReady={token.length > 0}>
                   {getCurrency(token, token.at(priceIndex)?.label)}
-                </LoadingTitle>
+                </LoadingMetric>
                 <RatioBadge className="mt-2" data={token.at(priceIndex)?.yearlyYield ?? 0} />
               </Flex>
             </Flex>
@@ -292,7 +291,7 @@ export default function Dashboard() {
         </Accordion>
       </Grid>
       <Accordion className="group" defaultOpen={!isMobileSize()}>
-        <AccordionHeader>
+        <AccordionHeader className="text-inherit dark:text-inherit">
           <Title>Performance</Title>
           {historic.length > 1 && (
             <SparkAreaChart

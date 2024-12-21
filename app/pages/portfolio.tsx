@@ -10,14 +10,13 @@ import {
   TableBody,
   TableCell,
   TableRow,
-  Title,
 } from '@tremor/react';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import RatioBadge from '../components/ratioBadge';
 import GainsBar from '../components/gainsBar';
-import LoadingTitle from '../components/loadingTitle';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
+import RatioBadge from '../components/ratioBadge';
+import { LoadingMetric, Title } from '../components/typography';
 import { usePrivacy } from '../contexts/privacyProvider';
 import type { UserHistoric } from '../hooks/useData';
 import { useData } from '../hooks/useData';
@@ -155,14 +154,14 @@ export default function Portfolio() {
   return (
     <>
       <Accordion defaultOpen={true}>
-        <AccordionHeader>
+        <AccordionHeader className="text-inherit dark:text-inherit">
           <Flex alignItems="start">
             <Flex flexDirection="col" alignItems="start">
               <Title className="text-left">{t.totalValue}</Title>
               <Flex justifyContent="start" className="items-baseline">
-                <LoadingTitle isReady={!!portfolio} className="m-0">
+                <LoadingMetric isReady={!!portfolio} className="m-0">
                   <Privacy amount={portfolio?.total} />
-                </LoadingTitle>
+                </LoadingMetric>
                 <PrivacyButton />
               </Flex>
             </Flex>
@@ -232,7 +231,7 @@ export default function Portfolio() {
 
       {!portfolio || portfolio?.invested ? (
         <Accordion className="group" defaultOpen={!isMobileSize()}>
-          <AccordionHeader>
+          <AccordionHeader className="text-inherit dark:text-inherit">
             <Title>Performance</Title>
             {userHistoric.length > 1 && (
               <Flex className="w-full" justifyContent="center">
@@ -256,7 +255,7 @@ export default function Portfolio() {
               index="stringDate"
               colors={['indigo', 'fuchsia']}
               valueFormatter={amount => toPrivacy(amount, hasPrivacy, true)}
-              yAxisWidth={50}
+              yAxisWidth={55}
               showAnimation={true}
               animationDuration={2000}
               curveType="monotone"

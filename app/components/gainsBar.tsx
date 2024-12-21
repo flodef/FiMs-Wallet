@@ -1,9 +1,10 @@
 import tailwindConfig from '@/tailwind.config';
-import { Flex, MarkerBar, Subtitle } from '@tremor/react';
+import { Flex, MarkerBar } from '@tremor/react';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Dataset } from '../utils/types';
 import { Privacy } from './privacy';
+import { Subtitle } from './typography';
 
 const t: Dataset = {
   invested: 'Investi',

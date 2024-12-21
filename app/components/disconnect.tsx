@@ -1,8 +1,9 @@
-import { Button, Flex, Title } from '@tremor/react';
+import { Button, Flex } from '@tremor/react';
 import { useCallback, useEffect, useRef } from 'react';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
 import { Dataset } from '../utils/types';
+import { Title } from './typography';
 
 const t: Dataset = {
   disconnect: 'Se déconnecter ?',

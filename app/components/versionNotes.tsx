@@ -1,9 +1,10 @@
 import { IconArrowDown, IconArrowUp } from '@tabler/icons-react';
-import { Button, Divider, Flex, Metric, Title } from '@tremor/react';
+import { Button, Divider, Flex, Metric } from '@tremor/react';
+import { marked } from 'marked';
 import { useState } from 'react';
 import { useIsMobile } from '../utils/mobile';
 import { Dataset } from '../utils/types';
-import { marked } from 'marked';
+import { Title } from './typography';
 
 const t: Dataset = {
   close: 'Fermer',

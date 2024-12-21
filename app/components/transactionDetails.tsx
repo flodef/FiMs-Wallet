@@ -1,9 +1,10 @@
-import { Button, Flex, List, ListItem, Title } from '@tremor/react';
+import { Button, Flex, List, ListItem } from '@tremor/react';
 import { twMerge } from 'tailwind-merge';
 import { Transaction, TransactionType } from '../hooks/useData';
 import { usePopup } from '../hooks/usePopup';
 import { getTokenLabel, getTokenRate } from '../pages/transactions';
 import { Dataset } from '../utils/types';
+import { Title } from './typography';
 
 const t: Dataset = {
   cost: 'Frais',

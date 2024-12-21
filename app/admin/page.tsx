@@ -24,7 +24,6 @@ import {
   TableRow,
   Text,
   TextInput,
-  Title,
 } from '@tremor/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -37,6 +36,7 @@ import {} from '../utils/extensions';
 import { DataName, loadData } from '../utils/processData';
 import { MinMax } from '../utils/types';
 import { message } from 'antd';
+import { Title } from '../components/typography';
 
 const transactionCost = 0.5;
 const nameLimit: MinMax = { min: 5, max: 25 };
