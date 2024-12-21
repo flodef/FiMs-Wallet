@@ -25,6 +25,7 @@ export async function GET(request: Request) {
   const address = searchParams.get('address');
   const creators = searchParams.get('creators')?.split(',').filter(Boolean);
   const tokens = searchParams.get('tokens')?.split(',').filter(Boolean);
+  const showEmptyBalance = searchParams.get('showEmptyBalance');
 
   if (!address) return NextResponse.json({ error: 'Missing required parameter: address.' }, { status: 500 });
 
@@ -100,7 +101,7 @@ export async function GET(request: Request) {
               balance: item ? item.token_info.balance / Math.pow(10, item.token_info.decimals) : 0,
             };
           })
-          .filter(token => token.name && token.symbol);
+          .filter(token => showEmptyBalance || (token.name && token.symbol && token.balance > 0));
 
     return NextResponse.json(data);
   } catch (error) {
