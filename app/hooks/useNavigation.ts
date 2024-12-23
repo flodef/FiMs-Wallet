@@ -7,10 +7,11 @@ export enum Page {
   Dashboard = 'Dashboard', // Should stay at the end
 }
 
+export const pages = Object.values(Page);
+
 export interface NavigationContextState {
   page: Page | undefined;
   setPage: (page: Page) => void;
-  pages: Page[];
   needRefresh: boolean;
   setNeedRefresh: (needRefresh: boolean) => void;
 }

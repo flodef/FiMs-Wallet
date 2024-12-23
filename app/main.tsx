@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSwiper } from 'swiper/react';
-import { Page, useNavigation } from './hooks/useNavigation';
+import { Page, pages, useNavigation } from './hooks/useNavigation';
 import { useUser } from './hooks/useUser';
 import { LoadingDot } from './loading';
 import Dashboard from './pages/dashboard';
@@ -9,7 +9,7 @@ import Transactions from './pages/transactions';
 import Users from './pages/users';
 
 export default function MainPage({ page }: { page: Page }) {
-  const { pages, page: currentPage } = useNavigation();
+  const { page: currentPage } = useNavigation();
   const { user } = useUser();
 
   const swiper = useSwiper();
@@ -21,7 +21,7 @@ export default function MainPage({ page }: { page: Page }) {
     if (i === swiper.activeIndex) return;
 
     swiper.slideTo(i);
-  }, [currentPage, pages, swiper]);
+  }, [currentPage, swiper]);
 
   return !user || page === Page.Dashboard ? (
     <Dashboard />
