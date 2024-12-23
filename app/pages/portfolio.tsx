@@ -1,18 +1,8 @@
-import {
-  Accordion,
-  AccordionBody,
-  AccordionHeader,
-  AreaChart,
-  Divider,
-  Flex,
-  SparkAreaChart,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from '@tremor/react';
+import { AreaChart, Divider, Flex, SparkAreaChart, Table, TableBody, TableCell, TableRow } from '@tremor/react';
+import { CollapseProps } from 'antd';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { CollapsiblePanel } from '../components/collapsiblePanel';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
 import RatioBadge from '../components/ratioBadge';
@@ -56,8 +46,8 @@ export default function Portfolio() {
 
   const loadAssets = async (address: string) => {
     return (await fetch(`/api/solana/getAssets?address=${address}`)
-      .then(async result => await (result.ok ? result.json() : undefined))
-      .catch(console.error)) as Asset[];
+      .then(result => result.json())
+      .catch(console.error)) as Asset[] | undefined;
   };
 
   const computeAssets = useCallback(
@@ -79,9 +69,9 @@ export default function Portfolio() {
         solProfitPrice: 0,
       };
 
-      const getAsset = (symbol: string) => assets.find(a => a.symbol === symbol);
+      const getAsset = (t: TokenData, assets: Asset[] | undefined) => assets?.find(a => a.symbol === t.symbol);
       const assets = await loadAssets(user.address);
-      if (assets.length) {
+      if (assets?.length) {
         const computeBalance = (filter = '') =>
           assets.reduce(
             (a, b) =>
@@ -92,7 +82,7 @@ export default function Portfolio() {
         p.total = computeBalance();
         p.profitValue = computeBalance('FiMs') - p.invested;
         p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
-        p.token = tokenData.map(t => getAsset(t.symbol)?.balance ?? 0).filter(b => b);
+        p.token = tokenData.map(t => getAsset(t, assets)?.balance ?? 0).filter(b => b);
       }
 
       if (p.total === portfolio?.total) return;
@@ -100,12 +90,11 @@ export default function Portfolio() {
       setPortfolio(p);
       setWallet(
         tokenData
-          .filter(t => getAsset(t.symbol))
           .map((t, i) => ({
             ...t,
             image: t.label.includes('FiMs')
               ? FIMS_TOKEN_PATH + t.symbol + '.png'
-              : SPL_TOKEN_PATH + getAsset(t.symbol)?.id + '.webp',
+              : SPL_TOKEN_PATH + getAsset(t, assets)?.id + '.webp',
             name: t.label,
             balance: p.token[i],
             total: p.token[i] * t.value,
@@ -151,24 +140,24 @@ export default function Portfolio() {
     return { minHisto, maxHisto };
   }, [userHistoric]);
 
-  return (
-    <>
-      <Accordion defaultOpen={true}>
-        <AccordionHeader className="text-inherit dark:text-inherit">
-          <Flex alignItems="start">
-            <Flex flexDirection="col" alignItems="start">
-              <Title className="text-left">{t.totalValue}</Title>
-              <Flex justifyContent="start" className="items-baseline">
-                <LoadingMetric isReady={!!portfolio} className="m-0">
-                  <Privacy amount={portfolio?.total} />
-                </LoadingMetric>
-                <PrivacyButton />
-              </Flex>
+  const itemsGeneral: CollapseProps['items'] = [
+    {
+      label: (
+        <Flex alignItems="start">
+          <Flex flexDirection="col" alignItems="start">
+            <Title className="text-left">{t.totalValue}</Title>
+            <Flex justifyContent="start" className="items-baseline">
+              <LoadingMetric isReady={!!portfolio} className="m-0">
+                <Privacy amount={portfolio?.total} />
+              </LoadingMetric>
+              <PrivacyButton />
             </Flex>
-            <RatioBadge className={portfolio?.yearlyYield ? 'visible' : 'hidden'} data={portfolio?.yearlyYield ?? 0} />
           </Flex>
-        </AccordionHeader>
-        <AccordionBody>
+          <RatioBadge className={portfolio?.yearlyYield ? 'visible' : 'hidden'} data={portfolio?.yearlyYield ?? 0} />
+        </Flex>
+      ),
+      children: (
+        <>
           {!portfolio || portfolio.invested ? <GainsBar values={portfolio} isReady={!!portfolio} /> : null}
           {!wallet || wallet.length ? <Divider style={{ fontSize: 18 }}>{t.assets}</Divider> : null}
 
@@ -226,46 +215,58 @@ export default function Portfolio() {
               </TableBody>
             </Table>
           )}
-        </AccordionBody>
-      </Accordion>
+        </>
+      ),
+    },
+  ];
 
-      {!portfolio || portfolio?.invested ? (
-        <Accordion className="group" defaultOpen={!isMobileSize()}>
-          <AccordionHeader className="text-inherit dark:text-inherit">
-            <Title>Performance</Title>
-            {userHistoric.length > 1 && (
-              <Flex className="w-full" justifyContent="center">
-                <SparkAreaChart
-                  data={userHistoric.sort((a, b) => a.date - b.date)}
-                  categories={[t.total]}
-                  index={'stringDate'}
-                  colors={['emerald']}
-                  className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
-                  curveType="monotone"
-                  noDataText={t.loading}
-                />
-              </Flex>
-            )}
-          </AccordionHeader>
-          <AccordionBody>
-            <AreaChart
-              className="h-80"
-              data={userHistoric.sort((a, b) => a.date - b.date)}
-              categories={[t.transfered, t.total]}
-              index="stringDate"
-              colors={['indigo', 'fuchsia']}
-              valueFormatter={amount => toPrivacy(amount, hasPrivacy, true)}
-              yAxisWidth={55}
-              showAnimation={true}
-              animationDuration={2000}
-              curveType="monotone"
-              noDataText={t.loading}
-              minValue={minHisto}
-              maxValue={maxHisto}
-            />
-          </AccordionBody>
-        </Accordion>
-      ) : null}
+  const itemsPerformances: CollapseProps['items'] = [
+    {
+      label: (
+        <Flex alignItems="start">
+          <Title>Performance</Title>
+          {userHistoric.length > 1 && (
+            <Flex className="w-full" justifyContent="center">
+              <SparkAreaChart
+                className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
+                data={userHistoric.sort((a, b) => a.date - b.date)}
+                categories={[t.total]}
+                index={'stringDate'}
+                colors={['emerald']}
+                curveType="monotone"
+                noDataText={t.loading}
+              />
+            </Flex>
+          )}
+        </Flex>
+      ),
+      children: (
+        <AreaChart
+          className="h-80"
+          data={userHistoric.sort((a, b) => a.date - b.date)}
+          categories={[t.transfered, t.total]}
+          index="stringDate"
+          colors={['indigo', 'fuchsia']}
+          valueFormatter={amount => toPrivacy(amount, hasPrivacy, true)}
+          yAxisWidth={55}
+          showAnimation={true}
+          animationDuration={2000}
+          curveType="monotone"
+          noDataText={t.loading}
+          minValue={minHisto}
+          maxValue={maxHisto}
+        />
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <CollapsiblePanel items={itemsGeneral} />
+
+      {(!portfolio || portfolio?.invested) && (
+        <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobileSize()} />
+      )}
     </>
   );
 }

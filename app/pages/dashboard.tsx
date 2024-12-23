@@ -1,20 +1,10 @@
 import { IconChartPie, IconChevronLeft, IconChevronRight, IconList } from '@tabler/icons-react';
-import {
-  Accordion,
-  AccordionBody,
-  AccordionHeader,
-  AreaChart,
-  BarList,
-  Flex,
-  Grid,
-  SparkAreaChart,
-  Tab,
-  TabGroup,
-  TabList,
-} from '@tremor/react';
+import { AreaChart, BarList, Flex, Grid, SparkAreaChart, Tab, TabGroup, TabList } from '@tremor/react';
 
+import { CollapseProps } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { CollapsiblePanel } from '../components/collapsiblePanel';
 import GainsBar from '../components/gainsBar';
 import RatioBadge from '../components/ratioBadge';
 import { LoadingMetric, Title } from '../components/typography';
@@ -158,144 +148,148 @@ export default function Dashboard() {
     [priceIndex, token.length],
   );
 
-  return (
-    <>
-      <Accordion defaultOpen={!isMobileSize()}>
-        <AccordionHeader className="text-inherit dark:text-inherit">
-          <Flex alignItems="start">
-            <div>
-              <Title className="text-left">{t.assets}</Title>
-              <LoadingMetric isReady={dashboard.length > 0}>{getCurrency(dashboard, 'assets', 1000000)}</LoadingMetric>
-            </div>
-            <RatioBadge data={dashboard} label="price @" />
-          </Flex>
-        </AccordionHeader>
-        <AccordionBody>
-          <GainsBar
-            values={{
-              invested: getCurrency(dashboard, 'transfered').fromCurrency(),
-              profitValue: getCurrency(dashboard, 'gains').fromCurrency(),
-              profitRatio: parseFloat(getRatio(dashboard, 'gains')) / 100,
-            }}
-            isReady={!!dashboard.length}
-          />
-        </AccordionBody>
-      </Accordion>
+  const itemsGeneral: CollapseProps['items'] = [
+    {
+      label: (
+        <Flex alignItems="start">
+          <div>
+            <Title className="text-left">{t.assets}</Title>
+            <LoadingMetric isReady={dashboard.length > 0}>{getCurrency(dashboard, 'assets', 1000000)}</LoadingMetric>
+          </div>
+          <RatioBadge data={dashboard} label="price @" />
+        </Flex>
+      ),
+      children: (
+        <GainsBar
+          values={{
+            invested: getCurrency(dashboard, 'transfered').fromCurrency(),
+            profitValue: getCurrency(dashboard, 'gains').fromCurrency(),
+            profitRatio: parseFloat(getRatio(dashboard, 'gains')) / 100,
+          }}
+          isReady={!!dashboard.length}
+        />
+      ),
+    },
+  ];
 
-      <Grid numItemsSm={2} numItemsLg={result.length} className="gap-6">
-        <Accordion defaultOpen={!isMobileSize()}>
-          <AccordionHeader className="text-inherit dark:text-inherit">
-            <Flex alignItems="start" flexDirection="col">
-              <Flex alignItems="start" flexDirection={!isDesktop ? 'row' : 'col'}>
-                <Title className="text-left whitespace-nowrap">{t.result}</Title>
-                <TabGroup index={resultIndex} onIndexChange={setResultIndex} className="mb-4 xl:mb-0 xl:text-right">
-                  <TabList
-                    className="float-left xl:float-right"
-                    variant={!isDesktop ? 'solid' : 'line'}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <Tab icon={IconChartPie}>{t.total}</Tab>
-                    <Tab icon={IconList}>{t.profit}</Tab>
-                  </TabList>
-                </TabGroup>
-              </Flex>
-              <Flex alignItems="start">
-                <LoadingMetric
-                  type={result[resultIndex].total.fromCurrency() >= 0 ? 'success' : 'danger'}
-                  isReady={dashboard.length > 0}
-                >
-                  {result[resultIndex].total}
-                </LoadingMetric>
-                <RatioBadge className="mt-2" data={dashboard} label="profit" />
-              </Flex>
-            </Flex>
-          </AccordionHeader>
-          <AccordionBody>
-            <BarList
-              data-testid="bar-chart"
-              data={result[resultIndex].data}
-              showAnimation={true}
-              valueFormatter={(number: number) =>
-                (result[resultIndex].data.find(d => d.value === number)?.amount ?? number).toLocaleCurrency()
-              }
-              className="mt-2"
-            />
-          </AccordionBody>
-        </Accordion>
-        <Accordion defaultOpen={!isMobileSize()}>
-          <AccordionHeader className="text-inherit dark:text-inherit">
-            <Flex alignItems="start" flexDirection="col">
-              <Flex alignItems="start" flexDirection={!isDesktop ? 'row' : 'col'}>
-                <Title className="text-left">{t.price}</Title>
-                <TabGroup
-                  index={priceIndex}
-                  onIndexChange={isTokenListExpanded ? setPriceIndex : undefined}
-                  className="mb-4 xl:mb-0 xl:text-right max-w-[200px]"
-                >
-                  <TabList
-                    className="float-left xl:float-right"
-                    variant={!isDesktop ? 'solid' : 'line'}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <Flex>
-                      {token.map((t, i) => (
-                        <div className={isTokenListExpanded || priceIndex === i ? 'block' : 'hidden'} key={t.label}>
-                          <Flex>
-                            <IconChevronLeft
-                              className={twMerge('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
-                              onClick={() => changeToken(false)}
-                            />
-                            <Tab onClick={!isTokenListExpanded ? () => changeToken() : undefined}>{t.label}</Tab>
-                            <IconChevronRight
-                              className={twMerge('h-4 w-4 ml-2', !isTokenListExpanded ? 'block' : 'hidden')}
-                              onClick={() => changeToken(true)}
-                            />
-                          </Flex>
-                        </div>
-                      ))}
-                    </Flex>
-                  </TabList>
-                </TabGroup>
-              </Flex>
-              <Flex alignItems="start">
-                <LoadingMetric isReady={token.length > 0}>
-                  {getCurrency(token, token.at(priceIndex)?.label)}
-                </LoadingMetric>
-                <RatioBadge className="mt-2" data={token.at(priceIndex)?.yearlyYield ?? 0} />
-              </Flex>
-            </Flex>
-          </AccordionHeader>
-          <AccordionBody>
-            <AreaChart
-              className="h-44"
-              data={tokenHistoric[priceIndex]}
-              categories={[t.amount]}
-              index="date"
-              colors={[
-                tokenHistoric.length && tokenHistoric[priceIndex][0].Montant < tokenHistoric[priceIndex][1].Montant
-                  ? 'green'
-                  : 'red',
-              ]}
-              valueFormatter={number => number.toFixed(0)}
-              yAxisWidth={50}
-              showAnimation={true}
-              animationDuration={2000}
-              curveType="monotone"
-              noDataText={t.loading}
-              minValue={tokenHistoricLimit?.min ?? 0}
-              maxValue={tokenHistoricLimit?.max ?? 0}
-              showLegend={false}
-              startEndOnly={true}
-            />
-          </AccordionBody>
-        </Accordion>
-      </Grid>
-      <Accordion className="group" defaultOpen={!isMobileSize()}>
-        <AccordionHeader className="text-inherit dark:text-inherit">
+  const itemsResults: CollapseProps['items'] = [
+    {
+      label: (
+        <Flex alignItems="start" flexDirection="col" className="h-32">
+          <Flex alignItems="start" flexDirection={!isDesktop ? 'row' : 'col'}>
+            <Title className="text-left whitespace-nowrap">{t.result}</Title>
+            <TabGroup index={resultIndex} onIndexChange={setResultIndex} className="mb-4 xl:mb-0 xl:text-right">
+              <TabList
+                className="float-left xl:float-right"
+                variant={!isDesktop ? 'solid' : 'line'}
+                onClick={e => e.stopPropagation()}
+              >
+                <Tab icon={IconChartPie}>{t.total}</Tab>
+                <Tab icon={IconList}>{t.profit}</Tab>
+              </TabList>
+            </TabGroup>
+          </Flex>
+          <Flex alignItems="start">
+            <LoadingMetric
+              type={result[resultIndex].total.fromCurrency() >= 0 ? 'success' : 'danger'}
+              isReady={dashboard.length > 0}
+            >
+              {result[resultIndex].total}
+            </LoadingMetric>
+            <RatioBadge className="mt-2" data={dashboard} label="profit" />
+          </Flex>
+        </Flex>
+      ),
+      children: (
+        <BarList
+          className="h-40"
+          data-testid="bar-chart"
+          data={result[resultIndex].data}
+          showAnimation={true}
+          valueFormatter={(number: number) =>
+            (result[resultIndex].data.find(d => d.value === number)?.amount ?? number).toLocaleCurrency()
+          }
+        />
+      ),
+    },
+  ];
+
+  const itemsPrices: CollapseProps['items'] = [
+    {
+      label: (
+        <Flex alignItems="start" flexDirection="col" className="h-32">
+          <Flex alignItems="start" flexDirection={!isDesktop ? 'row' : 'col'}>
+            <Title className="text-left">{t.price}</Title>
+            <TabGroup
+              index={priceIndex}
+              onIndexChange={isTokenListExpanded ? setPriceIndex : undefined}
+              className="mb-4 xl:mb-0 xl:text-right max-w-[200px]"
+            >
+              <TabList
+                className="float-left xl:float-right"
+                variant={!isDesktop ? 'solid' : 'line'}
+                onClick={e => e.stopPropagation()}
+              >
+                <Flex>
+                  {token.map((t, i) => (
+                    <div className={isTokenListExpanded || priceIndex === i ? 'block' : 'hidden'} key={t.label}>
+                      <Flex>
+                        <IconChevronLeft
+                          className={twMerge('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
+                          onClick={() => changeToken(false)}
+                        />
+                        <Tab onClick={!isTokenListExpanded ? () => changeToken() : undefined}>{t.label}</Tab>
+                        <IconChevronRight
+                          className={twMerge('h-4 w-4 ml-2', !isTokenListExpanded ? 'block' : 'hidden')}
+                          onClick={() => changeToken(true)}
+                        />
+                      </Flex>
+                    </div>
+                  ))}
+                </Flex>
+              </TabList>
+            </TabGroup>
+          </Flex>
+          <Flex alignItems="start">
+            <LoadingMetric isReady={token.length > 0}>{getCurrency(token, token.at(priceIndex)?.label)}</LoadingMetric>
+            <RatioBadge className="mt-2" data={token.at(priceIndex)?.yearlyYield ?? 0} />
+          </Flex>
+        </Flex>
+      ),
+      children: (
+        <AreaChart
+          className="h-40"
+          data={tokenHistoric[priceIndex]}
+          categories={[t.amount]}
+          index="date"
+          colors={[
+            tokenHistoric.length && tokenHistoric[priceIndex][0].Montant < tokenHistoric[priceIndex][1].Montant
+              ? 'green'
+              : 'red',
+          ]}
+          valueFormatter={number => number.toFixed(0)}
+          yAxisWidth={50}
+          showAnimation={true}
+          animationDuration={2000}
+          curveType="monotone"
+          noDataText={t.loading}
+          minValue={tokenHistoricLimit?.min ?? 0}
+          maxValue={tokenHistoricLimit?.max ?? 0}
+          showLegend={false}
+          startEndOnly={true}
+        />
+      ),
+    },
+  ];
+
+  const itemsPerformances: CollapseProps['items'] = [
+    {
+      label: (
+        <Flex alignItems="start">
           <Title>Performance</Title>
           {historic.length > 1 && (
             <SparkAreaChart
-              className="ml-4 h-10 w-[80%] text-center animate-display group-data-[headlessui-state=open]:invisible"
+              className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
               data={historic.sort((a, b) => a.date - b.date)}
               categories={[t.total]}
               index={'stringDate'}
@@ -304,23 +298,36 @@ export default function Dashboard() {
               noDataText={t.loading}
             />
           )}
-        </AccordionHeader>
-        <AccordionBody>
-          <AreaChart
-            className="h-80"
-            data={historic.sort((a, b) => a.date - b.date)}
-            categories={[t.transfered, t.total]}
-            index="stringDate"
-            colors={['indigo', 'fuchsia']}
-            valueFormatter={number => number.toShortCurrency()}
-            yAxisWidth={50}
-            showAnimation={true}
-            animationDuration={2000}
-            curveType="monotone"
-            noDataText={t.loading}
-          />
-        </AccordionBody>
-      </Accordion>
+        </Flex>
+      ),
+      children: (
+        <AreaChart
+          className="h-80"
+          data={historic.sort((a, b) => a.date - b.date)}
+          categories={[t.transfered, t.total]}
+          index="stringDate"
+          colors={['indigo', 'fuchsia']}
+          valueFormatter={number => number.toShortCurrency()}
+          yAxisWidth={50}
+          showAnimation={true}
+          animationDuration={2000}
+          curveType="monotone"
+          noDataText={t.loading}
+        />
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <CollapsiblePanel items={itemsGeneral} />
+
+      <Grid numItemsSm={2} numItemsLg={result.length} className="gap-6">
+        <CollapsiblePanel items={itemsResults} isExpanded={!isMobileSize()} />
+        <CollapsiblePanel items={itemsPrices} isExpanded={!isMobileSize()} />
+      </Grid>
+
+      <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobileSize()} />
     </>
   );
 }
