@@ -71,7 +71,7 @@ export function useWindowParam() {
     height: windowSize.height,
     top: windowPosition.top,
     left: windowPosition.left,
-    colorScheme,
+    isDark: colorScheme === ColorScheme.Dark,
     isOnline,
     isReady,
   };
