@@ -90,6 +90,7 @@ export default function Portfolio() {
       setPortfolio(p);
       setWallet(
         tokenData
+          .filter(t => getAsset(t, assets))
           .map((t, i) => ({
             ...t,
             image: t.label.includes('FiMs')
