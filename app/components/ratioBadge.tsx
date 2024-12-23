@@ -5,6 +5,7 @@ import { Statistic, Tooltip } from 'antd';
 import { twMerge } from 'tailwind-merge';
 import { getRatio } from '../utils/constants';
 import { Data } from '../utils/types';
+import { useIsMobile } from '../utils/mobile';
 
 interface BadgeProps {
   className?: string;
@@ -22,6 +23,8 @@ const getDeltaType = (ratio: number | string | undefined): DeltaType => {
 };
 
 export default function RatioBadge({ className, data, label }: BadgeProps) {
+  const isMobile = useIsMobile(480);
+
   const ratio = Array.isArray(data) ? getRatio(data, label) : data.toRatio();
   const delta = getDeltaType(ratio);
 
@@ -49,7 +52,7 @@ export default function RatioBadge({ className, data, label }: BadgeProps) {
         precision={2}
         valueStyle={{
           color,
-          fontSize: 'large',
+          fontSize: isMobile ? 'small' : 'large',
           display: 'flex',
           alignItems: 'center',
           border: '1px solid ' + color,
