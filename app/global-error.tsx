@@ -24,14 +24,15 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
     setTimeout(window.location.reload, 100); // Hard reset by reloading the page
   };
 
-  const zeroClassName =
-    'relative before:rotate-45 before:scale-x-0 before:scale-y-75 before:animate-cross1$ ' +
-    'after:-rotate-45 after:scale-x-0 after:scale-y-75 after:animate-cross2$ ' +
-    'group-hover:before:animate-cross1Reverse group-hover:after:animate-cross2Reverse';
+  const zeroClassName = twMerge(
+    'relative before:rotate-45 before:scale-x-0 before:scale-y-75 before:animate-cross1$',
+    'after:-rotate-45 after:scale-x-0 after:scale-y-75 after:animate-cross2$',
+    'group-hover:before:animate-cross1Reverse group-hover:after:animate-cross2Reverse',
+  );
   const barClassName =
     " absolute block content-[''] w-[140%] h-[10vmin] " +
-    'bg-secondary-active-light bg-gradient-to-t from-secondary-active-light to-secondary-light ' +
-    'dark:bg-secondary-active-dark dark:bg-gradient-to-t dark:from-secondary-active-dark dark:to-secondary-dark ' +
+    'bg-theme-brand bg-gradient-to-t from-theme-brand-subtle to-theme-brand-emphasis ' +
+    'dark:bg-dark-theme-brand dark:bg-gradient-to-t dark:from-dark-theme-brand-subtle dark:to-blue-500 ' +
     'left-[-20%] top-[45%] shadow-[0_1vmin_5vmin_rgba(0,0,0,0.5)]';
   const crossClassName =
     barClassName.replaceAll(' ', ' before:').trim() + ' ' + barClassName.replaceAll(' ', ' after:').trim();
@@ -43,7 +44,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
       <div
         className={twMerge(
           'mt-10 overflow-hidden flex flex-col items-center justify-center font-bold',
-          'uppercase text-[3vmin] text-center text-secondary-light dark:text-secondary-dark',
+          'uppercase text-[3vmin] text-center text-theme-content dark:text-dark-theme-content',
         )}
       >
         <p className="px-6 z-10">
