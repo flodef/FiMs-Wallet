@@ -3,7 +3,7 @@
 import { IconArrowDown, IconArrowDownRight, IconArrowUp, IconArrowUpRight } from '@tabler/icons-react';
 import { Statistic, Tooltip } from 'antd';
 import { twMerge } from 'tailwind-merge';
-import { getRatio } from '../utils/constants';
+import { getRatio } from '../utils/functions';
 import { Data } from '../utils/types';
 import { useIsMobile } from '../utils/mobile';
 

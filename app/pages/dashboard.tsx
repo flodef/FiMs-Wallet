@@ -12,7 +12,7 @@ import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useDa
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';
-import { getCurrency, getRatio } from '../utils/constants';
+import { getCurrency, getRatio } from '../utils/functions';
 import {} from '../utils/extensions';
 import { isMobileSize, useIsMobile } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';

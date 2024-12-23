@@ -1,6 +1,6 @@
 'use client';
 
-import { getCurrentLanguage } from './constants';
+import { getCurrentLanguage } from './functions';
 import { MinMax, RoundingDirection, SymbolPosition } from './types';
 
 // Extend prototype
