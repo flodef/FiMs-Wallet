@@ -20,6 +20,10 @@ export const getRatio = (data: Data[], label: string | undefined, defaultValue =
   return (findValue(data, label)?.ratio ?? defaultValue).toRatio();
 };
 
+export const getCurrentLanguage = () => {
+  return typeof navigator !== 'undefined' ? navigator.language : 'fr-FR';
+};
+
 export const getFormattedDate = (date = new Date(), precision = 3) =>
   !isNaN(date.getTime())
     ? date.getFullYear() +

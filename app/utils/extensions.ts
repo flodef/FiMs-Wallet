@@ -1,5 +1,6 @@
 'use client';
 
+import { getCurrentLanguage } from './constants';
 import { MinMax, RoundingDirection, SymbolPosition } from './types';
 
 // Extend prototype
@@ -34,7 +35,7 @@ Number.prototype.toLocaleCurrency = function (maxDecimals?: number, currency = '
 
   maxDecimals = this.getPrecision(maxDecimals);
   const formatter = (curr: string) =>
-    Intl.NumberFormat(navigator.language, {
+    Intl.NumberFormat(getCurrentLanguage(), {
       style: 'currency',
       currency: curr,
       minimumFractionDigits: maxDecimals,
@@ -139,7 +140,7 @@ Number.prototype.getPrecision = function (maxDecimals = 5) {
 };
 
 String.prototype.fromCurrency = function (locale?: string) {
-  const number = (locale ?? Intl.NumberFormat(navigator.language).resolvedOptions().locale).startsWith('fr')
+  const number = (locale ?? Intl.NumberFormat(getCurrentLanguage()).resolvedOptions().locale).startsWith('fr')
     ? this.replace(/,/g, '.')
     : this.replace(/,/g, '');
   return parseFloat(number.replace(/[^0-9\.\-]/g, ''));
@@ -155,11 +156,19 @@ String.prototype.testLimit = function (limit: MinMax) {
 };
 
 Date.prototype.toShortDate = function () {
-  return this.toLocaleDateString(navigator.language, { year: 'numeric', month: 'numeric', day: 'numeric' });
+  return this.toLocaleDateString(getCurrentLanguage(), {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  });
 };
 
 Date.prototype.toLongDate = function () {
-  return this.toLocaleString(navigator.language);
+  return this.toLocaleString(getCurrentLanguage(), {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  });
 };
 
 Array.prototype.removeHeader = function () {
