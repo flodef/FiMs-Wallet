@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --text: #374151;
+  --bgSubtle: #f3f4f6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #111827;
+    --text: #9ca3af;
+    --bgSubtle: #1f2937;
+  }
+}
+
+.ant-tabs-content-holder {
+  background-color: var(--bgSubtle);
+}
+
+.ant-tabs-tabpane {
+  padding-right: 0 !important;
+}
