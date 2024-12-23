@@ -11,10 +11,16 @@ interface TitleProps {
 }
 
 const titleClassName = 'whitespace-nowrap';
-const titleStyle = { margin: 0, color: 'inherit' };
+const titleStyle = { margin: 0, color: 'var(--text)' };
 
 export const Metric = ({ children, className }: TitleProps) => (
   <Typography.Title style={titleStyle} className={twMerge(titleClassName, className)}>
+    {children}
+  </Typography.Title>
+);
+
+export const BigTitle = ({ children, className }: TitleProps) => (
+  <Typography.Title level={3} style={titleStyle} className={twMerge(titleClassName, className)}>
     {children}
   </Typography.Title>
 );
