@@ -1,8 +1,8 @@
-import tailwindConfig from '@/tailwind.config';
 import { Typography } from 'antd';
 import { BaseType } from 'antd/es/typography/Base';
 import { ReactNode, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { transitionDuration } from '../utils/functions';
 import { useIsMobile } from '../utils/mobile';
 
 interface TitleProps {
@@ -53,7 +53,7 @@ export function LoadingMetric({ isReady = false, type = 'success', className, ch
     if (isReady) {
       setTimeout(() => {
         setIsLoaded(true);
-      }, parseInt(tailwindConfig.theme.extend.transitionDuration.DEFAULT));
+      }, transitionDuration);
     }
   }, [isReady]);
 

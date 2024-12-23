@@ -1,11 +1,11 @@
-import tailwindConfig from '@/tailwind.config';
 import { MarkerBar } from '@tremor/react';
+import { Flex } from 'antd';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { transitionDuration } from '../utils/functions';
 import { Dataset } from '../utils/types';
 import { Privacy } from './privacy';
 import { Subtitle } from './typography';
-import { Flex } from 'antd';
 
 const t: Dataset = {
   invested: 'Investi',
@@ -36,7 +36,7 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
     if (isReady) {
       setTimeout(() => {
         setIsLoaded(true);
-      }, parseInt(tailwindConfig.theme.extend.transitionDuration.DEFAULT));
+      }, transitionDuration);
     }
   }, [isReady]);
 

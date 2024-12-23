@@ -1,10 +1,11 @@
 import { Button, TextInput } from '@tremor/react';
+import { Flex } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
+import { transitionDuration } from '../utils/functions';
 import { Dataset } from '../utils/types';
 import { Title } from './typography';
-import { Flex } from 'antd';
 
 const t: Dataset = {
   connect: 'Se connecter',
@@ -26,7 +27,7 @@ export default function Connect() {
 
   const setFocus = useCallback(() => {
     if (inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+      setTimeout(() => inputRef.current?.focus(), transitionDuration + 100);
     }
   }, []);
 

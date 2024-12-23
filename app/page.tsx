@@ -1,7 +1,6 @@
 'use client';
 
 import { FiMsLogo } from '@/public/FiMsLogo';
-import tailwindConfig from '@/tailwind.config';
 import { Button, ConfigProvider, Flex, Tabs, TabsProps, theme } from 'antd';
 import { ReactNode, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -21,6 +20,7 @@ import Users from './pages/users';
 import { useLocalStorage } from './utils/localStorage';
 import { useIsMobile } from './utils/mobile';
 import { Dataset } from './utils/types';
+import { transitionDuration } from './utils/functions';
 
 // import Swiper and modules styles
 // import 'swiper/css';
@@ -66,7 +66,7 @@ export default function IndexPage() {
     } else {
       setTimeout(() => {
         setIsLoaded(true);
-      }, parseInt(tailwindConfig.theme.extend.transitionDuration.DEFAULT));
+      }, transitionDuration);
     }
   }, [isPopupOpen]);
 
