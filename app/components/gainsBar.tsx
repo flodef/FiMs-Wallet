@@ -1,10 +1,11 @@
 import tailwindConfig from '@/tailwind.config';
-import { Flex, MarkerBar } from '@tremor/react';
+import { MarkerBar } from '@tremor/react';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Dataset } from '../utils/types';
 import { Privacy } from './privacy';
 import { Subtitle } from './typography';
+import { Flex } from 'antd';
 
 const t: Dataset = {
   invested: 'Investi',
@@ -41,7 +42,7 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
 
   return (
     <>
-      <Flex className="mt-4 mb-1">
+      <Flex justify="space-between" className="mb-1">
         {invested || !isReady ? (
           <Subtitle
             className={twMerge(
@@ -64,7 +65,7 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
         ) : null}
       </Flex>
 
-      {profitRatio || !isReady ? (
+      {(profitRatio || !isReady) && (
         <MarkerBar
           title={isPositive ? t.profits : t.loss}
           color={isPositive ? 'green' : 'red'}
@@ -72,13 +73,13 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
           minValue={isOverKill ? overKillValue : isPositive ? 0 : 100 - Math.abs(value)}
           maxValue={isOverKill ? 100 : isPositive ? value : 100}
         />
-      ) : // <CategoryBar
-      //   values={isOverKill ? [100, value] : isPositive ? [value, 100 - value] : [100 + value, -value]}
-      //   markerValue={isOverKill ? 100.01 : isPositive ? value : 100 + value + 0.01}
-      //   colors={isOverKill ? ['neutral', 'green'] : isPositive ? ['green', 'zinc'] : ['neutral', 'red']}
-      //   showLabels={false}
-      // />
-      null}
+        // <CategoryBar
+        //   values={isOverKill ? [100, value] : isPositive ? [value, 100 - value] : [100 + value, -value]}
+        //   markerValue={isOverKill ? 100.01 : isPositive ? value : 100 + value + 0.01}
+        //   colors={isOverKill ? ['neutral', 'green'] : isPositive ? ['green', 'zinc'] : ['neutral', 'red']}
+        //   showLabels={false}
+        // />
+      )}
     </>
   );
 }

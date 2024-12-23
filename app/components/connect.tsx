@@ -1,9 +1,10 @@
-import { Button, Flex, TextInput } from '@tremor/react';
+import { Button, TextInput } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
 import { Dataset } from '../utils/types';
 import { Title } from './typography';
+import { Flex } from 'antd';
 
 const t: Dataset = {
   connect: 'Se connecter',
@@ -21,7 +22,7 @@ export default function Connect() {
   const [hasConnectionError, setHasConnectionError] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  const isValidationDisabled = currentUserName === '' || hasConnectionError;
+  const isValidationDisabled = currentUserName.length < 5 || hasConnectionError;
 
   const setFocus = useCallback(() => {
     if (inputRef.current) {
@@ -67,8 +68,9 @@ export default function Connect() {
 
   return (
     <Flex
-      flexDirection="col"
-      className="w-full space-y-6 text-center text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
+      className="w-full space-y-6 text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
+      align="center"
+      vertical
     >
       <Title>{t.connect}</Title>
       <TextInput

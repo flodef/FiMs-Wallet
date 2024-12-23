@@ -1,9 +1,10 @@
-import { Button, Flex } from '@tremor/react';
+import { Button } from '@tremor/react';
 import { useCallback, useEffect, useRef } from 'react';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
 import { Dataset } from '../utils/types';
 import { Title } from './typography';
+import { Flex } from 'antd';
 
 const t: Dataset = {
   disconnect: 'Se déconnecter ?',
@@ -29,8 +30,9 @@ export default function Disconnect() {
 
   return (
     <Flex
-      flexDirection="col"
-      className="w-full space-y-6 text-center text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
+      className="w-full space-y-6 text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
+      align="center"
+      vertical
     >
       <Title>{t.disconnect}</Title>
       <Button ref={buttonRef} className="flex font-bold" style={{ borderRadius: 24 }} onClick={handleDisconnect}>
