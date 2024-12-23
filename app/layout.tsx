@@ -3,7 +3,6 @@ import './globals.css';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ReactNode } from 'react';
-import Navbar from './components/navBar';
 import Popup from './components/popup';
 import Toast from './components/toast';
 import { DataProvider } from './contexts/dataProvider';
@@ -20,13 +19,12 @@ export const metadata = {
 export default function RootLayout({ children }: { children: Readonly<ReactNode> }) {
   return (
     <html lang="fr">
-      <body className="flex flex-col h-screen bg-theme-background-subtle dark:bg-dark-theme-background-subtle overflow-hidden">
+      <body className="flex flex-col h-screen bg-theme-background-subtle dark:bg-dark-theme-background-subtle">
         <NavigationProvider>
           <DataProvider>
             <UserProvider>
               <PopupProvider>
                 <PrivacyProvider>
-                  <Navbar />
                   <AntdRegistry>{children}</AntdRegistry>
                   <SpeedInsights />
                   <Toast />
