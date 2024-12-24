@@ -12,6 +12,7 @@ import { isMobileDevice } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
 import { Card, Flex } from 'antd';
+import { message } from 'antd';
 
 const t: Dataset = {
   usersList: 'Liste des utilisateurs',
@@ -22,6 +23,7 @@ const t: Dataset = {
   name: 'Nom',
   address: 'Adresse',
   copy: 'Copier',
+  addressCopied: 'Adresse copiée !',
   private: 'Privé',
   public: 'Public',
   appearance: 'Etre visible des autres utilisateurs FiMs ?',
@@ -37,6 +39,7 @@ export default function Users() {
   const { user: currentUser } = useUser();
   const { page, needRefresh, setNeedRefresh } = useNavigation();
   const { users, setUsers, isPublic, setIsPublic } = useData();
+  const [messageApi, contextHolder] = message.useMessage();
 
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
@@ -97,8 +100,17 @@ export default function Users() {
 
   const [tooltipText, setTooltipText] = useState(t.appearance + ' ');
 
+  const handleCopy = (address: string) => {
+    navigator.clipboard.writeText(address);
+    messageApi.open({
+      type: 'success',
+      content: t.addressCopied,
+    });
+  };
+
   return (
     <Card>
+      {contextHolder}
       <Flex justify="space-between">
         <Title className="text-left whitespace-nowrap">{t.usersList}</Title>
         {isPublic !== undefined && (
@@ -153,9 +165,6 @@ export default function Users() {
                   'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle',
                   user.name === currentUser?.name ? 'bg-theme-border dark:bg-dark-theme-border' : '',
                 )}
-                onClick={() => {
-                  navigator.clipboard.writeText(user.address);
-                }}
               >
                 <TableCell>{user.name}</TableCell>
                 <TableCell>
@@ -168,9 +177,7 @@ export default function Users() {
                       'text-theme-content-subtle dark:text-dark-theme-content-subtle',
                       'hover:text-theme-content dark:hover:text-dark-theme-content',
                     )}
-                    onClick={() => {
-                      navigator.clipboard.writeText(user.address);
-                    }}
+                    onClick={() => handleCopy(user.address)}
                   />
                 </TableCell>
               </TableRow>
