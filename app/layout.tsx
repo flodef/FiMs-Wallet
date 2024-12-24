@@ -4,7 +4,6 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ReactNode } from 'react';
 import Popup from './components/popup';
-import Toast from './components/toast';
 import { DataProvider } from './contexts/dataProvider';
 import { NavigationProvider } from './contexts/navigationProvider';
 import { PrivacyProvider } from './contexts/privacyProvider';
@@ -27,7 +26,6 @@ export default function RootLayout({ children }: { children: Readonly<ReactNode>
                 <PrivacyProvider>
                   <AntdRegistry>{children}</AntdRegistry>
                   <SpeedInsights />
-                  <Toast />
                   <Popup />
                 </PrivacyProvider>
               </PopupProvider>
