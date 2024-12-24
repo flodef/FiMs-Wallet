@@ -8,23 +8,17 @@ interface CollapsiblePanelProps {
 
 export const CollapsiblePanel = ({ items, isExpanded = true }: CollapsiblePanelProps) => {
   return (
-    <div className="rounded-lg border border-theme-border dark:border-dark-theme-border">
-      <Collapse
-        items={items}
-        defaultActiveKey={isExpanded ? [0] : undefined}
-        expandIcon={({ isActive }) => (
-          <div>
-            <DownOutlined
-              style={{ color: 'var(--text)' }}
-              className="text-lg items-center"
-              rotate={isActive ? 180 : 0}
-            />
-          </div>
-        )}
-        style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}
-        bordered={false}
-        expandIconPosition="end"
-      />
-    </div>
+    <Collapse
+      items={items}
+      defaultActiveKey={isExpanded ? [0] : undefined}
+      expandIcon={({ isActive }) => (
+        <div>
+          <DownOutlined style={{ color: 'var(--text)' }} className="text-lg items-center" rotate={isActive ? 180 : 0} />
+        </div>
+      )}
+      style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}
+      bordered={false}
+      expandIconPosition="end"
+    />
   );
 };

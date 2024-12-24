@@ -1,8 +1,9 @@
 import { IconChevronUp, IconChevronDown, IconSelector } from '@tabler/icons-react';
-import { Flex, Icon, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
+import { Icon, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Filter, Sizes } from '../utils/types';
+import { Flex } from 'antd';
 
 type tableObject = {
   [key: string]: string | number | number[] | Date | boolean | undefined;
@@ -76,7 +77,7 @@ export function SortHeader<T extends tableObject>({
   };
 
   return (
-    <Flex className="cursor-pointer" onClick={() => changeFilter(index)} justifyContent="start" alignItems="start">
+    <Flex className="cursor-pointer w-fit" onClick={() => changeFilter(index)}>
       {label}
       {table?.length && (
         <Icon

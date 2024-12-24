@@ -1,5 +1,5 @@
-import { AreaChart, Divider, Flex, SparkAreaChart, Table, TableBody, TableCell, TableRow } from '@tremor/react';
-import { CollapseProps } from 'antd';
+import { AreaChart, SparkAreaChart, Table, TableBody, TableCell, TableRow } from '@tremor/react';
+import { CollapseProps, Divider, Flex } from 'antd';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { CollapsiblePanel } from '../components/collapsiblePanel';
@@ -144,10 +144,10 @@ export default function Portfolio() {
   const itemsGeneral: CollapseProps['items'] = [
     {
       label: (
-        <Flex alignItems="start">
-          <Flex flexDirection="col" alignItems="start">
-            <Title className="text-left">{t.totalValue}</Title>
-            <Flex justifyContent="start" className="items-baseline">
+        <Flex justify="space-between">
+          <Flex vertical>
+            <Title>{t.totalValue}</Title>
+            <Flex>
               <LoadingMetric isReady={!!portfolio} className="m-0">
                 <Privacy amount={portfolio?.total} />
               </LoadingMetric>
@@ -180,11 +180,11 @@ export default function Portfolio() {
                       ></Image>
                     </TableCell>
                     <TableCell className="px-2 xs:px-4">
-                      <Flex justifyContent="between">
+                      <Flex justify="space-between">
                         <div className="text-xl max-w-36 xs:max-w-full truncate">{asset.name}</div>
                         <div>{`${asset.balance.toFixed(asset.balance.getPrecision())} ${asset.symbol}`}</div>
                       </Flex>
-                      <Flex justifyContent="between">
+                      <Flex justify="space-between">
                         <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
                         <div className="font-bold text-lg">
                           <Privacy amount={asset.total} />
@@ -203,11 +203,11 @@ export default function Portfolio() {
                     <div className="rounded-full w-[50px] h-[50px] bg-theme-border"></div>
                   </TableCell>
                   <TableCell>
-                    <Flex justifyContent="between">
+                    <Flex justify="space-between">
                       <div className="bg-theme-border w-24 h-7 mb-1 rounded-md"></div>
                       <div className="bg-theme-border w-10 h-5 mb-1 rounded-md"></div>
                     </Flex>
-                    <Flex justifyContent="between">
+                    <Flex justify="space-between">
                       <div className="bg-theme-border w-16 h-5 mb-1 rounded-md"></div>
                       <div className="bg-theme-border w-24 h-7 mb-1 rounded-md"></div>
                     </Flex>
@@ -224,10 +224,10 @@ export default function Portfolio() {
   const itemsPerformances: CollapseProps['items'] = [
     {
       label: (
-        <Flex alignItems="start">
+        <Flex>
           <Title>Performance</Title>
           {userHistoric.length > 1 && (
-            <Flex className="w-full" justifyContent="center">
+            <Flex className="w-full" justify="center">
               <SparkAreaChart
                 className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
                 data={userHistoric.sort((a, b) => a.date - b.date)}

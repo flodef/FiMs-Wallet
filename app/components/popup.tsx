@@ -1,7 +1,7 @@
 'use client';
 
 import { IconX } from '@tabler/icons-react';
-import { Card, Flex } from '@tremor/react';
+import { Card, Flex } from 'antd';
 import { twMerge } from 'tailwind-merge';
 import { usePopup } from '../hooks/usePopup';
 import { isMobileDevice } from '../utils/mobile';
@@ -26,14 +26,14 @@ export default function Popup() {
       <div
         id="popup" // id is mandatory for the screenshot to work
         className={twMerge(
-          'absolute z-30 max-h-[90%] w-[80%] max-w-[500px] max overflow-y-auto overflow-x-hidden',
+          'absolute z-30 max-h-[90%] w-[80%] max-w-[500px] overflow-y-auto overflow-x-hidden',
           'justify-self-center h-fit rounded-2xl pointer-events-auto',
           isMobileDevice() && hasTextInput ? ' mt-[15%]' : 'self-center',
           isPopupOpen ? 'opacity-100 blur-none' : 'opacity-0 blur-sm',
           'transition-all',
         )}
       >
-        <Card>
+        <Card style={{ border: 1, borderColor: 'white' }} className="border border-white">
           <Flex className="w-full self-baseline justify-end">
             <IconX
               className="block h-8 w-8 font-bold focus:border-0 focus:ring-0 focus:outline-0 cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
@@ -41,7 +41,7 @@ export default function Popup() {
               onClick={closePopup}
             />
           </Flex>
-          <Flex flexDirection="col" justifyContent="between">
+          <Flex justify="space-between" vertical>
             {popupContent}
           </Flex>
         </Card>

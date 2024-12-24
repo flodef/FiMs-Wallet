@@ -6,8 +6,6 @@ import {
   IconSearch,
 } from '@tabler/icons-react';
 import {
-  Card,
-  Flex,
   Grid,
   Icon,
   MultiSelect,
@@ -18,14 +16,13 @@ import {
   TableBody,
   TableCell,
   TableRow,
-  Text,
 } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Privacy, PrivacyButton } from '../components/privacy';
 import SortTableHead from '../components/sortTableHead';
 import { TransactionDetails } from '../components/transactionDetails';
-import { Title } from '../components/typography';
+import { Text, Title } from '../components/typography';
 import { Transaction, TransactionType, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';
@@ -33,6 +30,7 @@ import { useUser } from '../hooks/useUser';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
+import { Card, Flex } from 'antd';
 
 const t: Dataset = {
   transactionSummary: 'Résumé des transactions',
@@ -180,7 +178,7 @@ export default function Transactions() {
     <>
       {transactions?.length ? (
         <Card>
-          <Flex>
+          <Flex align="center">
             <Title className="text-left whitespace-nowrap">{t.transactionSummary}</Title>
             <PrivacyButton />
           </Flex>
@@ -350,7 +348,7 @@ export default function Transactions() {
                       <TableCell
                         className={twMerge('font-bold', transaction.movement >= 0 ? 'text-green-400' : 'text-red-400')}
                       >
-                        <Flex justifyContent="start" alignItems="center" className="flex-col sm:flex-row">
+                        <Flex align="center" className="flex-col sm:flex-row">
                           <Privacy amount={transaction.movement} />
                           {transaction.type === TransactionType.withdrawal && transaction.cost < 0 && (
                             <Icon
@@ -363,7 +361,7 @@ export default function Transactions() {
                         </Flex>
                       </TableCell>
                       <TableCell>
-                        <Flex justifyContent="start" alignItems="start" className="flex-col sm:flex-row">
+                        <Flex className="flex-col sm:flex-row">
                           <Icon
                             className="sm:hover:animate-pulse cursor-pointer"
                             icon={getTransactionIcon(transaction)}

@@ -208,7 +208,7 @@ export default function IndexPage() {
             <BigTitle className={twMerge('self-center transition-opacity', !isMenuOpen ? 'opacity-100' : 'opacity-0')}>
               {currentPage && t[currentPage.toLowerCase()]}
             </BigTitle>
-            <Flex justify="flex-end">
+            <Flex justify="end">
               {isConnected && menuButton}
               {operationsSlot.right}
             </Flex>

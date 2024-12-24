@@ -1,21 +1,9 @@
 import { IconCopy, IconInfoCircleFilled, IconSearch } from '@tabler/icons-react';
-import {
-  Card,
-  Flex,
-  Icon,
-  MultiSelect,
-  MultiSelectItem,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  Text,
-} from '@tremor/react';
+import { Icon, MultiSelect, MultiSelectItem, Switch, Table, TableBody, TableCell, TableRow } from '@tremor/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import SortTableHead from '../components/sortTableHead';
-import { Title } from '../components/typography';
+import { Text, Title } from '../components/typography';
 import { useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, useUser } from '../hooks/useUser';
@@ -23,6 +11,7 @@ import { getShortAddress } from '../utils/constants';
 import { isMobileDevice } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
+import { Card, Flex } from 'antd';
 
 const t: Dataset = {
   usersList: 'Liste des utilisateurs',
@@ -110,10 +99,10 @@ export default function Users() {
 
   return (
     <Card>
-      <Flex justifyContent="between">
+      <Flex justify="space-between">
         <Title className="text-left whitespace-nowrap">{t.usersList}</Title>
         {isPublic !== undefined && (
-          <Flex justifyContent="end">
+          <Flex justify="end" align="center">
             <Icon
               icon={IconInfoCircleFilled}
               tooltip={tooltipText}
