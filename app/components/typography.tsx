@@ -6,35 +6,59 @@ import { transitionDuration } from '../utils/functions';
 import { useIsMobile } from '../utils/mobile';
 
 interface TitleProps {
-  children: ReactNode;
   className?: string;
+  type?: BaseType;
+  children: ReactNode;
 }
 
-const titleClassName = 'whitespace-nowrap';
+const titleClassName = 'whitespace-nowrap text-theme-content-emphasis dark:text-dark-theme-content-emphasis';
+const marginStyle = { margin: 0 };
+const colorStyle = { color: 'var(--text)' };
 const titleStyle = { margin: 0, color: 'var(--text)' };
 
-export const Metric = ({ children, className }: TitleProps) => (
-  <Typography.Title style={titleStyle} className={twMerge(titleClassName, className)}>
+export const Metric = ({ children, className, type }: TitleProps) => (
+  <Typography.Title style={type ? marginStyle : titleStyle} className={twMerge(titleClassName, className)} type={type}>
     {children}
   </Typography.Title>
 );
 
-export const BigTitle = ({ children, className }: TitleProps) => (
-  <Typography.Title level={3} style={titleStyle} className={twMerge(titleClassName, className)}>
+export const BigTitle = ({ children, className, type }: TitleProps) => (
+  <Typography.Title
+    level={3}
+    style={type ? marginStyle : titleStyle}
+    className={twMerge(titleClassName, className)}
+    type={type}
+  >
     {children}
   </Typography.Title>
 );
 
-export const Title = ({ children, className }: TitleProps) => (
-  <Typography.Title level={4} style={titleStyle} className={twMerge(titleClassName, className)}>
+export const Title = ({ children, className, type }: TitleProps) => (
+  <Typography.Title
+    level={4}
+    style={type ? marginStyle : titleStyle}
+    className={twMerge(titleClassName, className)}
+    type={type}
+  >
     {children}
   </Typography.Title>
 );
 
-export const Subtitle = ({ children, className }: TitleProps) => (
-  <Typography.Title level={5} style={titleStyle} className={twMerge(titleClassName, className)}>
+export const Subtitle = ({ children, className, type }: TitleProps) => (
+  <Typography.Title
+    level={5}
+    style={type ? marginStyle : titleStyle}
+    className={twMerge(titleClassName, className)}
+    type={type}
+  >
     {children}
   </Typography.Title>
+);
+
+export const Text = ({ children, className, type }: TitleProps) => (
+  <Typography.Text style={!type ? colorStyle : undefined} className={twMerge(titleClassName, className)} type={type}>
+    {children}
+  </Typography.Text>
 );
 
 interface LoadingMetricProps {
