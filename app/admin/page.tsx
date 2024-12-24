@@ -182,7 +182,6 @@ export default function AdminPage() {
       fetch('/api/solana/getTransactions?address=' + userAddress)
         .then(res => res.json())
         .then((data: HeliusTransaction[]) => {
-          console.log(data);
           setCryptoTransactions(
             data.map((d: HeliusTransaction) => ({
               date: new Date(d.timestamp * 1000),

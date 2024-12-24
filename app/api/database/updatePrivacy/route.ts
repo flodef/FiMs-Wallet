@@ -8,8 +8,6 @@ export async function POST(request: Request) {
   try {
     const result = await sql`UPDATE users SET isPublic = ${Boolean(isPublic)} WHERE Address = ${address}`;
 
-    console.log(result);
-
     return NextResponse.json(result);
   } catch (error) {
     console.error(error);
