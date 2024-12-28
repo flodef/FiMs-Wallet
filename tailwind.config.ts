@@ -23,7 +23,7 @@ export default {
     },
     extend: {
       transitionDuration: {
-        DEFAULT: '1000ms', // Set your default duration here
+        DEFAULT: '500ms', // Set your default duration here
       },
       animation: {
         blink: 'blink 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
