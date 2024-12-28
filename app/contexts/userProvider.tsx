@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, UserContext } from '../hooks/useUser';
 import { useLocalStorage } from '../utils/localStorage';
@@ -8,6 +9,7 @@ import { clearData } from '../utils/processData';
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { setPage, setNeedRefresh } = useNavigation();
+  const { setUserHistoric } = useData();
 
   const connecting = useRef(false);
   const [user, setUser] = useLocalStorage<User | undefined>('user', undefined);
@@ -24,8 +26,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const disconnect = useCallback(() => {
     setUser(undefined);
+    setUserHistoric([]);
     clearData();
-  }, [setUser]);
+  }, [setUser, setUserHistoric]);
 
   const connect = useCallback(
     async (userName: string) => {
