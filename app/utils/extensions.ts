@@ -33,8 +33,8 @@ declare global {
 Number.prototype.toLocaleCurrency = function (minDecimals?: number, maxDecimals?: number, currency = 'EUR') {
   const num = Number(this);
 
-  minDecimals ??= maxDecimals;
   maxDecimals = this.getPrecision(maxDecimals);
+  minDecimals = Math.min(minDecimals ?? maxDecimals, maxDecimals);
   const formatter = (curr: string) =>
     Intl.NumberFormat(getCurrentLanguage(), {
       style: 'currency',
