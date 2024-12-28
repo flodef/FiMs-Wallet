@@ -10,7 +10,7 @@ export const CollapsiblePanel = ({ items, isExpanded = true }: CollapsiblePanelP
   return (
     <Collapse
       items={items}
-      defaultActiveKey={isExpanded ? [0] : undefined}
+      activeKey={isExpanded ? [0] : undefined}
       expandIcon={({ isActive }) => (
         <div>
           <DownOutlined style={{ color: 'var(--text)' }} className="text-lg items-center" rotate={isActive ? 180 : 0} />
