@@ -6,7 +6,7 @@ import { MinMax, RoundingDirection, SymbolPosition } from './types';
 // Extend prototype
 declare global {
   interface Number {
-    toLocaleCurrency(maxDecimals?: number, currency?: string): string;
+    toLocaleCurrency(minDecimals?: number, maxDecimals?: number, currency?: string): string;
     toShortCurrency(maxDecimals?: number, symbol?: string): string;
     toCurrency(maxDecimals?: number, symbol?: string, symbolPosition?: SymbolPosition): string;
     toRatio(maxDecimals?: number): string;
@@ -30,15 +30,16 @@ declare global {
   }
 }
 
-Number.prototype.toLocaleCurrency = function (maxDecimals?: number, currency = 'EUR') {
+Number.prototype.toLocaleCurrency = function (minDecimals?: number, maxDecimals?: number, currency = 'EUR') {
   const num = Number(this);
 
+  minDecimals ??= maxDecimals;
   maxDecimals = this.getPrecision(maxDecimals);
   const formatter = (curr: string) =>
     Intl.NumberFormat(getCurrentLanguage(), {
       style: 'currency',
       currency: curr,
-      minimumFractionDigits: maxDecimals,
+      minimumFractionDigits: minDecimals,
       maximumFractionDigits: maxDecimals,
     }).format(num);
 
@@ -69,17 +70,18 @@ Number.prototype.toShortCurrency = function (maxDecimals?: number, currency = 'E
     return formattedNum + suffix;
   };
 
+  const minDecimals = 0;
   const num = Number(this);
   if (num >= billion) {
-    return addSuffix((num / billion).toLocaleCurrency(maxDecimals, currency), 'B');
+    return addSuffix((num / billion).toLocaleCurrency(minDecimals, maxDecimals, currency), 'B');
   }
   if (num >= million) {
-    return addSuffix((num / million).toLocaleCurrency(maxDecimals, currency), 'M');
+    return addSuffix((num / million).toLocaleCurrency(minDecimals, maxDecimals, currency), 'M');
   }
   if (num >= thousand) {
-    return addSuffix((num / thousand).toLocaleCurrency(maxDecimals, currency), 'K');
+    return addSuffix((num / thousand).toLocaleCurrency(minDecimals, maxDecimals, currency), 'K');
   }
-  return num.toLocaleCurrency(maxDecimals, currency);
+  return num.toLocaleCurrency(minDecimals, maxDecimals, currency);
 };
 
 Number.prototype.toCurrency = function (maxDecimals = 2, symbol = '€', symbolPosition: SymbolPosition = 'after') {
