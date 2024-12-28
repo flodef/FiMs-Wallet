@@ -73,6 +73,7 @@ export interface Transaction {
   token: string;
   amount?: number;
   rate?: number | string;
+  price?: number;
 }
 
 export interface DataContextState {

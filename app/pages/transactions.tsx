@@ -17,20 +17,20 @@ import {
   TableCell,
   TableRow,
 } from '@tremor/react';
+import { Card, Flex } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Privacy, PrivacyButton } from '../components/privacy';
 import SortTableHead from '../components/sortTableHead';
 import { TransactionDetails } from '../components/transactionDetails';
 import { Text, Title } from '../components/typography';
-import { Transaction, TransactionType, useData } from '../hooks/useData';
+import { PortfolioToken, Transaction, TransactionType, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
 import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
-import { Card, Flex } from 'antd';
 
 const t: Dataset = {
   transactionSummary: 'Résumé des transactions',
@@ -78,6 +78,11 @@ const thisPage = Page.Transactions;
 export const getTokenLabel = (d: Transaction) => d.token && `${d.amount} ${d.token}`;
 export const getTokenRate = (d: Transaction) =>
   d.token && `1 ${d.token} = ${Math.abs(Number(d.movement) / Number(d.amount)).toLocaleCurrency()}`;
+export const getTokenProfit = (transaction: Transaction) => {
+  if (!transaction.price || !transaction.amount) return 0;
+
+  return transaction.price * transaction.amount - transaction.movement;
+};
 
 export default function Transactions() {
   const { user } = useUser();
@@ -95,7 +100,7 @@ export default function Transactions() {
   const [costFilter, setCostFilter] = useState(false);
 
   const processTransactions = useCallback(
-    (data: Transaction[]) => {
+    (data: Transaction[], tokenData: PortfolioToken[]) => {
       setTransactions(
         data
           .filter(d => d.userid === user?.id)
@@ -109,7 +114,9 @@ export default function Transactions() {
             token: d.token,
             address: d.address,
             cost: Number(d.cost),
-          })),
+            price: tokenData.find(t => t.symbol === d.token)?.value,
+          }))
+          .sort((a, b) => b.date.getTime() - a.date.getTime()),
       );
     },
     [user, setTransactions],
@@ -122,11 +129,16 @@ export default function Transactions() {
     isLoading.current = true;
     setNeedRefresh(false);
 
-    loadData(DataName.transactions)
-      .then(data => processTransactions(data as Transaction[]))
-      .then(() => fetch('/api/database/getTransactions'))
-      .then(result => (result.ok ? result.json() : undefined))
-      .then(processTransactions)
+    // First load tokens
+    loadData(DataName.token)
+      .then(tokenData => {
+        // Then load and process transactions with token data
+        loadData(DataName.transactions)
+          .then(data => processTransactions(data as Transaction[], tokenData as PortfolioToken[]))
+          .then(() => fetch('/api/database/getTransactions'))
+          .then(result => result.json())
+          .then(data => processTransactions(data, tokenData as PortfolioToken[]));
+      })
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, processTransactions]);
