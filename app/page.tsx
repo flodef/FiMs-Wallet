@@ -166,7 +166,10 @@ export default function IndexPage() {
       type="primary"
       size="large"
       style={{ borderRadius: 24, marginLeft: 16, marginRight: 16, marginTop: 12, marginBottom: 12 }}
-      onClick={() => openPopup(!isConnected ? <Connect /> : <Disconnect />, !isConnected)}
+      onClick={() => {
+        setIsMenuOpen(false);
+        openPopup(!isConnected ? <Connect /> : <Disconnect />, !isConnected);
+      }}
     >
       {!isConnected ? t.connect : user?.name}
     </Button>
