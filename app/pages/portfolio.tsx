@@ -1,7 +1,7 @@
 import { AreaChart, SparkAreaChart, Table, TableBody, TableCell, TableRow } from '@tremor/react';
 import { CollapseProps, Divider, Flex } from 'antd';
 import Image from 'next/image';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CollapsiblePanel } from '../components/collapsiblePanel';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
@@ -41,8 +41,13 @@ export default function Portfolio() {
   const { user } = useUser();
   const { page, needRefresh, setNeedRefresh } = useNavigation();
   const { hasPrivacy } = usePrivacy();
-
   const { wallet, setWallet, portfolio, setPortfolio, userHistoric, setUserHistoric } = useData();
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(isMobileSize());
+  }, []);
 
   const loadAssets = async (address: string) => {
     return (await fetch(`/api/solana/getAssets?address=${address}`)
@@ -69,40 +74,44 @@ export default function Portfolio() {
         solProfitPrice: 0,
       };
 
-      const getAsset = (t: TokenData, assets: Asset[] | undefined) => assets?.find(a => a.symbol === t.symbol);
+      const getAsset = (t: TokenData) => assets?.find(a => a.symbol === t.symbol);
       const assets = await loadAssets(user.address);
-      if (assets?.length) {
-        const computeBalance = (filter = '') =>
-          assets.reduce(
-            (a, b) =>
-              a +
-              (b.balance ?? 0) * (tokenData.find(t => t.symbol === b.symbol && t.label.includes(filter))?.value ?? 0),
-            0,
-          );
-        p.total = computeBalance();
-        p.profitValue = computeBalance('FiMs') - p.invested;
-        p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
-        p.token = tokenData.map(t => getAsset(t, assets)?.balance ?? 0).filter(b => b);
+      try {
+        if (assets?.length) {
+          const computeBalance = (filter = '') =>
+            assets.reduce(
+              (a, b) =>
+                a +
+                (b.balance ?? 0) * (tokenData.find(t => t.symbol === b.symbol && t.label.includes(filter))?.value ?? 0),
+              0,
+            );
+          p.total = computeBalance();
+          p.profitValue = computeBalance('FiMs') - p.invested;
+          p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
+          p.token = tokenData.map(t => getAsset(t)?.balance ?? 0).filter(b => b);
+        }
+
+        if (p.total === portfolio?.total) return;
+
+        setPortfolio(p);
+        setWallet(
+          tokenData
+            .filter(t => getAsset(t))
+            .map((t, i) => ({
+              ...t,
+              image: t.label.includes('FiMs')
+                ? FIMS_TOKEN_PATH + t.symbol + '.png'
+                : SPL_TOKEN_PATH + getAsset(t)?.id + '.webp',
+              name: t.label,
+              balance: p.token[i],
+              total: p.token[i] * t.value,
+            }))
+            .filter(t => t.balance)
+            .sort((a, b) => b.total - a.total),
+        );
+      } catch (e) {
+        console.error(e);
       }
-
-      if (p.total === portfolio?.total) return;
-
-      setPortfolio(p);
-      setWallet(
-        tokenData
-          .filter(t => getAsset(t, assets))
-          .map((t, i) => ({
-            ...t,
-            image: t.label.includes('FiMs')
-              ? FIMS_TOKEN_PATH + t.symbol + '.png'
-              : SPL_TOKEN_PATH + getAsset(t, assets)?.id + '.webp',
-            name: t.label,
-            balance: p.token[i],
-            total: p.token[i] * t.value,
-          }))
-          .filter(t => t.balance)
-          .sort((a, b) => b.total - a.total),
-      );
     },
     [setPortfolio, setWallet, user, portfolio],
   );
@@ -249,7 +258,7 @@ export default function Portfolio() {
           index="stringDate"
           colors={['indigo', 'fuchsia']}
           valueFormatter={amount => toPrivacy(amount, hasPrivacy, true)}
-          yAxisWidth={55}
+          yAxisWidth={60}
           showAnimation={true}
           animationDuration={2000}
           curveType="monotone"
@@ -265,9 +274,7 @@ export default function Portfolio() {
     <>
       <CollapsiblePanel items={itemsGeneral} />
 
-      {(!portfolio || portfolio?.invested) && (
-        <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobileSize()} />
-      )}
+      {(!portfolio || portfolio?.invested) && <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobile} />}
     </>
   );
 }

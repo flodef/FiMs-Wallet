@@ -55,6 +55,13 @@ export default function Dashboard() {
     tokenHistoricLimit,
     setTokenHistoricLimit,
   } = useData();
+  const { width } = useWindowParam();
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(isMobileSize());
+  }, []);
 
   const generateTokenHistoric = useCallback(
     (token: DashboardToken[]) => {
@@ -134,7 +141,6 @@ export default function Dashboard() {
   );
 
   const isDesktop = useIsMobile(1280); // xl for tailwindcss breakpoints
-  const width = useWindowParam().width;
   const isTokenListExpanded = (width > 525 && width < 640) || width > 1070;
 
   const [resultIndex, setResultIndex] = useState(0);
@@ -307,7 +313,7 @@ export default function Dashboard() {
           categories={[t.transfered, t.total]}
           index="stringDate"
           colors={['indigo', 'fuchsia']}
-          valueFormatter={number => number.toShortCurrency()}
+          valueFormatter={number => number.toShortCurrency(1)}
           yAxisWidth={50}
           showAnimation={true}
           animationDuration={2000}
@@ -323,11 +329,11 @@ export default function Dashboard() {
       <CollapsiblePanel items={itemsGeneral} />
 
       <Grid numItemsSm={2} numItemsLg={result.length} className="gap-6">
-        <CollapsiblePanel items={itemsResults} isExpanded={!isMobileSize()} />
-        <CollapsiblePanel items={itemsPrices} isExpanded={!isMobileSize()} />
+        <CollapsiblePanel items={itemsResults} isExpanded={!isMobile} />
+        <CollapsiblePanel items={itemsPrices} isExpanded={!isMobile} />
       </Grid>
 
-      <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobileSize()} />
+      <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobile} />
     </Flex>
   );
 }
