@@ -248,7 +248,7 @@ export default function Transactions() {
         </Card>
       ) : null}
       <Card>
-        <Flex>
+        <Flex align="center">
           <Title className="text-left whitespace-nowrap">
             {!transactions || transactions.length ? t.transactionsHistoric : t.noTransactionFound}
           </Title>
