@@ -12,7 +12,7 @@ import type { UserHistoric } from '../hooks/useData';
 import { useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
-import { FIMS_TOKEN_PATH, SPL_TOKEN_PATH } from '../utils/constants';
+import { FIMS, FIMS_TOKEN_PATH, SPL_TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { convertedData, DataName, forceData, loadData, PortfolioData, TokenData } from '../utils/processData';
 import { Dataset } from '../utils/types';
@@ -74,44 +74,43 @@ export default function Portfolio() {
         solProfitPrice: 0,
       };
 
+      // Add the most recent data from onchain
       const getAsset = (t: TokenData) => assets?.find(a => a.symbol === t.symbol);
+
       const assets = await loadAssets(user.address);
-      try {
-        if (assets?.length) {
-          const computeBalance = (filter = '') =>
-            assets.reduce(
-              (a, b) =>
-                a +
-                (b.balance ?? 0) * (tokenData.find(t => t.symbol === b.symbol && t.label.includes(filter))?.value ?? 0),
-              0,
-            );
-          p.total = computeBalance();
-          p.profitValue = computeBalance('FiMs') - p.invested;
-          p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
-          p.token = tokenData.map(t => getAsset(t)?.balance ?? 0).filter(b => b);
-        }
-
-        if (p.total === portfolio?.total) return;
-
-        setPortfolio(p);
-        setWallet(
-          tokenData
-            .filter(t => getAsset(t))
-            .map((t, i) => ({
-              ...t,
-              image: t.label.includes('FiMs')
-                ? FIMS_TOKEN_PATH + t.symbol + '.png'
-                : SPL_TOKEN_PATH + getAsset(t)?.id + '.webp',
-              name: t.label,
-              balance: p.token[i],
-              total: p.token[i] * t.value,
-            }))
-            .filter(t => t.balance)
-            .sort((a, b) => b.total - a.total),
-        );
-      } catch (e) {
-        console.error(e);
+      const isAssetsLoaded = Array.isArray(assets) && assets?.length > 0;
+      if (isAssetsLoaded) {
+        const computeBalance = (filter = '') =>
+          assets.reduce(
+            (a, b) =>
+              a +
+              (b.balance ?? 0) * (tokenData.find(t => t.symbol === b.symbol && t.label.includes(filter))?.value ?? 0),
+            0,
+          );
+        p.total = computeBalance();
+        p.profitValue = computeBalance(FIMS) - p.invested;
+        p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
+        p.token = tokenData.map(t => getAsset(t)?.balance ?? 0).filter(b => b);
       }
+
+      if (p.total === portfolio?.total) return;
+
+      const w = tokenData
+        .filter(t => (isAssetsLoaded ? getAsset(t) : t.label.includes(FIMS)))
+        .map((t, i) => ({
+          ...t,
+          image: t.label.includes(FIMS)
+            ? FIMS_TOKEN_PATH + t.symbol + '.png'
+            : SPL_TOKEN_PATH + getAsset(t)?.id + '.webp',
+          name: t.label,
+          balance: p.token[i],
+          total: p.token[i] * t.value,
+        }))
+        .filter(t => t.balance)
+        .sort((a, b) => b.total - a.total);
+
+      setPortfolio(p);
+      setWallet(w);
     },
     [setPortfolio, setWallet, user, portfolio],
   );

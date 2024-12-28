@@ -1,6 +1,7 @@
 import { PublicKey, clusterApiUrl } from '@solana/web3.js';
 
 // UI
+export const FIMS = 'FiMs';
 export const EMAIL = 'flo@fims.fi';
 export const TRANSACTION_TIME_OUT = 60; // Time out in seconds
 export const IS_LOCAL = !process.env.NEXT_PUBLIC_VERCEL_ENV;
