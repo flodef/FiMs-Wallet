@@ -47,6 +47,7 @@ export default function IndexPage() {
   const [version, setVersion] = useLocalStorage('version', '0.0');
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const isMobile = useIsMobile(640);
 
@@ -103,6 +104,15 @@ export default function IndexPage() {
       })
       .catch(console.error);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // const MainScreen = () => {
   //   return isConnected && isMobileDevice() ? (
@@ -201,7 +211,14 @@ export default function IndexPage() {
   }));
 
   const renderTabBar: TabsProps['renderTabBar'] = (props, DefaultTabBar) => (
-    <div className={twMerge('absolute top-0 left-0 right-0 z-10 bg-theme-background dark:bg-dark-theme-background')}>
+    <div
+      className={twMerge(
+        'fixed top-0 left-0 right-0 z-10 transition-all duration-200',
+        isScrolled
+          ? 'bg-theme-background-subtle/80 dark:bg-dark-theme-background-subtle/80 backdrop-blur-sm shadow-md'
+          : 'bg-theme-background-subtle dark:bg-dark-theme-background-subtle',
+      )}
+    >
       {!isMobile ? (
         <DefaultTabBar className="w-full max-w-7xl justify-self-center" {...props} />
       ) : (
