@@ -266,7 +266,7 @@ export default function IndexPage() {
     >
       <div
         className={twMerge(
-          'flex flex-grow w-[99%] justify-center',
+          'flex flex-grow w-[99%] lg:w-full justify-center',
           isPopupOpen ? 'animate-blur overflow-hidden' : !isLoaded ? 'animate-unblur' : '',
         )}
       >
