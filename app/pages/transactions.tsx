@@ -41,6 +41,7 @@ const t: Dataset = {
   movement: 'Mouvement',
   type: 'Type',
   token: 'Tokens',
+  profit: 'Profit',
   rate: 'Taux',
   deposit: 'Dépôt',
   withdrawal: 'Retrait',
@@ -72,17 +73,19 @@ const getTransactionIcon = (transaction: Transaction) => {
   const transactionIcon = transaction.type === TransactionType.deposit ? IconArrowDownRight : IconArrowUpRight;
   return transaction.type === TransactionType.donation ? IconHeartFilled : transactionIcon;
 };
+export const getTokenLabel = (transaction: Transaction) =>
+  transaction.token && `${transaction.amount} ${transaction.token}`;
+export const getTokenRate = (transaction: Transaction) =>
+  transaction.token &&
+  `1 ${transaction.token} = ${Math.abs(Number(transaction.movement) / Number(transaction.amount)).toLocaleCurrency()}`;
+const getTokenPrice = (transaction: Transaction, tokenData: PortfolioToken[]) =>
+  tokenData.find(t => t.symbol === transaction.token)?.value;
+const getTokenProfit = (transaction: Transaction) =>
+  transaction.cost > 0
+    ? 0
+    : (transaction.price ?? 0) * (transaction.amount ?? 0) - transaction.movement - transaction.cost;
 
 const thisPage = Page.Transactions;
-
-export const getTokenLabel = (d: Transaction) => d.token && `${d.amount} ${d.token}`;
-export const getTokenRate = (d: Transaction) =>
-  d.token && `1 ${d.token} = ${Math.abs(Number(d.movement) / Number(d.amount)).toLocaleCurrency()}`;
-export const getTokenProfit = (transaction: Transaction) => {
-  if (!transaction.price || !transaction.amount) return 0;
-
-  return transaction.price * transaction.amount - transaction.movement;
-};
 
 export default function Transactions() {
   const { user } = useUser();
@@ -110,11 +113,15 @@ export default function Transactions() {
             movement: Number(d.movement),
             type: getTransactionType(d),
             amount: Number(d.amount),
+            profit: getTokenProfit({
+              ...d,
+              price: getTokenPrice(d, tokenData),
+            }),
             rate: Math.abs(Number(d.movement) / Number(d.amount)),
             token: d.token,
             address: d.address,
             cost: Number(d.cost),
-            price: tokenData.find(t => t.symbol === d.token)?.value,
+            price: getTokenPrice(d, tokenData),
           }))
           .sort((a, b) => b.date.getTime() - a.date.getTime()),
       );
@@ -339,10 +346,10 @@ export default function Transactions() {
             </Grid>
             <Table>
               <SortTableHead
-                labels={[t.date, t.movement, t.type].concat(hasTokenTransactions ? [t.token, t.rate] : [])}
+                labels={[t.date, t.movement, t.type].concat(hasTokenTransactions ? [t.token, t.profit, t.rate] : [])}
                 table={transactions}
                 setTable={setTransactions}
-                sizes={{ xs: 4, sm: 5 }}
+                sizes={{ xs: 4, sm: 5, md: 6 }}
               />
               <TableBody>
                 {transactions ? (
@@ -353,7 +360,7 @@ export default function Transactions() {
                   ])?.map((transaction, index) => (
                     <TableRow
                       key={index}
-                      className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
+                      className="group hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
                       onClick={() => openPopup(<TransactionDetails transaction={transaction} />)}
                     >
                       <TableCell>{transaction.date.toShortDate()}</TableCell>
@@ -361,7 +368,7 @@ export default function Transactions() {
                         className={twMerge('font-bold', transaction.movement >= 0 ? 'text-green-400' : 'text-red-400')}
                       >
                         <Flex align="center" className="flex-col sm:flex-row">
-                          <Privacy amount={transaction.movement} />
+                          <Privacy amount={transaction.movement} currencyType="strict" />
                           {transaction.type === TransactionType.withdrawal && transaction.cost < 0 && (
                             <Icon
                               className="self-center"
@@ -375,19 +382,31 @@ export default function Transactions() {
                       <TableCell>
                         <Flex className="flex-col sm:flex-row">
                           <Icon
-                            className="sm:hover:animate-pulse cursor-pointer"
+                            className="group-hover:animate-pulse"
                             icon={getTransactionIcon(transaction)}
                             tooltip={isMobileSize() ? t[TransactionType[transaction?.type ?? 0]] : undefined}
                             size="lg"
                             color={transaction.type === TransactionType.deposit ? 'green' : 'red'}
                           />
-                          {!isMobileSize() && (
-                            <Text className="self-center sm:ml-4">{t[TransactionType[transaction?.type ?? 0]]}</Text>
-                          )}
+                          <Text className="self-center sm:ml-2">{t[TransactionType[transaction?.type ?? 0]]}</Text>
                         </Flex>
                       </TableCell>
-                      <TableCell className="hidden xs:table-cell">{getTokenLabel(transaction)}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{getTokenRate(transaction)}</TableCell>
+                      <TableCell className="hidden xs:table-cell">
+                        <Flex>
+                          <Privacy amount={transaction.amount} currencyType="none" hideZero />
+                          &nbsp;
+                          {transaction.token}
+                        </Flex>
+                      </TableCell>
+                      <TableCell
+                        className={twMerge(
+                          'hidden sm:table-cell font-bold',
+                          Number(transaction.profit) >= 0 ? 'text-green-400' : 'text-red-400',
+                        )}
+                      >
+                        <Privacy amount={transaction.profit} currencyType="strict" hideZero />
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">{getTokenRate(transaction)}</TableCell>
                     </TableRow>
                   ))
                 ) : (

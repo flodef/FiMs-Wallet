@@ -74,6 +74,7 @@ export interface Transaction {
   amount?: number;
   rate?: number | string;
   price?: number;
+  profit?: number;
 }
 
 export interface DataContextState {
