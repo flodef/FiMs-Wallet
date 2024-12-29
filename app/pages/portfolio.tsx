@@ -256,7 +256,7 @@ export default function Portfolio() {
           categories={[t.transfered, t.total]}
           index="stringDate"
           colors={['indigo', 'fuchsia']}
-          valueFormatter={amount => toPrivacy(amount, hasPrivacy, true)}
+          valueFormatter={amount => toPrivacy(amount, hasPrivacy, 'short')}
           yAxisWidth={60}
           showAnimation={true}
           animationDuration={2000}

@@ -2,29 +2,41 @@ import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { Icon } from '@tremor/react';
 import { usePrivacy } from '../contexts/privacyProvider';
 
-export function toPrivacy(amount: number | undefined, hasPrivacy: boolean, isShort?: boolean): string {
-  const convert = isShort ? (a: number) => a.toShortCurrency(1) : (a: number) => a.toLocaleCurrency();
-  return convert(amount ?? 0)
+export function toPrivacy(amount: number, hasPrivacy: boolean, currencyType: CurrencyType = 'standard'): string {
+  const convert = {
+    short: (a: number) => a.toShortCurrency(1),
+    standard: (a: number) => a.toLocaleCurrency(),
+    strict: (a: number) => a.toLocaleCurrency(2, 2),
+    none: (a: number) => a.toString(),
+  }[currencyType];
+
+  return convert(amount)
     .replace(hasPrivacy ? '-' : '', '')
     .replace(hasPrivacy ? /[0-9.,;-\s]/g : /^$/, '*');
 }
 
+export type CurrencyType = 'short' | 'standard' | 'strict' | 'none';
 export type PrivacyType = 'blur' | 'star';
 export function Privacy({
   amount,
-  isShort,
+  currencyType,
   type = 'blur',
+  hideZero = false,
 }: {
   amount: Readonly<number | undefined>;
-  isShort?: Readonly<boolean>;
+  currencyType?: CurrencyType;
   type?: PrivacyType;
+  hideZero?: boolean;
 }) {
   const { hasPrivacy } = usePrivacy();
 
   return (
-    <div className={hasPrivacy && type === 'blur' ? 'blur' : 'blur-none'}>
-      {toPrivacy(amount, hasPrivacy && type === 'star', isShort)}
-    </div>
+    amount !== undefined &&
+    (!hideZero || amount !== 0) && (
+      <div className={hasPrivacy && type === 'blur' ? 'blur' : 'blur-none'}>
+        {toPrivacy(amount, hasPrivacy && type === 'star', currencyType)}
+      </div>
+    )
   );
 }
 
