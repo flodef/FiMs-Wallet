@@ -191,8 +191,6 @@ export default function Transactions() {
     );
   }, [getFilteredTransactions]);
 
-  const hasTokenTransactions = transactions?.some(t => t.token);
-
   return (
     <>
       {transactions?.length ? (
@@ -346,7 +344,7 @@ export default function Transactions() {
             </Grid>
             <Table>
               <SortTableHead
-                labels={[t.date, t.movement, t.type].concat(hasTokenTransactions ? [t.token, t.profit, t.rate] : [])}
+                labels={[t.date, t.movement, t.type, t.token, t.profit, t.rate]}
                 table={transactions}
                 setTable={setTransactions}
                 sizes={{ xs: 4, sm: 5, md: 6 }}

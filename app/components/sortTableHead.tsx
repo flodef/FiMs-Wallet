@@ -107,7 +107,6 @@ export default function SortTableHead<T extends tableObject>({
   sizes?: Sizes;
 }) {
   const [filters] = useState<Filter[]>(Array.from({ length: labels.length }, () => 'none'));
-
   const tableLength = table?.length ? Object.keys(table[0]).length : 0;
 
   return (
