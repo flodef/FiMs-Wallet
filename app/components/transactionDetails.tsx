@@ -11,8 +11,8 @@ const t: Dataset = {
   date: 'Date',
   movement: 'Mouvement',
   token: 'Tokens',
-  rate: 'Taux',
-  price: 'Prix',
+  rate: "Taux d'échange",
+  price: 'Taux courant',
   profit: 'Profit',
   deposit: 'Dépôt',
   withdrawal: 'Retrait',
@@ -32,7 +32,7 @@ export const TransactionDetails = ({ transaction }: { transaction: Transaction }
       cost: transaction.cost,
       token: getTokenLabel(transaction),
       rate: getTokenRate(transaction),
-      price: transaction.price,
+      price: getTokenRate({ ...transaction, movement: transaction.price ?? 0, amount: 1 }),
       profit: transaction.profit,
     }[item];
     const label = typeof data === 'number' ? data.toLocaleCurrency(2, 2) : data;
