@@ -36,6 +36,15 @@
   border: 1px solid var(--border) !important;
 }
 
+.ant-modal-content {
+  background-color: var(--bgSubtle) !important;
+  border: 1px solid var(--scrollbar) !important;
+}
+
+.ant-modal-close {
+  color: var(--text) !important;
+}
+
 #popup > .ant-card {
   background-color: var(--bgSubtle) !important;
   border: 1px solid var(--text) !important;
@@ -63,45 +72,34 @@
   padding-bottom: 0 !important;
 }
 
-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-body::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar);
-}
-
-body::-webkit-scrollbar-thumb:hover {
-  background-color: var(--scrollbarHover);
-}
-
-body::-webkit-scrollbar-thumb:active {
-  background-color: var(--text);
-}
-
 /* Custom Scrollbar */
+body::-webkit-scrollbar,
+.ant-modal-wrap::-webkit-scrollbar,
 #popup::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
+body::-webkit-scrollbar-track,
+.ant-modal-wrap::-webkit-scrollbar-track,
 #popup::-webkit-scrollbar-track {
   background: transparent;
-  margin: 15px 0;
 }
 
+body::-webkit-scrollbar-thumb,
+.ant-modal-wrap::-webkit-scrollbar-thumb,
 #popup::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar);
-  border-radius: 3px;
 }
 
+body::-webkit-scrollbar-thumb:hover,
+.ant-modal-wrap::-webkit-scrollbar-thumb:hover,
 #popup::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbarHover);
 }
 
+body::-webkit-scrollbar-thumb:active,
+.ant-modal-wrap::-webkit-scrollbar-thumb:active,
 #popup::-webkit-scrollbar-thumb:active {
   background-color: var(--text);
 }

@@ -17,7 +17,6 @@ import Dashboard from './pages/dashboard';
 import Portfolio from './pages/portfolio';
 import Transactions from './pages/transactions';
 import Users from './pages/users';
-import { transitionDuration } from './utils/functions';
 import { useLocalStorage } from './utils/localStorage';
 import { useIsMobile } from './utils/mobile';
 import { Dataset } from './utils/types';
@@ -45,7 +44,6 @@ export default function IndexPage() {
   const { isDark } = useWindowParam();
 
   const [version, setVersion] = useLocalStorage('version', '0.0');
-  const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -63,17 +61,6 @@ export default function IndexPage() {
   }, [setNeedRefresh]);
 
   useEffect(() => {
-    if (isPopupOpen) {
-      setIsLoaded(false);
-    } else {
-      setTimeout(() => {
-        setIsLoaded(true);
-      }, transitionDuration);
-    }
-  }, [isPopupOpen]);
-
-  useEffect(() => {
-    setIsLoaded(true);
     fetch('/VERSION.md')
       .then(response => response.text())
       .then(text => {
@@ -285,12 +272,7 @@ export default function IndexPage() {
       }}
     >
       {currentPage ? (
-        <div
-          className={twMerge(
-            'flex flex-grow w-[99%] lg:w-full justify-center',
-            isPopupOpen ? 'animate-blur overflow-hidden' : !isLoaded ? 'animate-unblur' : '',
-          )}
-        >
+        <div className={twMerge('flex flex-grow w-[99%] lg:w-full justify-center', isPopupOpen ? 'blur-sm' : '')}>
           <Tabs
             className="w-full"
             renderTabBar={renderTabBar}
