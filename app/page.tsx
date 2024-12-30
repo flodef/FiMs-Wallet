@@ -17,10 +17,10 @@ import Dashboard from './pages/dashboard';
 import Portfolio from './pages/portfolio';
 import Transactions from './pages/transactions';
 import Users from './pages/users';
+import { transitionDuration } from './utils/functions';
 import { useLocalStorage } from './utils/localStorage';
 import { useIsMobile } from './utils/mobile';
 import { Dataset } from './utils/types';
-import { transitionDuration } from './utils/functions';
 
 // import Swiper and modules styles
 // import 'swiper/css';
@@ -48,6 +48,7 @@ export default function IndexPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   const isMobile = useIsMobile(640);
 
@@ -106,13 +107,19 @@ export default function IndexPage() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+    const handleScroll = (e: Event) => {
+      if (isMenuOpen) {
+        e.preventDefault();
+        window.scrollTo(0, scrollPosition);
+      } else {
+        setScrollPosition(window.scrollY);
+        setIsScrolled(window.scrollY > 0);
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: false });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isMenuOpen, isPopupOpen, scrollPosition]);
 
   // const MainScreen = () => {
   //   return isConnected && isMobileDevice() ? (
@@ -214,7 +221,7 @@ export default function IndexPage() {
     <div
       className={twMerge(
         'fixed top-0 left-0 right-0 z-10 transition-all duration-200',
-        isScrolled
+        isScrolled && !isMenuOpen
           ? 'bg-theme-background-subtle/80 dark:bg-dark-theme-background-subtle/80 backdrop-blur-sm shadow-md'
           : 'bg-theme-background-subtle dark:bg-dark-theme-background-subtle',
       )}
@@ -233,7 +240,20 @@ export default function IndexPage() {
               {operationsSlot.right}
             </Flex>
           </Flex>
-          <DefaultTabBar className={twMerge('transition-all', isMenuOpen ? 'h-56' : 'h-0')} {...props} />
+          <div
+            className={twMerge(
+              'fixed inset-0 h-screen bg-black/30 transition-all duration-200 mt-16',
+              isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
+            )}
+            onClick={() => setIsMenuOpen(false)}
+          />
+          <DefaultTabBar
+            className={twMerge(
+              'transition-all relative shadow-md bg-theme-background-subtle dark:bg-dark-theme-background-subtle',
+              isMenuOpen ? 'h-56' : 'h-0',
+            )}
+            {...props}
+          />
         </>
       )}
     </div>
@@ -264,28 +284,32 @@ export default function IndexPage() {
         },
       }}
     >
-      <div
-        className={twMerge(
-          'flex flex-grow w-[99%] lg:w-full justify-center',
-          isPopupOpen ? 'animate-blur overflow-hidden' : !isLoaded ? 'animate-unblur' : '',
-        )}
-      >
-        <Tabs
-          className="w-full"
-          renderTabBar={renderTabBar}
-          defaultActiveKey={isConnected ? Page.Portfolio : Page.Dashboard}
-          activeKey={currentPage?.toString()}
-          items={isConnected ? items : items.slice(-1)}
-          tabBarExtraContent={!isMobile && operationsSlot}
-          size="large"
-          onChange={activeKey => {
-            setPage(activeKey as Page);
-            setIsMenuOpen(false);
-          }}
-          tabPosition={isMobile ? 'right' : 'top'}
-        />
-      </div>
-      {!currentPage && <LoadingDot />}
+      {currentPage ? (
+        <div
+          className={twMerge(
+            'flex flex-grow w-[99%] lg:w-full justify-center',
+            isPopupOpen ? 'animate-blur overflow-hidden' : !isLoaded ? 'animate-unblur' : '',
+          )}
+        >
+          <Tabs
+            className="w-full"
+            renderTabBar={renderTabBar}
+            defaultActiveKey={isConnected ? Page.Portfolio : Page.Dashboard}
+            activeKey={currentPage?.toString()}
+            items={isConnected ? items : items.slice(-1)}
+            tabBarExtraContent={!isMobile && operationsSlot}
+            size="large"
+            onChange={activeKey => {
+              setPage(activeKey as Page);
+              setIsMenuOpen(false);
+            }}
+            tabPosition={isMobile ? 'right' : 'top'}
+            more={{ icon: undefined, trigger: 'hover' }}
+          />
+        </div>
+      ) : (
+        <LoadingDot />
+      )}
     </ConfigProvider>
   );
 }
