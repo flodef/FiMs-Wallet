@@ -9,7 +9,7 @@ import { clearData } from '../utils/processData';
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { setPage, setNeedRefresh } = useNavigation();
-  const { setUserHistoric } = useData();
+  const { setUserHistoric, setTransactions, setPortfolio, setWallet } = useData();
 
   const connecting = useRef(false);
   const [user, setUser] = useLocalStorage<User | undefined>('user', undefined);
@@ -27,8 +27,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const disconnect = useCallback(() => {
     setUser(undefined);
     setUserHistoric([]);
+    setWallet(undefined);
+    setPortfolio(undefined);
+    setTransactions(undefined);
     clearData();
-  }, [setUser, setUserHistoric]);
+  }, [setUser, setUserHistoric, setTransactions, setPortfolio, setWallet]);
 
   const connect = useCallback(
     async (userName: string) => {
