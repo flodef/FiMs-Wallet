@@ -37,7 +37,7 @@ export async function GET(request: Request) {
       { cache: 'no-store' },
     );
 
-    const getSymbol = (description: string) => description.split(' ')[3].trim();
+    const getSymbol = (description: string) => description.split(' ')[3].trim().slice(0, 4);
 
     const result = (await response.json()) as HeliusData[];
     const data = result
