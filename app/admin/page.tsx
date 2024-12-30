@@ -271,7 +271,13 @@ export default function AdminPage() {
           loadUsers();
         }
       })
-      .catch(console.error)
+      .catch(error => {
+        messageApi.open({
+          type: 'error',
+          content: error.message,
+        });
+        console.error(error);
+      })
       .finally(() => setUserLoading(false));
   };
 
@@ -308,7 +314,13 @@ export default function AdminPage() {
           loadTransactions();
         }
       })
-      .catch(console.error)
+      .catch(error => {
+        messageApi.open({
+          type: 'error',
+          content: error.message,
+        });
+        console.error(error);
+      })
       .finally(() => setTransactionLoading(false));
   };
 
