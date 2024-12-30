@@ -81,7 +81,7 @@ export const getTokenRate = (transaction: Transaction) =>
 const getTokenPrice = (transaction: Transaction, tokenData: PortfolioToken[]) =>
   tokenData.find(t => t.symbol === transaction.token)?.value;
 const getTokenProfit = (transaction: Transaction) =>
-  transaction.cost > 0
+  transaction.cost > 0 || !transaction.token
     ? 0
     : (transaction.price ?? 0) * (transaction.amount ?? 0) - transaction.movement - transaction.cost;
 
