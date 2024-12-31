@@ -273,7 +273,7 @@ export default function Portfolio() {
     <>
       <CollapsiblePanel items={itemsGeneral} />
 
-      {(!portfolio || portfolio?.invested) && <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobile} />}
+      {!portfolio || portfolio?.invested ? <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobile} /> : null}
     </>
   );
 }
