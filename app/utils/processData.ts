@@ -44,9 +44,9 @@ type Parameter = {
 };
 const dataNameParameters = new Map<DataName, Parameter>([
   [DataName.dashboard, { convert: convertDashboardData, range: 'A:D' }],
-  [DataName.historic, { convert: convertHistoricData, range: 'A:L' }],
+  [DataName.historic, { convert: convertHistoricData, range: 'A:C' }],
   [DataName.token, { convert: convertTokenData, range: 'A:I', minColInRow: 4 }],
-  [DataName.portfolio, { convert: convertPortfolioData, range: 'A:M' }],
+  [DataName.portfolio, { convert: convertPortfolioData, range: 'A:L' }],
   [DataName.userHistoric, { convert: convertUserHistoricData, range: 'A:I' }],
   [DataName.transactions, { convert: convertTransactionsData, range: 'A:H' }],
 ]);
@@ -184,17 +184,8 @@ function convertHistoricData(item: string[]): Historic {
   return {
     date: Number(item.at(0)),
     stringDate: Number(item.at(0)).toLocaleDateString(),
-    Investi: Number(item.at(1)),
-    // transferCost: Number(item.at(2)), //not used
-    // strategyCost: Number(item.at(3)), //not used
-    // priceChange: Number(item.at(4)), //not used
-    Trésorerie: Number(item.at(5)),
-    // boughtPrice: Number(item.at(6)), //not used
-    // price: Number(item.at(7)), //not used
-    // profit: Number(item.at(8)), //not used
-    // profitRate: Number(item.at(9)), //not used
-    // progress: Number(item.at(10)), //not used
-    // ratio: Number(item.at(11)), //not used
+    Trésorerie: Number(item.at(1)), // TO FIX: Should have the translated term already
+    Investi: Number(item.at(2)), // TO FIX: Should have the translated term already
   };
 }
 
