@@ -169,7 +169,13 @@ export default function IndexPage() {
     <Button
       type="primary"
       size="large"
-      style={{ borderRadius: 24, marginLeft: 16, marginRight: 16, marginTop: 12, marginBottom: 12 }}
+      style={{
+        borderRadius: 24,
+        marginLeft: !isMobile ? 16 : 0,
+        marginRight: !isMobile ? 16 : 0,
+        marginTop: 12,
+        marginBottom: 12,
+      }}
       onClick={() => {
         setIsMenuOpen(false);
         openPopup(!isConnected ? <Connect /> : <Disconnect />, !isConnected);
