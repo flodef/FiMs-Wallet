@@ -62,7 +62,7 @@ export default function Portfolio() {
       tokenData = (!tokenData.length ? tokenData : await forceData(DataName.token)) as TokenData[];
       portfolioData = (!portfolioData.length ? portfolioData : await forceData(DataName.portfolio)) as PortfolioData[];
 
-      const p = portfolioData.find(d => d.id === user.id) ?? {
+      const p = structuredClone(portfolioData.find(d => d.id === user.id)) ?? {
         id: user.id,
         address: user.address,
         token: [],
@@ -75,13 +75,27 @@ export default function Portfolio() {
       };
 
       // Add the most recent data from onchain
-      const getAsset = (t: TokenData) => assets?.find(a => a.symbol === t.symbol);
-
       const assets = await loadAssets(user.address);
       const isAssetsLoaded = Array.isArray(assets) && assets?.length > 0;
+
+      // Create FiMs assets from tokenData if they don't exist in loaded assets
+      const fimsAssets = tokenData
+        .filter(token => token.label.includes(FIMS))
+        .map((token, i) => ({
+          id: token.symbol,
+          name: token.label,
+          symbol: token.symbol,
+          balance: p.token[i],
+        }))
+        .filter(fimsToken => !assets?.some(asset => asset.symbol === fimsToken.symbol));
+
+      // Combine loaded assets with missing FiMs assets
+      const combinedAssets = [...(assets ?? []), ...fimsAssets].filter(a => a.balance);
+      const getAsset = (t: TokenData) => combinedAssets.find(a => a.symbol === t.symbol);
+
       if (isAssetsLoaded) {
         const computeBalance = (filter = '') =>
-          assets.reduce(
+          combinedAssets.reduce(
             (a, b) =>
               a +
               (b.balance ?? 0) * (tokenData.find(t => t.symbol === b.symbol && t.label.includes(filter))?.value ?? 0),
@@ -157,7 +171,7 @@ export default function Portfolio() {
             <Title>{t.totalValue}</Title>
             <Flex>
               <LoadingMetric isReady={!!portfolio} className="m-0">
-                <Privacy amount={portfolio?.total} />
+                <Privacy amount={portfolio?.total ?? 0} />
               </LoadingMetric>
               <PrivacyButton />
             </Flex>
@@ -273,7 +287,7 @@ export default function Portfolio() {
     <>
       <CollapsiblePanel items={itemsGeneral} />
 
-      {!portfolio || portfolio?.invested ? <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobile} /> : null}
+      {userHistoric.length > 0 && <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobile} />}
     </>
   );
 }
