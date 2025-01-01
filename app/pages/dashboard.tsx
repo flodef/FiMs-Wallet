@@ -1,5 +1,5 @@
-import { IconChartPie, IconChevronLeft, IconChevronRight, IconList } from '@tabler/icons-react';
-import { AreaChart, BarList, Grid, SparkAreaChart, Tab, TabGroup, TabList } from '@tremor/react';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { AreaChart, BarList, SparkAreaChart, Tab, TabGroup, TabList } from '@tremor/react';
 
 import { CollapseProps, Flex } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -10,7 +10,6 @@ import RatioBadge from '../components/ratioBadge';
 import { LoadingMetric, Title } from '../components/typography';
 import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
-import { useWindowParam } from '../hooks/useWindowParam';
 import { getBarData } from '../utils/chart';
 import {} from '../utils/extensions';
 import { getCurrency, getRatio } from '../utils/functions';
@@ -55,7 +54,6 @@ export default function Dashboard() {
     tokenHistoricLimit,
     setTokenHistoricLimit,
   } = useData();
-  const { width } = useWindowParam();
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -125,25 +123,17 @@ export default function Dashboard() {
   );
 
   const result = useMemo(
-    () => [
-      {
-        category: t.total,
-        total: getCurrency(dashboard, 'total', 1000000),
-        data: getBarList(['FiMs SOL', 'FiMs Token', 'FiMs Liquidity Provider', 'Jupiter']),
-      },
-      {
-        category: t.profit,
-        total: getCurrency(dashboard, 'profit', 750000),
-        data: getBarList(['transfer cost', 'strategy cost', 'price change', 'charity']),
-      },
-    ],
+    () => ({
+      category: t.total,
+      total: getCurrency(dashboard, 'assets', 1500000),
+      data: getBarList(['FiMs SOL', 'FiMs Token', 'FiMs Liquidity Provider']),
+    }),
     [dashboard, getBarList],
   );
 
   const isDesktop = useIsMobile(1280); // xl for tailwindcss breakpoints
-  const isTokenListExpanded = (width > 525 && width < 640) || width > 1070;
+  const isTokenListExpanded = !useIsMobile(480); // xs for tailwindcss breakpoints;
 
-  const [resultIndex, setResultIndex] = useState(0);
   const [priceIndex, setPriceIndex] = useState(0);
   const changeToken = useCallback(
     (increment = true) => {
@@ -162,60 +152,28 @@ export default function Dashboard() {
             <Title className="text-left">{t.assets}</Title>
             <LoadingMetric isReady={dashboard.length > 0}>{getCurrency(dashboard, 'assets', 1000000)}</LoadingMetric>
           </div>
-          <RatioBadge data={dashboard} label="price @" />
+          <RatioBadge data={dashboard} label="assets" />
         </Flex>
       ),
       children: (
-        <GainsBar
-          values={{
-            invested: getCurrency(dashboard, 'transfered').fromCurrency(),
-            profitValue: getCurrency(dashboard, 'gains').fromCurrency(),
-            profitRatio: parseFloat(getRatio(dashboard, 'gains')) / 100,
-          }}
-          isReady={!!dashboard.length}
-        />
-      ),
-    },
-  ];
-
-  const itemsResults: CollapseProps['items'] = [
-    {
-      label: (
-        <Flex vertical className={isDesktop ? 'h-32' : 'h-20'}>
-          <Flex vertical={isDesktop} justify="space-between">
-            <Title className="text-left whitespace-nowrap">{t.result}</Title>
-            <TabGroup index={resultIndex} onIndexChange={setResultIndex} className="mb-4 xl:mb-0 xl:text-right">
-              <TabList
-                className="float-left xl:float-right"
-                variant={!isDesktop ? 'solid' : 'line'}
-                onClick={e => e.stopPropagation()}
-              >
-                <Tab icon={IconChartPie}>{t.total}</Tab>
-                <Tab icon={IconList}>{t.profit}</Tab>
-              </TabList>
-            </TabGroup>
-          </Flex>
-          <Flex justify="space-between">
-            <LoadingMetric
-              type={result[resultIndex].total.fromCurrency() >= 0 ? 'success' : 'danger'}
-              isReady={dashboard.length > 0}
-            >
-              {result[resultIndex].total}
-            </LoadingMetric>
-            <RatioBadge data={dashboard} label="profit" />
-          </Flex>
+        <Flex vertical className="gap-4">
+          <GainsBar
+            values={{
+              invested: getCurrency(dashboard, 'transfered').fromCurrency(),
+              profitValue: getCurrency(dashboard, 'gains').fromCurrency(),
+              profitRatio: parseFloat(getRatio(dashboard, 'gains')) / 100,
+            }}
+            isReady={!!dashboard.length}
+          />
+          <BarList
+            data-testid="bar-chart"
+            data={result.data}
+            showAnimation={true}
+            valueFormatter={(number: number) =>
+              (result.data.find(d => d.value === number)?.amount ?? number).toLocaleCurrency()
+            }
+          />
         </Flex>
-      ),
-      children: (
-        <BarList
-          className="h-40"
-          data-testid="bar-chart"
-          data={result[resultIndex].data}
-          showAnimation={true}
-          valueFormatter={(number: number) =>
-            (result[resultIndex].data.find(d => d.value === number)?.amount ?? number).toLocaleCurrency()
-          }
-        />
       ),
     },
   ];
@@ -223,13 +181,13 @@ export default function Dashboard() {
   const itemsPrices: CollapseProps['items'] = [
     {
       label: (
-        <Flex vertical className={isDesktop ? 'h-32' : 'h-20'}>
-          <Flex vertical={isDesktop} justify="space-between">
+        <Flex vertical className="gap-4">
+          <Flex className="gap-4" align="center">
             <Title className="text-left">{t.price}</Title>
             <TabGroup
               index={priceIndex}
               onIndexChange={isTokenListExpanded ? setPriceIndex : undefined}
-              className="mb-4 xl:mb-0 xl:text-right max-w-[200px]"
+              className="xl:text-right max-w-[200px]"
             >
               <TabList
                 className="float-left xl:float-right"
@@ -327,12 +285,7 @@ export default function Dashboard() {
   return (
     <Flex vertical className="gap-6">
       <CollapsiblePanel items={itemsGeneral} />
-
-      <Grid numItemsSm={2} numItemsLg={result.length} className="gap-6">
-        <CollapsiblePanel items={itemsResults} isExpanded={!isMobile} />
-        <CollapsiblePanel items={itemsPrices} isExpanded={!isMobile} />
-      </Grid>
-
+      <CollapsiblePanel items={itemsPrices} isExpanded={!isMobile} />
       <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobile} />
     </Flex>
   );

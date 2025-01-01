@@ -43,7 +43,7 @@ type Parameter = {
   minColInRow?: number;
 };
 const dataNameParameters = new Map<DataName, Parameter>([
-  [DataName.dashboard, { convert: convertDashboardData, range: 'A:D' }],
+  [DataName.dashboard, { convert: convertDashboardData, range: 'A:C' }],
   [DataName.historic, { convert: convertHistoricData, range: 'A:C' }],
   [DataName.token, { convert: convertTokenData, range: 'A:I', minColInRow: 4 }],
   [DataName.portfolio, { convert: convertPortfolioData, range: 'A:L' }],
@@ -160,9 +160,8 @@ function checkColumn(item: string[], minCol: number) {
 function convertDashboardData(item: string[]): Data {
   return {
     label: String(item.at(0)).trim(),
-    // sol: Number(item.at(1)), //not used
-    value: Number(item.at(2)),
-    ratio: Number(item.at(3)),
+    value: Number(item.at(1)),
+    ratio: Number(item.at(2)),
   };
 }
 
