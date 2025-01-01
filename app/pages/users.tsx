@@ -15,10 +15,10 @@ import { Card, Flex } from 'antd';
 import { message } from 'antd';
 
 const t: Dataset = {
-  usersList: 'Liste des utilisateurs',
-  noUserFound: 'Aucun utilisateur trouvée',
-  userLoading: 'Chargement des utilisateurs...',
-  selectUser: 'Sélectionner un utilisateur',
+  usersList: 'Liste des FiMseurs•es',
+  noUserFound: 'Aucun FiMseur•se trouvée',
+  userLoading: 'Chargement des FiMseurs•es',
+  selectUser: 'Sélectionner un FiMseur•se',
   search: 'Rechercher',
   name: 'Nom',
   address: 'Adresse',
@@ -26,7 +26,7 @@ const t: Dataset = {
   addressCopied: 'Adresse copiée !',
   private: 'Privé',
   public: 'Public',
-  appearance: 'Etre visible des autres utilisateurs FiMs ?',
+  appearance: 'Etre visible des autres FiMseurs•es ?',
 };
 
 export interface DBUser extends User {

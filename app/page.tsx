@@ -1,6 +1,7 @@
 'use client';
 
 import { FiMsLogo } from '@/public/FiMsLogo';
+import { IconLogout } from '@tabler/icons-react';
 import { Button, ConfigProvider, Flex, Tabs, TabsProps, theme } from 'antd';
 import { ReactNode, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -32,9 +33,9 @@ const t: Dataset = {
   connect: 'Se connecter',
   disconnect: 'Se déconnecter',
   dashboard: 'FiMs',
-  portfolio: 'Mon compte',
-  transactions: 'Transactions',
-  users: 'Utilisateurs',
+  portfolio: 'Mon Compte',
+  transactions: 'Mes Transactions',
+  users: 'Mon Profil',
 };
 
 export default function IndexPage() {
@@ -172,16 +173,18 @@ export default function IndexPage() {
       style={{
         borderRadius: 24,
         marginLeft: !isMobile ? 16 : 0,
-        marginRight: !isMobile ? 16 : 0,
+        marginRight: 16,
         marginTop: 12,
         marginBottom: 12,
+        paddingLeft: !isMobile ? 16 : 12,
+        paddingRight: !isMobile ? 16 : 8,
       }}
       onClick={() => {
         setIsMenuOpen(false);
         openPopup(!isConnected ? <Connect /> : <Disconnect />, !isConnected);
       }}
     >
-      {!isConnected ? t.connect : user?.name}
+      {!isConnected ? t.connect : isMobile ? <IconLogout /> : user?.name}
     </Button>
   );
 
@@ -292,7 +295,7 @@ export default function IndexPage() {
               setIsMenuOpen(false);
             }}
             tabPosition={isMobile ? 'right' : 'top'}
-            more={{ icon: undefined, trigger: 'hover' }}
+            more={{ icon: null, trigger: 'hover' }}
           />
         </div>
       ) : (

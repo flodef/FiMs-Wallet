@@ -41,8 +41,8 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
   }, [isReady]);
 
   return (
-    <>
-      <Flex justify="space-between" className="mb-1">
+    <Flex vertical>
+      <Flex justify="space-between">
         {invested || !isReady ? (
           <Subtitle
             className={twMerge(
@@ -67,6 +67,7 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
 
       {(profitRatio || !isReady) && (
         <MarkerBar
+          className="mt-1 mb-1"
           title={isPositive ? t.profits : t.loss}
           color={isPositive ? 'green' : 'red'}
           value={isOverKill ? overKillValue : isPositive ? 0 : 100}
@@ -80,6 +81,6 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
         //   showLabels={false}
         // />
       )}
-    </>
+    </Flex>
   );
 }
