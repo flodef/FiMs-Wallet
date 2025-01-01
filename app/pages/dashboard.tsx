@@ -131,7 +131,6 @@ export default function Dashboard() {
     [dashboard, getBarList],
   );
 
-  const isDesktop = useIsMobile(1280); // xl for tailwindcss breakpoints
   const isTokenListExpanded = !useIsMobile(480); // xs for tailwindcss breakpoints;
 
   const [priceIndex, setPriceIndex] = useState(0);
@@ -189,11 +188,7 @@ export default function Dashboard() {
               onIndexChange={isTokenListExpanded ? setPriceIndex : undefined}
               className="xl:text-right max-w-[200px]"
             >
-              <TabList
-                className="float-left xl:float-right"
-                variant={!isDesktop ? 'solid' : 'line'}
-                onClick={e => e.stopPropagation()}
-              >
+              <TabList className="float-left" variant="line" onClick={e => e.stopPropagation()}>
                 <Flex>
                   {token.map((t, i) => (
                     <div className={isTokenListExpanded || priceIndex === i ? 'block' : 'hidden'} key={t.label}>
