@@ -120,28 +120,26 @@ export default function Portfolio() {
     p.token = tokenData.map(t => getAsset(t, combinedAssets)?.balance ?? 0).filter(b => b);
   };
 
-  const computeWallet = (
-    tokenData: TokenData[],
-    portfolio: PortfolioData,
-    assets: Asset[] = [],
-    isAssetsLoaded = false,
-  ) => {
-    return portfolio.token.length
-      ? tokenData
-          .filter(t => (isAssetsLoaded ? getAsset(t, assets) : t.label.includes(FIMS)))
-          .map((t, i) => ({
-            ...t,
-            image: t.label.includes(FIMS)
-              ? FIMS_TOKEN_PATH + t.symbol + '.png'
-              : SPL_TOKEN_PATH + getAsset(t, assets)?.id + '.webp',
-            name: t.label,
-            balance: portfolio.token[i],
-            total: portfolio.token[i] * t.value,
-          }))
-          .filter(t => t.total.toDecimalPlace(2, 'down') > 0)
-          .sort((a, b) => b.total - a.total)
-      : [];
-  };
+  const computeWallet = useCallback(
+    (tokenData: TokenData[], portfolio: PortfolioData, assets: Asset[] = [], isAssetsLoaded = false) => {
+      return portfolio.token.length
+        ? tokenData
+            .filter(t => (isAssetsLoaded ? getAsset(t, assets) : t.label.includes(FIMS)))
+            .map((t, i) => ({
+              ...t,
+              image: t.label.includes(FIMS)
+                ? FIMS_TOKEN_PATH + t.symbol + '.png'
+                : SPL_TOKEN_PATH + getAsset(t, assets)?.id + '.webp',
+              name: t.label,
+              balance: portfolio.token[i],
+              total: portfolio.token[i] * t.value,
+            }))
+            .filter(t => t.total.toDecimalPlace(2, 'down') > 0)
+            .sort((a, b) => b.total - a.total)
+        : [];
+    },
+    [],
+  );
 
   const computeFiMsAssets = useCallback(
     async (tokenData: TokenData[], portfolioData: PortfolioData[]) => {
@@ -206,7 +204,7 @@ export default function Portfolio() {
       setPortfolio(p);
       setWallet(w);
     },
-    [setPortfolio, setWallet, user, portfolio],
+    [setPortfolio, setWallet, user, portfolio, computeWallet],
   );
 
   const isLoading = useRef(false);
@@ -230,7 +228,7 @@ export default function Portfolio() {
       })
       .catch(console.error)
       .finally(() => (isLoading.current = false));
-  }, [needRefresh, setNeedRefresh, page, user, setUserHistoric, computeFiMsAssets, userHistoric]);
+  }, [needRefresh, setNeedRefresh, page, user, setUserHistoric, computeFiMsAssets, computeOtherAssets, userHistoric]);
 
   const { minHisto, maxHisto } = useMemo(() => {
     const minHisto = Math.min(
