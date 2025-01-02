@@ -44,9 +44,9 @@ type Parameter = {
 };
 const dataNameParameters = new Map<DataName, Parameter>([
   [DataName.dashboard, { convert: convertDashboardData, range: 'A:C' }],
-  [DataName.historic, { convert: convertHistoricData, range: 'A:C' }],
-  [DataName.token, { convert: convertTokenData, range: 'A:I', minColInRow: 4 }],
-  [DataName.portfolio, { convert: convertPortfolioData, range: 'A:L' }],
+  [DataName.historic, { convert: convertHistoricData, range: 'A:D' }],
+  [DataName.token, { convert: convertTokenData, range: 'A:J' }],
+  [DataName.portfolio, { convert: convertPortfolioData, range: 'A:O' }],
   [DataName.userHistoric, { convert: convertUserHistoricData, range: 'A:I' }],
   [DataName.transactions, { convert: convertTransactionsData, range: 'A:H' }],
 ]);
@@ -171,11 +171,12 @@ function convertTokenData(item: string[]): TokenData {
     label: String(item.at(1)).trim(), // token name
     address: String(item.at(2)).trim(),
     value: Number(item.at(3)),
-    available: Number(item.at(4)),
-    yearlyYield: Number(item.at(5)), //yearly yield
-    ratio: Number(item.at(6)), // inception yield
-    // inceptionPrice: Number(item.at(7)), //not used
-    duration: Number(item.at(8)),
+    yearlyYield: Number(item.at(4)), //yearly yield
+    ratio: Number(item.at(5)), // inception yield
+    // inceptionPrice: Number(item.at(6)), //not used
+    duration: Number(item.at(7)),
+    volatility: Number(item.at(8)),
+    description: String(item.at(9)),
   };
 }
 

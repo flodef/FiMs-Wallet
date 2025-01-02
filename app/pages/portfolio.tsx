@@ -78,10 +78,11 @@ export default function Portfolio() {
               label: asset.name,
               address: asset.id,
               value: prices[asset.id],
-              available: 0,
               yearlyYield: 0,
               ratio: 0,
               duration: 0,
+              volatility: 0,
+              description: '',
             });
           }
         });

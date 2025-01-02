@@ -11,6 +11,7 @@ import { LoadingMetric, Title } from '../components/typography';
 import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { getBarData } from '../utils/chart';
+import { FIMS } from '../utils/constants';
 import {} from '../utils/extensions';
 import { getCurrency, getRatio } from '../utils/functions';
 import { isMobileSize, useIsMobile } from '../utils/mobile';
@@ -63,7 +64,7 @@ export default function Dashboard() {
 
   const generateTokenHistoric = useCallback(
     (token: DashboardToken[]) => {
-      token = token.filter(({ available }) => available);
+      token = token.filter(({ label }) => label.includes(FIMS));
 
       setToken(token);
 

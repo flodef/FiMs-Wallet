@@ -5,7 +5,6 @@ import { Data, MinMax } from '../utils/types';
 import { User } from './useUser';
 
 export interface DashboardToken extends Data {
-  available: number;
   duration: number;
   yearlyYield: number;
 }
@@ -25,6 +24,8 @@ export interface TokenHistoric {
 export interface PortfolioToken extends Data {
   symbol: string;
   address: string;
+  volatility: number;
+  description: string;
 }
 
 export interface Portfolio {
