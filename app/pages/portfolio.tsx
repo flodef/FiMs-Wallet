@@ -37,6 +37,11 @@ interface Asset {
 }
 
 const getAsset = (t: TokenData, assets: Asset[]) => assets.find(a => a.symbol === t.symbol);
+const loadAssets = async (address: string) => {
+  return (await fetch(`/api/solana/getAssets?address=${address}`)
+    .then(result => result.ok && result.json())
+    .catch(console.error)) as Asset[] | undefined;
+};
 
 const thisPage = Page.Portfolio;
 
@@ -52,65 +57,8 @@ export default function Portfolio() {
     setIsMobile(isMobileSize());
   }, []);
 
-  const loadAssets = async (address: string) => {
-    return (await fetch(`/api/solana/getAssets?address=${address}`)
-      .then(result => result.ok && result.json())
-      .catch(console.error)) as Asset[] | undefined;
-  };
-
-  const computeWallet = useCallback(
-    (tokenData: TokenData[], portfolio: PortfolioData, assets: Asset[] = [], isAssetsLoaded = false) => {
-      return portfolio.token.length
-        ? tokenData
-            .filter(t => (isAssetsLoaded ? getAsset(t, assets) : t.label.includes(FIMS)))
-            .map((t, i) => ({
-              ...t,
-              image: t.label.includes(FIMS)
-                ? FIMS_TOKEN_PATH + t.symbol + '.png'
-                : SPL_TOKEN_PATH + getAsset(t, assets)?.id + '.webp',
-              name: t.label,
-              balance: portfolio.token[i],
-              total: portfolio.token[i] * t.value,
-            }))
-            .filter(t => t.total.toDecimalPlace(2, 'down') > 0)
-            .sort((a, b) => b.total - a.total)
-        : [];
-    },
-    [],
-  );
-
-  const computeFiMsAssets = useCallback(
-    async (tokenData: TokenData[], portfolioData: PortfolioData[]) => {
-      tokenData = (tokenData.length ? tokenData : await forceData(DataName.token)) as TokenData[];
-      portfolioData = (portfolioData.length ? portfolioData : await forceData(DataName.portfolio)) as PortfolioData[];
-
-      if (!user || portfolio) return { tokenData, portfolioData };
-
-      const p = portfolioData.find(d => d.id === user.id) ?? {
-        id: user.id,
-        name: user.name,
-        address: user.address,
-        ispublic: false,
-        token: [],
-        total: 0,
-        invested: 0,
-        profitValue: 0,
-        profitRatio: 0,
-        yearlyYield: 0,
-        solProfitPrice: 0,
-      };
-      const w = computeWallet(tokenData, p);
-
-      setPortfolio(p);
-      setWallet(w);
-
-      return { tokenData, portfolioData };
-    },
-    [setPortfolio, setWallet, user, computeWallet, portfolio],
-  );
-
-  const updateTokenPrices = useCallback(async (assets: Asset[], tokenData: TokenData[]) => {
-    const otherAssets = assets.filter(asset => !tokenData.some(token => token.address === asset.id));
+  const updateTokenPrices = async (assets: Asset[], tokenData: TokenData[]) => {
+    const otherAssets = assets.filter(asset => !asset.name.includes(FIMS));
     if (!otherAssets.length) return tokenData;
 
     const usdcRate = tokenData.find(token => token.symbol.includes('USDC'))?.value ?? 1;
@@ -142,25 +90,22 @@ export default function Portfolio() {
       console.error('Error fetching prices:', error);
     }
     return tokenData;
-  }, []);
+  };
 
-  const createFiMsAssets = useCallback(
-    (tokenData: TokenData[], portfolioTokens: number[], assets: Asset[]): Asset[] =>
-      tokenData
-        .filter(token => token.label.includes(FIMS))
-        .map(
-          (token, i): Asset => ({
-            id: token.address,
-            name: token.label,
-            symbol: token.symbol,
-            balance: portfolioTokens[i],
-          }),
-        )
-        .filter(fimsToken => !assets.some(asset => asset.symbol === fimsToken.symbol)),
-    [],
-  );
+  const createFiMsAssets = (tokenData: TokenData[], portfolioTokens: number[], assets: Asset[]): Asset[] =>
+    tokenData
+      .filter(token => token.label.includes(FIMS))
+      .map(
+        (token, i): Asset => ({
+          id: token.address,
+          name: token.label,
+          symbol: token.symbol,
+          balance: portfolioTokens[i],
+        }),
+      )
+      .filter(fimsToken => !assets.some(asset => asset.symbol === fimsToken.symbol));
 
-  const updatePortfolioData = useCallback((p: PortfolioData, tokenData: TokenData[], combinedAssets: Asset[]) => {
+  const updatePortfolioData = (p: PortfolioData, tokenData: TokenData[], combinedAssets: Asset[]) => {
     const computeBalance = (filter = '') =>
       combinedAssets.reduce(
         (a, b) =>
@@ -172,7 +117,60 @@ export default function Portfolio() {
     p.profitValue = computeBalance(FIMS) - p.invested;
     p.profitRatio = p.invested ? p.profitValue / p.invested : 0;
     p.token = tokenData.map(t => getAsset(t, combinedAssets)?.balance ?? 0).filter(b => b);
-  }, []);
+  };
+
+  const computeWallet = (
+    tokenData: TokenData[],
+    portfolio: PortfolioData,
+    assets: Asset[] = [],
+    isAssetsLoaded = false,
+  ) => {
+    return portfolio.token.length
+      ? tokenData
+          .filter(t => (isAssetsLoaded ? getAsset(t, assets) : t.label.includes(FIMS)))
+          .map((t, i) => ({
+            ...t,
+            image: t.label.includes(FIMS)
+              ? FIMS_TOKEN_PATH + t.symbol + '.png'
+              : SPL_TOKEN_PATH + getAsset(t, assets)?.id + '.webp',
+            name: t.label,
+            balance: portfolio.token[i],
+            total: portfolio.token[i] * t.value,
+          }))
+          .filter(t => t.total.toDecimalPlace(2, 'down') > 0)
+          .sort((a, b) => b.total - a.total)
+      : [];
+  };
+
+  const computeFiMsAssets = useCallback(
+    async (tokenData: TokenData[], portfolioData: PortfolioData[]) => {
+      tokenData = (tokenData.length ? tokenData : await forceData(DataName.token)) as TokenData[];
+      portfolioData = (portfolioData.length ? portfolioData : await forceData(DataName.portfolio)) as PortfolioData[];
+
+      if (!user || portfolio) return { tokenData, portfolioData };
+
+      const p = portfolioData.find(d => d.id === user.id) ?? {
+        id: user.id,
+        name: user.name,
+        address: user.address,
+        ispublic: false,
+        token: [],
+        total: 0,
+        invested: 0,
+        profitValue: 0,
+        profitRatio: 0,
+        yearlyYield: 0,
+        solProfitPrice: 0,
+      };
+      const w = computeWallet(tokenData, p);
+
+      setPortfolio(p);
+      setWallet(w);
+
+      return { tokenData, portfolioData };
+    },
+    [setPortfolio, setWallet, user, computeWallet, portfolio],
+  );
 
   const computeOtherAssets = useCallback(
     async ({ tokenData, portfolioData }: { tokenData: TokenData[]; portfolioData: PortfolioData[] }) => {
