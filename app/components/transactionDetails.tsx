@@ -2,7 +2,7 @@ import { Button } from '@tremor/react';
 import { Flex, List } from 'antd';
 import { Transaction, TransactionType } from '../hooks/useData';
 import { usePopup } from '../hooks/usePopup';
-import { getTokenLabel, getTokenRate } from '../pages/transactions';
+import { getTokenCurrentRate, getTokenLabel, getTokenRate } from '../pages/transactions';
 import { Dataset } from '../utils/types';
 import { Subtitle, Text, Title } from './typography';
 
@@ -32,7 +32,7 @@ export const TransactionDetails = ({ transaction }: { transaction: Transaction }
       cost: transaction.cost,
       token: getTokenLabel(transaction),
       rate: getTokenRate(transaction),
-      price: getTokenRate({ ...transaction, movement: transaction.price ?? 0, amount: 1 }),
+      price: getTokenCurrentRate(transaction),
       profit: transaction.profit,
     }[item];
     const label = typeof data === 'number' ? data.toLocaleCurrency(2, 2) : data;

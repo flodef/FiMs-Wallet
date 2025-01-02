@@ -28,7 +28,7 @@ import { PortfolioToken, Transaction, TransactionType, useData } from '../hooks/
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
-import { isMobileSize } from '../utils/mobile';
+import { useIsMobile } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
 
@@ -42,7 +42,8 @@ const t: Dataset = {
   type: 'Type',
   token: 'Tokens',
   profit: 'Profit',
-  rate: 'Taux',
+  rate: "Taux d'échange",
+  price: 'Taux courant',
   deposit: 'Dépôt',
   withdrawal: 'Retrait',
   donation: 'Don',
@@ -78,6 +79,9 @@ export const getTokenLabel = (transaction: Transaction) =>
 export const getTokenRate = (transaction: Transaction) =>
   transaction.token &&
   `1 ${transaction.token} = ${Math.abs(Number(transaction.movement) / Number(transaction.amount)).toLocaleCurrency()}`;
+export const getTokenCurrentRate = (transaction: Transaction) =>
+  getTokenRate({ ...transaction, movement: transaction.price ?? 0, amount: 1 });
+
 const getTokenPrice = (transaction: Transaction, tokenData: PortfolioToken[]) =>
   tokenData.find(t => t.symbol === transaction.token)?.value;
 const getTokenProfit = (transaction: Transaction) =>
@@ -190,6 +194,8 @@ export default function Transactions() {
       ),
     );
   }, [getFilteredTransactions]);
+
+  const isDesktop = !useIsMobile(1024);
 
   return (
     <>
@@ -344,10 +350,10 @@ export default function Transactions() {
             </Grid>
             <Table>
               <SortTableHead
-                labels={[t.date, t.movement, t.type, t.token, t.profit, t.rate]}
+                labels={[t.date, t.movement, t.type, t.token, t.profit, t.rate, t.price]}
                 table={transactions}
                 setTable={setTransactions}
-                sizes={{ xs: 4, sm: 5, md: 6 }}
+                sizes={{ xs: 4, sm: 5, md: 6, lg: 7 }}
               />
               <TableBody>
                 {transactions ? (
@@ -358,8 +364,10 @@ export default function Transactions() {
                   ])?.map((transaction, index) => (
                     <TableRow
                       key={index}
-                      className="group hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
-                      onClick={() => openPopup(<TransactionDetails transaction={transaction} />)}
+                      className="group hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer lg:cursor-default"
+                      onClick={
+                        !isDesktop ? () => openPopup(<TransactionDetails transaction={transaction} />) : undefined
+                      }
                     >
                       <TableCell>{transaction.date.toShortDate()}</TableCell>
                       <TableCell
@@ -382,7 +390,6 @@ export default function Transactions() {
                           <Icon
                             className="group-hover:animate-pulse"
                             icon={getTransactionIcon(transaction)}
-                            tooltip={isMobileSize() ? t[TransactionType[transaction?.type ?? 0]] : undefined}
                             size="lg"
                             color={transaction.type === TransactionType.deposit ? 'green' : 'red'}
                           />
@@ -405,6 +412,7 @@ export default function Transactions() {
                         <Privacy amount={transaction.profit} currencyType="strict" hideZero />
                       </TableCell>
                       <TableCell className="hidden md:table-cell">{getTokenRate(transaction)}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{getTokenCurrentRate(transaction)}</TableCell>
                     </TableRow>
                   ))
                 ) : (
