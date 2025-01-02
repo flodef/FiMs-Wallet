@@ -169,7 +169,7 @@ function convertTokenData(item: string[]): TokenData {
   return {
     symbol: String(item.at(0)).trim(), // token symbol
     label: String(item.at(1)).trim(), // token name
-    // mintAddress: String(item.at(2)).trim(), //not used
+    address: String(item.at(2)).trim(),
     value: Number(item.at(3)),
     available: Number(item.at(4)),
     yearlyYield: Number(item.at(5)), //yearly yield

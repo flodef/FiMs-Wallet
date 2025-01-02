@@ -24,6 +24,7 @@ export interface TokenHistoric {
 
 export interface PortfolioToken extends Data {
   symbol: string;
+  address: string;
 }
 
 export interface Portfolio {
