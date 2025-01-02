@@ -37,9 +37,14 @@ export async function GET(request: Request) {
       { cache: 'no-store' },
     );
 
-    const getSymbol = (description: string) => description.split(' ')[3].trim().slice(0, 4);
+    if (!response.ok) {
+      throw new Error(`Helius API error: ${response.statusText}`);
+    }
 
     const result = (await response.json()) as HeliusData[];
+
+    const getSymbol = (description: string) => description.split(' ')[3].trim().slice(0, 4);
+
     const data = result
       .filter(
         d =>

@@ -51,6 +51,11 @@ export async function GET(request: Request) {
         },
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`Helius API error: ${response.statusText}`);
+    }
+
     const { result } = (await response.json()) as { result: HeliusData };
 
     const data = !tokens?.length

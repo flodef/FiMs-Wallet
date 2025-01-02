@@ -8,7 +8,7 @@ export function useDatabase() {
 
   useEffect(() => {
     fetch(`./api/firebase`)
-      .then(response => response.json())
+      .then(response => response.ok && response.json())
       .then(setFirestore)
       .catch(console.error);
   }, []);

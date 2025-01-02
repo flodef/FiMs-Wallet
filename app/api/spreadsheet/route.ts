@@ -31,6 +31,11 @@ export async function GET(request: Request) {
         },
       },
     );
+
+    if (!response.ok) {
+      throw new Error(`Google Sheets API error: ${response.statusText}`);
+    }
+
     const data = await response.json();
 
     return NextResponse.json(data);
