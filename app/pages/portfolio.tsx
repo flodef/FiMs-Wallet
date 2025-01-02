@@ -54,7 +54,7 @@ export default function Portfolio() {
 
   const loadAssets = async (address: string) => {
     return (await fetch(`/api/solana/getAssets?address=${address}`)
-      .then(result => result.json())
+      .then(result => result.ok && result.json())
       .catch(console.error)) as Asset[] | undefined;
   };
 
@@ -120,14 +120,11 @@ export default function Portfolio() {
       );
       if (response.ok) {
         const { data: prices } = await response.json();
-        tokenData = tokenData.map(token => {
-          if (prices?.[token.address]) {
-            return { ...token, value: prices[token.address] };
-          }
-          return token;
-        });
         otherAssets.forEach(asset => {
-          if (!tokenData.some(token => token.address === asset.id)) {
+          const existingToken = tokenData.find(token => token.address === asset.id);
+          if (existingToken) {
+            existingToken.value = prices[asset.id];
+          } else {
             tokenData.push({
               symbol: asset.symbol,
               label: asset.name,

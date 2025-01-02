@@ -143,7 +143,7 @@ export default function Transactions() {
         loadData(DataName.transactions)
           .then(data => processTransactions(data as Transaction[], tokenData as PortfolioToken[]))
           .then(() => fetch('/api/database/getTransactions'))
-          .then(result => result.json())
+          .then(result => result.ok && result.json())
           .then(data => processTransactions(data, tokenData as PortfolioToken[]));
       })
       .catch(console.error)

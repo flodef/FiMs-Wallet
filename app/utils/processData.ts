@@ -116,7 +116,7 @@ async function cacheData(sheetName: string, dataName: DataName, parameter: Param
 
   const data =
     (await fetch(`./api/spreadsheet?sheetName=${sheetName}&range=${parameter.range}&isRaw=true`)
-      .then(result => (result.ok ? result.json() : undefined))
+      .then(result => result.ok && result.json())
       .then((data: extractedData) => {
         checkData(data, numberOfColumns);
 

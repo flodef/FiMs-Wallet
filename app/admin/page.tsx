@@ -106,7 +106,7 @@ export default function AdminPage() {
 
   const loadUsers = () => {
     fetch('/api/database/getUsers')
-      .then(result => (result.ok ? result.json() : undefined))
+      .then(result => result.ok && result.json())
       .then(setUsers)
       .catch(console.error)
       .finally(initUser);
@@ -114,7 +114,7 @@ export default function AdminPage() {
 
   const loadTransactions = () => {
     fetch('/api/database/getTransactions')
-      .then(result => (result.ok ? result.json() : undefined))
+      .then(result => result.ok && result.json())
       .then(setTransactions)
       .catch(console.error)
       .finally(initTransaction);
@@ -180,7 +180,7 @@ export default function AdminPage() {
     setCryptoTransactions(userAddress ? [] : undefined);
     if (userAddress) {
       fetch('/api/solana/getTransactions?address=' + userAddress)
-        .then(res => res.json())
+        .then(result => result.ok && result.json())
         .then((data: HeliusTransaction[]) => {
           setCryptoTransactions(
             data.map((d: HeliusTransaction) => ({

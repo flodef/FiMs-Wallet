@@ -41,7 +41,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       // if (!result.ok) throw new Error('Error while fetching users');
 
       return await fetch('/api/database/getUsers')
-        .then(result => (result.ok ? result.json() : undefined))
+        .then(result => result.ok && result.json())
         .then((users: User[]) => {
           if (!users) throw new Error('Error while fetching users');
 
