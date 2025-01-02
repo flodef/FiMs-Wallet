@@ -72,7 +72,7 @@ export default function Portfolio() {
               balance: portfolio.token[i],
               total: portfolio.token[i] * t.value,
             }))
-            .filter(t => t.balance)
+            .filter(t => t.total.toDecimalPlace(2, 'down') > 0)
             .sort((a, b) => b.total - a.total)
         : [];
     },
