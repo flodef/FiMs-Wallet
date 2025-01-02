@@ -17,6 +17,7 @@ import { message } from 'antd';
 const t: Dataset = {
   usersList: 'Liste des FiMseurs•es',
   noUserFound: 'Aucun FiMseur•se trouvée',
+  shouldBecomePublic: 'Pour pouvoir voir les autres FiMseurs•es, votre profil doit être public',
   userLoading: 'Chargement des FiMseurs•es',
   selectUser: 'Sélectionner un FiMseur•se',
   search: 'Rechercher',
@@ -128,69 +129,75 @@ export default function Users() {
           </Flex>
         )}
       </Flex>
-      {users?.length && (
-        <Flex className="relative mt-5 max-w-md">
-          <label htmlFor="search" className="sr-only">
-            {t.searchByName}
-          </label>
-          <MultiSelect
-            autoFocus
-            ref={inputRef}
-            className="max-w-full sm:max-w-xs"
-            id="search"
-            icon={IconSearch}
-            placeholder={t.selectUser}
-            placeholderSearch={t.search}
-            spellCheck={false}
-            value={selectedUsers}
-            onValueChange={setSelectedUsers}
-          >
-            {users?.map(item => (
-              <MultiSelectItem key={item.name} value={item.name}>
-                {item.name}
-              </MultiSelectItem>
-            ))}
-          </MultiSelect>
-        </Flex>
-      )}
-      <Table>
-        <SortTableHead labels={[t.name, t.address, t.copy]} table={users} setTable={setUsers} />
-        <TableBody>
-          {users?.length ? (
-            users.filter(isUserSelected).map(user => (
-              <TableRow
-                key={user.name}
-                className={twMerge(
-                  'cursor-pointer',
-                  'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle',
-                  user.name === currentUser?.name ? 'bg-theme-border dark:bg-dark-theme-border' : '',
-                )}
+      {isPublic === true ? (
+        <>
+          {users?.length && (
+            <Flex className="relative mt-5 max-w-md">
+              <label htmlFor="search" className="sr-only">
+                {t.searchByName}
+              </label>
+              <MultiSelect
+                autoFocus
+                ref={inputRef}
+                className="max-w-full sm:max-w-xs"
+                id="search"
+                icon={IconSearch}
+                placeholder={t.selectUser}
+                placeholderSearch={t.search}
+                spellCheck={false}
+                value={selectedUsers}
+                onValueChange={setSelectedUsers}
               >
-                <TableCell>{user.name}</TableCell>
-                <TableCell>
-                  <Text>{getShortAddress(user.address)}</Text>
-                </TableCell>
-                <TableCell>
-                  <IconCopy
-                    className={twMerge(
-                      'h-5 w-5 ml-3 cursor-pointer',
-                      'text-theme-content-subtle dark:text-dark-theme-content-subtle',
-                      'hover:text-theme-content dark:hover:text-dark-theme-content',
-                    )}
-                    onClick={() => handleCopy(user.address)}
-                  />
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={3} className="text-center">
-                {users ? t.noUserFound : t.userLoading}
-              </TableCell>
-            </TableRow>
+                {users?.map(item => (
+                  <MultiSelectItem key={item.name} value={item.name}>
+                    {item.name}
+                  </MultiSelectItem>
+                ))}
+              </MultiSelect>
+            </Flex>
           )}
-        </TableBody>
-      </Table>
+          <Table>
+            <SortTableHead labels={[t.name, t.address, t.copy]} table={users} setTable={setUsers} />
+            <TableBody>
+              {users?.length ? (
+                users.filter(isUserSelected).map(user => (
+                  <TableRow
+                    key={user.name}
+                    className={twMerge(
+                      'cursor-pointer',
+                      'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle',
+                      user.name === currentUser?.name ? 'bg-theme-border dark:bg-dark-theme-border' : '',
+                    )}
+                  >
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>
+                      <Text>{getShortAddress(user.address)}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <IconCopy
+                        className={twMerge(
+                          'h-5 w-5 ml-3 cursor-pointer',
+                          'text-theme-content-subtle dark:text-dark-theme-content-subtle',
+                          'hover:text-theme-content dark:hover:text-dark-theme-content',
+                        )}
+                        onClick={() => handleCopy(user.address)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center">
+                    {users ? t.noUserFound : t.userLoading}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </>
+      ) : (
+        <Text>{t.shouldBecomePublic}</Text>
+      )}
     </Card>
   );
 }
