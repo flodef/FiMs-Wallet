@@ -15,6 +15,7 @@ declare global {
     toDecimalPlace(decimalPlace?: number, direction?: RoundingDirection): number;
     toClosestPowerOfTen(direction?: RoundingDirection): number;
     getPrecision(maxDecimals?: number): number;
+    formatDuration(): string;
   }
   interface String {
     fromCurrency(locale?: string): number;
@@ -139,6 +140,23 @@ Number.prototype.getPrecision = function (maxDecimals = 5) {
   const precision = trimmedNumStr.includes('.') ? trimmedNumStr.length - trimmedNumStr.indexOf('.') - 1 : 0;
 
   return Math.min(precision, maxDecimals);
+};
+
+Number.prototype.formatDuration = function () {
+  const days = Number(this);
+  const years = Math.floor(days / 365);
+  const months = Math.floor((days % 365) / 30);
+
+  if (years > 0) {
+    if (months > 0) {
+      return `il y a ${years} ${years === 1 ? 'an' : 'ans'} et ${months} ${months === 1 ? 'mois' : 'mois'}`;
+    }
+    return `il y a ${years} ${years === 1 ? 'an' : 'ans'}`;
+  }
+  if (months > 0) {
+    return `il y a ${months} ${months === 1 ? 'mois' : 'mois'}`;
+  }
+  return `il y a ${days} ${days === 1 ? 'jour' : 'jours'}`;
 };
 
 String.prototype.fromCurrency = function (locale?: string) {

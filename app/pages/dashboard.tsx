@@ -1,7 +1,7 @@
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight, IconChevronsRight } from '@tabler/icons-react';
 import { AreaChart, SparkAreaChart, Tab, TabGroup, TabList } from '@tremor/react';
 
-import { Col, CollapseProps, Flex, Row } from 'antd';
+import { Col, CollapseProps, Drawer, Flex, Row } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { BarList } from '../components/barList';
@@ -9,7 +9,7 @@ import { CollapsiblePanel } from '../components/collapsiblePanel';
 import { DonutChart } from '../components/donutChart';
 import GainsBar from '../components/gainsBar';
 import RatioBadge from '../components/ratioBadge';
-import { LoadingMetric, Title } from '../components/typography';
+import { LoadingMetric, Subtitle, Text, Title } from '../components/typography';
 import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
@@ -24,6 +24,16 @@ const tokenValueStart = 100;
 
 const t: Dataset = {
   price: 'Prix',
+  performance: 'Performances',
+  volatility: 'Volatilité',
+  risk: 'Risque',
+  description: 'Description',
+  creation: 'Création',
+  initPrice: 'Prix de création',
+  historic: 'Historique',
+  high: 'Fort',
+  low: 'Faible',
+  average: 'Moyen',
   result: 'Résultats FiMs',
   total: 'Trésorerie',
   profit: 'Profits',
@@ -38,12 +48,19 @@ const t: Dataset = {
   charity: 'Charité',
   loading: 'Chargement...',
   amount: 'Montant',
+  learnMore: 'En savoir plus',
 };
 
 const tokenColors: AvailableChartColorsKeys[] = ['blue', 'amber', 'cyan'];
 
 const today = new Date();
 const thisPage = Page.Dashboard;
+
+export const getRisk = (ratio: number): string => {
+  if (ratio >= 2 / 3) return t.high;
+  if (ratio <= 1 / 3) return t.low;
+  return t.medium;
+};
 
 export default function Dashboard() {
   const { page, needRefresh, setNeedRefresh } = useNavigation();
@@ -63,6 +80,7 @@ export default function Dashboard() {
 
   const [isMobile, setIsMobile] = useState(false);
   const [isTokenListExpanded, setIsTokenListExpanded] = useState(false);
+  const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
 
   useEffect(() => {
     setIsMobile(width < 768);
@@ -162,6 +180,10 @@ export default function Dashboard() {
     setSelectedIndex(barList.findIndex(t => t.name === token[index].label));
   };
 
+  const currentToken = useMemo(() => {
+    return token[selectedPrice.current];
+  }, [token]);
+
   const itemsGeneral: CollapseProps['items'] = [
     {
       label: (
@@ -184,7 +206,7 @@ export default function Dashboard() {
             isReady={!!dashboard.length}
           />
           <Row gutter={[16, 16]}>
-            <Col xs={{ flex: '100%' }} md={{ flex: '50%' }}>
+            <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }}>
               <DonutChart
                 className="mx-auto"
                 data={result.data}
@@ -199,7 +221,7 @@ export default function Dashboard() {
                 valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
               />
             </Col>
-            <Col xs={{ flex: '100%' }} md={{ flex: '50%' }} className="content-center">
+            <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }} className="content-center">
               {dashboard.length > 0 && (
                 <BarList
                   className="opacity-100"
@@ -211,79 +233,113 @@ export default function Dashboard() {
                   valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
                 />
               )}
+              <Flex justify="end">
+                <Flex className="gap-2 cursor-pointer hover:animate-pulse" onClick={() => setIsTokenDetailsOpen(true)}>
+                  <Subtitle>{t.learnMore}</Subtitle>
+                  <IconChevronsRight />
+                </Flex>
+                <Drawer
+                  size="large"
+                  title={
+                    <TabGroup
+                      index={getSelectedPrice(selectedIndex)}
+                      onIndexChange={isTokenListExpanded ? setSelectedPrice : undefined}
+                      className="xl:text-right max-w-[200px]"
+                    >
+                      <TabList className="float-left" variant="line" onClick={e => e.stopPropagation()}>
+                        <Flex>
+                          {token.map((t, i) => (
+                            <div
+                              className={isTokenListExpanded || selectedPrice.current === i ? 'block' : 'hidden'}
+                              key={t.label}
+                            >
+                              <Flex align="center">
+                                <IconChevronLeft
+                                  className={twMerge('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
+                                  onClick={() => changeToken(false)}
+                                />
+                                <Tab onClick={!isTokenListExpanded ? () => changeToken() : undefined}>{t.label}</Tab>
+                                <IconChevronRight
+                                  className={twMerge('h-4 w-4 ml-2', !isTokenListExpanded ? 'block' : 'hidden')}
+                                  onClick={() => changeToken(true)}
+                                />
+                              </Flex>
+                            </div>
+                          ))}
+                        </Flex>
+                      </TabList>
+                    </TabGroup>
+                  }
+                  onClose={() => setIsTokenDetailsOpen(false)}
+                  open={isTokenDetailsOpen}
+                >
+                  {currentToken && (
+                    <Flex vertical className="gap-4">
+                      <Flex className="h-10" justify="space-between" align="center">
+                        <Title>{t.price}</Title>
+                        <LoadingMetric isReady={token.length > 0}>
+                          {getCurrency(token, currentToken.label)}
+                        </LoadingMetric>
+                      </Flex>
+                      <Flex className="h-10" justify="space-between" align="center">
+                        <Title>{t.performance}</Title>
+                        <RatioBadge data={currentToken.yearlyYield} />
+                      </Flex>
+                      <Flex vertical justify="space-between">
+                        <Title className="h-10 content-center">{t.description}</Title>
+                        <Text className="text-justify break-words whitespace-normal overflow-y-auto">
+                          {currentToken.description}
+                        </Text>
+                      </Flex>
+                      <Flex className="h-10" justify="space-between" align="center">
+                        <Title>
+                          {t.volatility} / {t.risk}
+                        </Title>
+                        <Text>
+                          {currentToken.volatility.toRatio()} / {getRisk(currentToken.volatility)}
+                        </Text>
+                      </Flex>
+                      <Flex className="h-10" justify="space-between" align="center">
+                        <Title>{t.creation}</Title>
+                        <Text>{currentToken.duration.formatDuration()}</Text>
+                      </Flex>
+                      <Flex className="h-10" justify="space-between" align="center">
+                        <Title>{t.initPrice}</Title>
+                        <Text>{currentToken.inceptionPrice.toLocaleCurrency()}</Text>
+                      </Flex>
+                      <Flex vertical className="gap-4" justify="space-between">
+                        <Title className="h-10 content-center">{t.historic}</Title>
+                        <AreaChart
+                          className="h-40"
+                          data={tokenHistoric[selectedPrice.current]}
+                          categories={[t.amount]}
+                          index="date"
+                          colors={[
+                            tokenHistoric.length &&
+                            tokenHistoric[selectedPrice.current][0].Montant <
+                              tokenHistoric[selectedPrice.current][1].Montant
+                              ? 'green'
+                              : 'red',
+                          ]}
+                          valueFormatter={number => number.toFixed(0)}
+                          yAxisWidth={50}
+                          showAnimation={true}
+                          animationDuration={2000}
+                          curveType="monotone"
+                          noDataText={t.loading}
+                          minValue={tokenHistoricLimit?.min ?? 0}
+                          maxValue={tokenHistoricLimit?.max ?? 0}
+                          showLegend={false}
+                          startEndOnly={true}
+                        />
+                      </Flex>
+                    </Flex>
+                  )}
+                </Drawer>
+              </Flex>
             </Col>
           </Row>
         </Flex>
-      ),
-    },
-  ];
-
-  const itemsPrices: CollapseProps['items'] = [
-    {
-      label: (
-        <Flex vertical className="gap-4">
-          <Flex className="gap-4" align="center">
-            <Title className="text-left">{t.price}</Title>
-            <TabGroup
-              index={getSelectedPrice(selectedIndex)}
-              onIndexChange={isTokenListExpanded ? setSelectedPrice : undefined}
-              className="xl:text-right max-w-[200px]"
-            >
-              <TabList className="float-left" variant="line" onClick={e => e.stopPropagation()}>
-                <Flex>
-                  {token.map((t, i) => (
-                    <div
-                      className={isTokenListExpanded || selectedPrice.current === i ? 'block' : 'hidden'}
-                      key={t.label}
-                    >
-                      <Flex align="center">
-                        <IconChevronLeft
-                          className={twMerge('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
-                          onClick={() => changeToken(false)}
-                        />
-                        <Tab onClick={!isTokenListExpanded ? () => changeToken() : undefined}>{t.label}</Tab>
-                        <IconChevronRight
-                          className={twMerge('h-4 w-4 ml-2', !isTokenListExpanded ? 'block' : 'hidden')}
-                          onClick={() => changeToken(true)}
-                        />
-                      </Flex>
-                    </div>
-                  ))}
-                </Flex>
-              </TabList>
-            </TabGroup>
-          </Flex>
-          <Flex justify="space-between">
-            <LoadingMetric isReady={token.length > 0}>
-              {getCurrency(token, token.at(selectedPrice.current)?.label)}
-            </LoadingMetric>
-            <RatioBadge data={token.at(selectedPrice.current)?.yearlyYield ?? 0} />
-          </Flex>
-        </Flex>
-      ),
-      children: (
-        <AreaChart
-          className="h-40"
-          data={tokenHistoric[selectedPrice.current]}
-          categories={[t.amount]}
-          index="date"
-          colors={[
-            tokenHistoric.length &&
-            tokenHistoric[selectedPrice.current][0].Montant < tokenHistoric[selectedPrice.current][1].Montant
-              ? 'green'
-              : 'red',
-          ]}
-          valueFormatter={number => number.toFixed(0)}
-          yAxisWidth={50}
-          showAnimation={true}
-          animationDuration={2000}
-          curveType="monotone"
-          noDataText={t.loading}
-          minValue={tokenHistoricLimit?.min ?? 0}
-          maxValue={tokenHistoricLimit?.max ?? 0}
-          showLegend={false}
-          startEndOnly={true}
-        />
       ),
     },
   ];
@@ -327,7 +383,6 @@ export default function Dashboard() {
   return (
     <Flex vertical className="gap-6">
       <CollapsiblePanel items={itemsGeneral} />
-      <CollapsiblePanel items={itemsPrices} isExpanded={!isMobile} />
       <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobile} />
     </Flex>
   );
