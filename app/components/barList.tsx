@@ -166,6 +166,8 @@ function BarListInner<T>(
                 'truncate whitespace-nowrap text-sm leading-none',
                 // text color
                 'text-gray-900 dark:text-gray-50',
+                // background color
+                actualSelectedIndex !== undefined && actualSelectedIndex !== index ? 'opacity-30' : '',
               )}
             >
               {valueFormatter(item.value)}
