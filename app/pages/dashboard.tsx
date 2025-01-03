@@ -148,17 +148,17 @@ export default function Dashboard() {
     [selectedIndex, token.length],
   );
 
-  const currentSelectedPrice = useRef(0);
+  const selectedPrice = useRef(0);
   const getSelectedPrice = (index: number | undefined) => {
-    if (index === undefined) return currentSelectedPrice.current;
+    if (index === undefined) return selectedPrice.current;
     const barList = getBarList(token.map(t => t.label));
-    const priceIndex = token.findIndex(t => t.label === barList[index].name) ?? currentSelectedPrice.current;
-    currentSelectedPrice.current = priceIndex;
+    const priceIndex = token.findIndex(t => t.label === barList[index].name) ?? selectedPrice.current;
+    selectedPrice.current = priceIndex;
     return priceIndex;
   };
   const setSelectedPrice = (index: number) => {
     const barList = getBarList(token.map(t => t.label));
-    currentSelectedPrice.current = index;
+    selectedPrice.current = index;
     setSelectedIndex(barList.findIndex(t => t.name === token[index].label));
   };
 
@@ -177,7 +177,7 @@ export default function Dashboard() {
         <Flex vertical className="gap-4">
           <GainsBar
             values={{
-              invested: getCurrency(dashboard, 'transfered').fromCurrency(),
+              invested: getCurrency(dashboard, 'invested').fromCurrency(),
               profitValue: getCurrency(dashboard, 'gains').fromCurrency(),
               profitRatio: parseFloat(getRatio(dashboard, 'gains')) / 100,
             }}
@@ -193,6 +193,7 @@ export default function Dashboard() {
                 colors={tokenColors}
                 variant="donut"
                 showLabel={false}
+                showTooltip={false}
                 selectedIndex={selectedIndex}
                 onSelectedIndexChange={setSelectedIndex}
                 valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
@@ -231,7 +232,10 @@ export default function Dashboard() {
               <TabList className="float-left" variant="line" onClick={e => e.stopPropagation()}>
                 <Flex>
                   {token.map((t, i) => (
-                    <div className={isTokenListExpanded || selectedIndex === i ? 'block' : 'hidden'} key={t.label}>
+                    <div
+                      className={isTokenListExpanded || selectedPrice.current === i ? 'block' : 'hidden'}
+                      key={t.label}
+                    >
                       <Flex align="center">
                         <IconChevronLeft
                           className={twMerge('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
@@ -251,22 +255,21 @@ export default function Dashboard() {
           </Flex>
           <Flex justify="space-between">
             <LoadingMetric isReady={token.length > 0}>
-              {getCurrency(token, token.at(currentSelectedPrice.current)?.label)}
+              {getCurrency(token, token.at(selectedPrice.current)?.label)}
             </LoadingMetric>
-            <RatioBadge data={token.at(currentSelectedPrice.current)?.yearlyYield ?? 0} />
+            <RatioBadge data={token.at(selectedPrice.current)?.yearlyYield ?? 0} />
           </Flex>
         </Flex>
       ),
       children: (
         <AreaChart
           className="h-40"
-          data={tokenHistoric[currentSelectedPrice.current]}
+          data={tokenHistoric[selectedPrice.current]}
           categories={[t.amount]}
           index="date"
           colors={[
             tokenHistoric.length &&
-            tokenHistoric[currentSelectedPrice.current][0].Montant <
-              tokenHistoric[currentSelectedPrice.current][1].Montant
+            tokenHistoric[selectedPrice.current][0].Montant < tokenHistoric[selectedPrice.current][1].Montant
               ? 'green'
               : 'red',
           ]}
