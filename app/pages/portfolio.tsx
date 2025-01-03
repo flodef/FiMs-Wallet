@@ -259,7 +259,9 @@ export default function Portfolio() {
       ),
       children: (
         <>
-          {!portfolio || portfolio.invested ? <GainsBar values={portfolio} isReady={!!portfolio} /> : null}
+          {!portfolio || portfolio.invested ? (
+            <GainsBar values={portfolio} isReady={!!portfolio} shouldUsePrivacy />
+          ) : null}
           {!wallet || wallet.length ? <Divider style={{ fontSize: 18 }}>{t.assets}</Divider> : null}
 
           {wallet ? (
