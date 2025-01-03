@@ -146,6 +146,8 @@ interface DonutChartProps extends React.HTMLAttributes<HTMLDivElement> {
   onValueChange?: (value: DonutChartEventProps) => void;
   tooltipCallback?: (tooltipCallbackContent: TooltipProps) => void;
   customTooltip?: React.ComponentType<TooltipProps>;
+  selectedIndex?: number;
+  onSelectedIndexChange?: (index?: number) => void;
 }
 
 const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
@@ -164,12 +166,19 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
       tooltipCallback,
       customTooltip,
       className,
+      selectedIndex: externalSelectedIndex,
+      onSelectedIndexChange,
       ...other
     },
     forwardedRef,
   ) => {
     const CustomTooltip = customTooltip;
-    const [activeIndex, setActiveIndex] = React.useState<number | undefined>(undefined);
+    const [internalSelectedIndex, setInternalSelectedIndex] = React.useState<number | undefined>(undefined);
+
+    const actualSelectedIndex = externalSelectedIndex ?? internalSelectedIndex;
+    const setActualSelectedIndex = onSelectedIndexChange ?? setInternalSelectedIndex;
+    const isHandlingEvent = onValueChange || onSelectedIndexChange;
+
     const isDonut = variant === 'donut';
     const parsedLabelInput = parseLabelInput(label, valueFormatter, data, value);
 
@@ -181,14 +190,14 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
 
     const handleShapeClick = (data: any, index: number, event: React.MouseEvent) => {
       event.stopPropagation();
-      if (!onValueChange) return;
+      if (!isHandlingEvent) return;
 
-      if (activeIndex === index) {
-        setActiveIndex(undefined);
-        onValueChange(null);
+      if (actualSelectedIndex === index) {
+        setActualSelectedIndex(undefined);
+        onValueChange?.(null);
       } else {
-        setActiveIndex(index);
-        onValueChange({
+        setActualSelectedIndex(index);
+        onValueChange?.({
           eventType: 'sector',
           categoryClicked: data.payload[category],
           ...data.payload,
@@ -201,10 +210,10 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
         <ResponsiveContainer className="size-full">
           <ReChartsDonutChart
             onClick={
-              onValueChange && activeIndex !== undefined
+              isHandlingEvent && actualSelectedIndex !== undefined
                 ? () => {
-                    setActiveIndex(undefined);
-                    onValueChange(null);
+                    setActualSelectedIndex(undefined);
+                    onValueChange?.(null);
                   }
                 : undefined
             }
@@ -225,7 +234,7 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
               className={twMerge(
                 'stroke-white dark:stroke-gray-950 [&_.recharts-pie-sector]:outline-none',
                 'group [&_.recharts-pie-sector]:transition-opacity [&_.recharts-pie-sector]:duration-800 [&_.recharts-pie-sector:hover]:opacity-80',
-                onValueChange ? 'cursor-pointer' : 'cursor-default',
+                isHandlingEvent ? 'cursor-pointer' : 'cursor-default',
               )}
               data={parseData(data, categoryColors, category)}
               cx="50%"
@@ -240,7 +249,7 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
               nameKey={category}
               isAnimationActive={false}
               onClick={handleShapeClick}
-              activeIndex={activeIndex}
+              activeIndex={actualSelectedIndex}
               inactiveShape={renderInactiveShape}
               style={{ outline: 'none' }}
             />

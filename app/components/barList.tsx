@@ -19,6 +19,8 @@ interface BarListProps<T = unknown> extends React.HTMLAttributes<HTMLDivElement>
   onValueChange?: (payload: Bar<T>) => void;
   colors?: AvailableChartColorsKeys[];
   sortOrder?: 'ascending' | 'descending' | 'none';
+  selectedIndex?: number;
+  onSelectedIndexChange?: (index?: number) => void;
 }
 
 function BarListInner<T>(
@@ -29,22 +31,28 @@ function BarListInner<T>(
     onValueChange,
     colors = AvailableChartColors,
     sortOrder = 'descending',
+    selectedIndex,
+    onSelectedIndexChange,
     className,
     ...props
   }: BarListProps<T>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [internalSelectedIndex, setInternalSelectedIndex] = useState<number>();
+
+  const actualSelectedIndex = selectedIndex ?? internalSelectedIndex;
+  const setActualSelectedIndex = onSelectedIndexChange ?? setInternalSelectedIndex;
+  const isHandlingEvent = onValueChange || onSelectedIndexChange;
 
   const handleClick = useCallback(
     (bar: Bar<T>, index: number) => {
-      setSelectedIndex(index === selectedIndex ? null : index);
+      setActualSelectedIndex(index === actualSelectedIndex ? undefined : index);
       onValueChange?.(bar);
     },
-    [onValueChange, selectedIndex],
+    [onValueChange, actualSelectedIndex, setActualSelectedIndex],
   );
 
-  const Component = onValueChange ? 'button' : 'div';
+  const Component = isHandlingEvent ? 'button' : 'div';
   const sortedData = useMemo(() => {
     if (sortOrder === 'none') {
       return data;
@@ -81,7 +89,7 @@ function BarListInner<T>(
               'group w-full rounded',
               // focus
               //   focusRing,
-              onValueChange
+              isHandlingEvent
                 ? [
                     '!-m-0 cursor-pointer',
                     // hover
@@ -97,8 +105,8 @@ function BarListInner<T>(
                 rowHeight,
                 // background color
                 getColorClassName(colors[index] || AvailableChartColors[0], 'bg'),
-                onValueChange ? 'group-hover:bg-opacity-80' : '',
-                selectedIndex !== null && selectedIndex !== index ? 'opacity-30' : '',
+                isHandlingEvent ? 'group-hover:bg-opacity-80' : '',
+                actualSelectedIndex !== undefined && actualSelectedIndex !== index ? 'opacity-30' : '',
                 // margin and duration
                 index === sortedData.length - 1 && 'mb-0',
                 showAnimation && 'duration-800',

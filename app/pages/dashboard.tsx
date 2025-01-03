@@ -148,6 +148,8 @@ export default function Dashboard() {
     [priceIndex, token.length],
   );
 
+  const [selectedIndex, setSelectedIndex] = useState<number>();
+
   const itemsGeneral: CollapseProps['items'] = [
     {
       label: (
@@ -179,8 +181,9 @@ export default function Dashboard() {
                 colors={tokenColors}
                 variant="donut"
                 showLabel={false}
+                selectedIndex={selectedIndex}
+                onSelectedIndexChange={setSelectedIndex}
                 valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
-                onValueChange={v => console.log(v)}
               />
             </Col>
             <Col xs={{ flex: '100%' }} md={{ flex: '50%' }} className="content-center">
@@ -190,7 +193,8 @@ export default function Dashboard() {
                   data={result.data}
                   colors={tokenColors}
                   showAnimation={true}
-                  onValueChange={v => console.log(v)}
+                  selectedIndex={selectedIndex}
+                  onSelectedIndexChange={setSelectedIndex}
                   valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
                 />
               )}
