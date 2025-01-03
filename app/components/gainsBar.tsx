@@ -19,7 +19,15 @@ interface GainsBarProps {
   profitRatio: number;
 }
 
-export default function GainsBar({ values, isReady }: { values: GainsBarProps | undefined; isReady: boolean }) {
+export default function GainsBar({
+  values,
+  isReady,
+  shouldUsePrivacy = false,
+}: {
+  values: GainsBarProps | undefined;
+  isReady: boolean;
+  shouldUsePrivacy?: boolean;
+}) {
   const { invested, profitValue, profitRatio } = values ?? {
     invested: 0,
     profitValue: 0,
@@ -52,7 +60,7 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
             )}
           >
             {t.invested}&nbsp;:&nbsp;
-            <Privacy amount={invested} />
+            {shouldUsePrivacy ? <Privacy amount={invested} /> : invested.toLocaleCurrency()}
           </Subtitle>
         ) : null}
         {invested || !isReady ? (
@@ -60,7 +68,7 @@ export default function GainsBar({ values, isReady }: { values: GainsBarProps | 
             className={twMerge('flex whitespace-nowrap', !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}
           >
             {isPositive ? t.profits : t.loss}&nbsp;:&nbsp;
-            <Privacy amount={profitValue} />
+            {shouldUsePrivacy ? <Privacy amount={profitValue} /> : profitValue.toLocaleCurrency()}
             &nbsp;{profitRatio ? '(' + profitRatio.toRatio() + ')' : ''}
           </Subtitle>
         ) : null}
