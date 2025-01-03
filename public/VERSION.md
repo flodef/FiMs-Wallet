@@ -1,3 +1,9 @@
+# 1.9
+
+- **Profit réalisé** : indique le profit de chaque transaction
+- **Porfolio** : affichage de TOUS les jetons, même les non FiMs + chargement grandement acceléré
+- **Amélioration de l'affichage principal**: graphiques plus lisibles, details, animations
+
 # 1.8
 
 - **Relookage de l'application** : animations, couleurs, typographie
