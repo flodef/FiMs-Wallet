@@ -1,16 +1,18 @@
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
-import { AreaChart, BarList, SparkAreaChart, Tab, TabGroup, TabList } from '@tremor/react';
+import { AreaChart, SparkAreaChart, Tab, TabGroup, TabList } from '@tremor/react';
 
-import { CollapseProps, Flex } from 'antd';
+import { Col, CollapseProps, Flex, Row } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { BarList } from '../components/barList';
 import { CollapsiblePanel } from '../components/collapsiblePanel';
+import { DonutChart } from '../components/donutChart';
 import GainsBar from '../components/gainsBar';
 import RatioBadge from '../components/ratioBadge';
 import { LoadingMetric, Title } from '../components/typography';
 import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
-import { getBarData } from '../utils/chart';
+import { AvailableChartColorsKeys, getBarData } from '../utils/chart';
 import { FIMS } from '../utils/constants';
 import {} from '../utils/extensions';
 import { getCurrency, getRatio } from '../utils/functions';
@@ -37,6 +39,8 @@ const t: Dataset = {
   loading: 'Chargement...',
   amount: 'Montant',
 };
+
+const tokenColors: AvailableChartColorsKeys[] = ['blue', 'amber', 'cyan'];
 
 const today = new Date();
 const thisPage = Page.Dashboard;
@@ -165,14 +169,33 @@ export default function Dashboard() {
             }}
             isReady={!!dashboard.length}
           />
-          <BarList
-            data-testid="bar-chart"
-            data={result.data}
-            showAnimation={true}
-            valueFormatter={(number: number) =>
-              (result.data.find(d => d.value === number)?.amount ?? number).toLocaleCurrency()
-            }
-          />
+          <Row gutter={[16, 16]}>
+            <Col xs={{ flex: '100%' }} md={{ flex: '50%' }}>
+              <DonutChart
+                className="mx-auto"
+                data={result.data}
+                category="name"
+                value="amount"
+                colors={tokenColors}
+                variant="donut"
+                showLabel={false}
+                valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
+                onValueChange={v => console.log(v)}
+              />
+            </Col>
+            <Col xs={{ flex: '100%' }} md={{ flex: '50%' }} className="content-center">
+              {dashboard.length > 0 && (
+                <BarList
+                  className="opacity-100"
+                  data={result.data}
+                  colors={tokenColors}
+                  showAnimation={true}
+                  onValueChange={v => console.log(v)}
+                  valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
+                />
+              )}
+            </Col>
+          </Row>
         </Flex>
       ),
     },
