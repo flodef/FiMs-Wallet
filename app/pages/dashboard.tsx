@@ -12,11 +12,11 @@ import RatioBadge from '../components/ratioBadge';
 import { LoadingMetric, Title } from '../components/typography';
 import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
+import { useWindowParam } from '../hooks/useWindowParam';
 import { AvailableChartColorsKeys, getBarData } from '../utils/chart';
 import { FIMS } from '../utils/constants';
 import {} from '../utils/extensions';
 import { getCurrency, getRatio } from '../utils/functions';
-import { isMobileSize, useIsMobile } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
 
@@ -59,17 +59,19 @@ export default function Dashboard() {
     tokenHistoricLimit,
     setTokenHistoricLimit,
   } = useData();
+  const { width } = useWindowParam();
 
   const [isMobile, setIsMobile] = useState(false);
+  const [isTokenListExpanded, setIsTokenListExpanded] = useState(false);
 
   useEffect(() => {
-    setIsMobile(isMobileSize());
-  }, []);
+    setIsMobile(width < 768);
+    setIsTokenListExpanded(width > 480);
+  }, [width]);
 
   const generateTokenHistoric = useCallback(
     (token: DashboardToken[]) => {
       token = token.filter(({ label }) => label.includes(FIMS));
-
       setToken(token);
 
       let min = tokenValueStart;
@@ -136,19 +138,29 @@ export default function Dashboard() {
     [dashboard, getBarList],
   );
 
-  const isTokenListExpanded = !useIsMobile(480); // xs for tailwindcss breakpoints;
-
-  const [priceIndex, setPriceIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>();
   const changeToken = useCallback(
     (increment = true) => {
       setTimeout(() => {
-        setPriceIndex(((priceIndex || token.length) + (increment ? 1 : -1)) % token.length);
+        setSelectedIndex(((selectedIndex || token.length) + (increment ? 1 : -1)) % token.length);
       }, 100); // Wait for indexChange event to be triggered
     },
-    [priceIndex, token.length],
+    [selectedIndex, token.length],
   );
 
-  const [selectedIndex, setSelectedIndex] = useState<number>();
+  const currentSelectedPrice = useRef(0);
+  const getSelectedPrice = (index: number | undefined) => {
+    if (index === undefined) return currentSelectedPrice.current;
+    const barList = getBarList(token.map(t => t.label));
+    const priceIndex = token.findIndex(t => t.label === barList[index].name) ?? currentSelectedPrice.current;
+    currentSelectedPrice.current = priceIndex;
+    return priceIndex;
+  };
+  const setSelectedPrice = (index: number) => {
+    const barList = getBarList(token.map(t => t.label));
+    currentSelectedPrice.current = index;
+    setSelectedIndex(barList.findIndex(t => t.name === token[index].label));
+  };
 
   const itemsGeneral: CollapseProps['items'] = [
     {
@@ -212,14 +224,14 @@ export default function Dashboard() {
           <Flex className="gap-4" align="center">
             <Title className="text-left">{t.price}</Title>
             <TabGroup
-              index={priceIndex}
-              onIndexChange={isTokenListExpanded ? setPriceIndex : undefined}
+              index={getSelectedPrice(selectedIndex)}
+              onIndexChange={isTokenListExpanded ? setSelectedPrice : undefined}
               className="xl:text-right max-w-[200px]"
             >
               <TabList className="float-left" variant="line" onClick={e => e.stopPropagation()}>
                 <Flex>
                   {token.map((t, i) => (
-                    <div className={isTokenListExpanded || priceIndex === i ? 'block' : 'hidden'} key={t.label}>
+                    <div className={isTokenListExpanded || selectedIndex === i ? 'block' : 'hidden'} key={t.label}>
                       <Flex align="center">
                         <IconChevronLeft
                           className={twMerge('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
@@ -238,19 +250,23 @@ export default function Dashboard() {
             </TabGroup>
           </Flex>
           <Flex justify="space-between">
-            <LoadingMetric isReady={token.length > 0}>{getCurrency(token, token.at(priceIndex)?.label)}</LoadingMetric>
-            <RatioBadge data={token.at(priceIndex)?.yearlyYield ?? 0} />
+            <LoadingMetric isReady={token.length > 0}>
+              {getCurrency(token, token.at(currentSelectedPrice.current)?.label)}
+            </LoadingMetric>
+            <RatioBadge data={token.at(currentSelectedPrice.current)?.yearlyYield ?? 0} />
           </Flex>
         </Flex>
       ),
       children: (
         <AreaChart
           className="h-40"
-          data={tokenHistoric[priceIndex]}
+          data={tokenHistoric[currentSelectedPrice.current]}
           categories={[t.amount]}
           index="date"
           colors={[
-            tokenHistoric.length && tokenHistoric[priceIndex][0].Montant < tokenHistoric[priceIndex][1].Montant
+            tokenHistoric.length &&
+            tokenHistoric[currentSelectedPrice.current][0].Montant <
+              tokenHistoric[currentSelectedPrice.current][1].Montant
               ? 'green'
               : 'red',
           ]}
