@@ -1,6 +1,6 @@
 // Tremor BarList [v0.1.1]
 
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { twMerge } from 'tailwind-merge';
 import { AvailableChartColors, AvailableChartColorsKeys, getColorClassName } from '../utils/chart';
@@ -34,8 +34,18 @@ function BarListInner<T>(
   }: BarListProps<T>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const handleClick = useCallback(
+    (bar: Bar<T>, index: number) => {
+      setSelectedIndex(index === selectedIndex ? null : index);
+      onValueChange?.(bar);
+    },
+    [onValueChange, selectedIndex],
+  );
+
   const Component = onValueChange ? 'button' : 'div';
-  const sortedData = React.useMemo(() => {
+  const sortedData = useMemo(() => {
     if (sortOrder === 'none') {
       return data;
     }
@@ -44,7 +54,7 @@ function BarListInner<T>(
     });
   }, [data, sortOrder]);
 
-  const widths = React.useMemo(() => {
+  const widths = useMemo(() => {
     const maxValue = Math.max(...sortedData.map(item => item.value), 0);
     return sortedData.map(item => (item.value === 0 ? 0 : Math.max((item.value / maxValue) * 100, 2)));
   }, [sortedData]);
@@ -64,7 +74,7 @@ function BarListInner<T>(
           <Component
             key={item.key ?? item.name}
             onClick={() => {
-              onValueChange?.(item);
+              handleClick(item, index);
             }}
             className={twMerge(
               // base
@@ -86,9 +96,9 @@ function BarListInner<T>(
                 'flex items-center rounded transition-all',
                 rowHeight,
                 // background color
-                // 'bg-blue-200 dark:bg-blue-900',
                 getColorClassName(colors[index] || AvailableChartColors[0], 'bg'),
                 onValueChange ? 'group-hover:bg-opacity-80' : '',
+                selectedIndex !== null && selectedIndex !== index ? 'opacity-30' : '',
                 // margin and duration
                 index === sortedData.length - 1 && 'mb-0',
                 showAnimation && 'duration-800',
