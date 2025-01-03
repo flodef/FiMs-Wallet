@@ -82,6 +82,7 @@ export default function Portfolio() {
               ratio: 0,
               duration: 0,
               volatility: 0,
+              inceptionPrice: 0,
               description: '',
             });
           }

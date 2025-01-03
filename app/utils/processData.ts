@@ -173,7 +173,7 @@ function convertTokenData(item: string[]): TokenData {
     value: Number(item.at(3)),
     yearlyYield: Number(item.at(4)), //yearly yield
     ratio: Number(item.at(5)), // inception yield
-    // inceptionPrice: Number(item.at(6)), //not used
+    inceptionPrice: Number(item.at(6)),
     duration: Number(item.at(7)),
     volatility: Number(item.at(8)),
     description: String(item.at(9)),
