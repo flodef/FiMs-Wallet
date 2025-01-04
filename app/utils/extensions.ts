@@ -90,7 +90,7 @@ Number.prototype.toCurrency = function (maxDecimals = 2, symbol = '€', symbolP
 };
 
 Number.prototype.toRatio = function (maxDecimals = 2) {
-  return `${(Number(this) * 100).toFixed(maxDecimals)}%`;
+  return `${(Number(this) * 100).toFixed(this.getPrecision(maxDecimals))}%`;
 };
 
 Number.prototype.toLocaleDateString = function () {
