@@ -157,16 +157,6 @@ export default function Dashboard() {
     [dashboard, getBarList],
   );
 
-  const [selectedIndex, setSelectedIndex] = useState<number>();
-  const changeToken = useCallback(
-    (increment = true) => {
-      setTimeout(() => {
-        setSelectedIndex(((selectedIndex || token.length) + (increment ? 1 : -1)) % token.length);
-      }, 100); // Wait for indexChange event to be triggered
-    },
-    [selectedIndex, token.length],
-  );
-
   const selectedPrice = useRef(0);
   const getSelectedPrice = (index: number | undefined) => {
     if (index === undefined) return selectedPrice.current;
@@ -175,11 +165,24 @@ export default function Dashboard() {
     selectedPrice.current = priceIndex;
     return priceIndex;
   };
-  const setSelectedPrice = (index: number) => {
-    const barList = getBarList(token.map(t => t.label));
-    selectedPrice.current = index;
-    setSelectedIndex(barList.findIndex(t => t.name === token[index].label));
-  };
+  const setSelectedPrice = useCallback(
+    (index: number) => {
+      const barList = getBarList(token.map(t => t.label));
+      selectedPrice.current = index;
+      setSelectedIndex(barList.findIndex(t => t.name === token[index].label));
+    },
+    [getBarList, token],
+  );
+
+  const [selectedIndex, setSelectedIndex] = useState<number>();
+  const changeToken = useCallback(
+    (increment = true) => {
+      setTimeout(() => {
+        setSelectedPrice(((selectedPrice.current || token.length) + (increment ? 1 : -1)) % token.length);
+      }, 100); // Wait for indexChange event to be triggered
+    },
+    [token.length, setSelectedPrice],
+  );
 
   const currentToken = token.at(selectedPrice.current);
 
