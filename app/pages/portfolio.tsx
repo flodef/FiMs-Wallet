@@ -243,7 +243,7 @@ export default function Portfolio() {
   }, [userHistoric]);
 
   return (
-    <Flex vertical className="gap-6">
+    <Flex vertical className="gap-4">
       <CollapsiblePanel
         label={
           <Flex justify="space-between">

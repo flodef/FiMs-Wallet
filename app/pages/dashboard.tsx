@@ -187,7 +187,7 @@ export default function Dashboard() {
   const currentToken = token.at(selectedPrice.current);
 
   return (
-    <Flex vertical className="gap-6">
+    <Flex vertical className="gap-4">
       <CollapsiblePanel
         label={
           <Flex justify="space-between">
