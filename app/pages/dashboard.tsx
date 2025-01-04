@@ -217,7 +217,8 @@ export default function Dashboard() {
                 value="amount"
                 colors={tokenColors}
                 variant="donut"
-                showLabel={false}
+                label={t.price + ' : ' + getCurrency(token, currentToken?.label)}
+                showLabel={selectedIndex !== undefined && !!currentToken}
                 showTooltip={false}
                 selectedIndex={selectedIndex}
                 onSelectedIndexChange={setSelectedIndex}
