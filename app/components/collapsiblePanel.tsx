@@ -1,13 +1,20 @@
-import { DownOutlined } from '@ant-design/icons';
-import { Collapse, type CollapseProps } from 'antd';
-import { useEffect, useState } from 'react';
+import { CaretRightOutlined, DownOutlined } from '@ant-design/icons';
+import { Collapse } from 'antd';
+import { ReactNode, useEffect, useState } from 'react';
 
 interface CollapsiblePanelProps {
-  items: CollapseProps['items'];
+  label: ReactNode;
+  children: ReactNode;
   isExpanded?: boolean;
+  hasCardStyle?: boolean;
 }
 
-export const CollapsiblePanel = ({ items, isExpanded = true }: CollapsiblePanelProps) => {
+export const CollapsiblePanel = ({
+  label,
+  children,
+  isExpanded = true,
+  hasCardStyle = true,
+}: CollapsiblePanelProps) => {
   const [activeKey, setActiveKey] = useState<Array<string | number> | string | number | undefined>();
 
   useEffect(() => {
@@ -16,14 +23,26 @@ export const CollapsiblePanel = ({ items, isExpanded = true }: CollapsiblePanelP
 
   return (
     <Collapse
-      items={items}
+      items={[{ label, children }]}
       activeKey={activeKey}
       expandIcon={({ isActive }) => (
         <div>
-          <DownOutlined style={{ color: 'var(--text)' }} className="text-lg items-center" rotate={isActive ? 180 : 0} />
+          {hasCardStyle ? (
+            <DownOutlined
+              style={{ color: 'var(--text)' }}
+              className="text-lg items-center"
+              rotate={isActive ? 180 : 0}
+            />
+          ) : (
+            <CaretRightOutlined
+              style={{ color: 'var(--text)' }}
+              className="text-lg items-center"
+              rotate={isActive ? 90 : 0}
+            />
+          )}
         </div>
       )}
-      style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}
+      className={hasCardStyle ? 'ant-card' : 'ant-cardless'}
       bordered={false}
       expandIconPosition="end"
       onChange={setActiveKey}

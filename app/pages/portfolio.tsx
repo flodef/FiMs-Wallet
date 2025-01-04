@@ -1,5 +1,5 @@
 import { AreaChart, SparkAreaChart, Table, TableBody, TableCell, TableRow } from '@tremor/react';
-import { CollapseProps, Divider, Flex } from 'antd';
+import { Divider, Flex } from 'antd';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CollapsiblePanel } from '../components/collapsiblePanel';
@@ -10,8 +10,8 @@ import { LoadingMetric, Title } from '../components/typography';
 import { usePrivacy } from '../contexts/privacyProvider';
 import type { UserHistoric } from '../hooks/useData';
 import { useData } from '../hooks/useData';
-import { useUser } from '../hooks/useUser';
 import { Page, useNavigation } from '../hooks/useNavigation';
+import { useUser } from '../hooks/useUser';
 import { FIMS, FIMS_TOKEN_PATH, SPL_TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { convertedData, DataName, forceData, loadData, PortfolioData, TokenData } from '../utils/processData';
@@ -242,24 +242,25 @@ export default function Portfolio() {
     return { minHisto, maxHisto };
   }, [userHistoric]);
 
-  const itemsGeneral: CollapseProps['items'] = [
-    {
-      label: (
-        <Flex justify="space-between">
-          <Flex vertical>
-            <Title>{t.totalValue}</Title>
-            <Flex>
-              <LoadingMetric isReady={!!portfolio} className="m-0">
-                <Privacy amount={portfolio?.total ?? 0} />
-              </LoadingMetric>
-              <PrivacyButton />
+  return (
+    <Flex vertical className="gap-6">
+      <CollapsiblePanel
+        label={
+          <Flex justify="space-between">
+            <Flex vertical>
+              <Title>{t.totalValue}</Title>
+              <Flex>
+                <LoadingMetric isReady={!!portfolio} className="m-0">
+                  <Privacy amount={portfolio?.total ?? 0} />
+                </LoadingMetric>
+                <PrivacyButton />
+              </Flex>
             </Flex>
+            <RatioBadge className={portfolio?.yearlyYield ? 'visible' : 'hidden'} data={portfolio?.yearlyYield ?? 0} />
           </Flex>
-          <RatioBadge className={portfolio?.yearlyYield ? 'visible' : 'hidden'} data={portfolio?.yearlyYield ?? 0} />
-        </Flex>
-      ),
-      children: (
-        <>
+        }
+      >
+        <Flex vertical>
           {!portfolio || portfolio.invested ? (
             <GainsBar values={portfolio} isReady={!!portfolio} shouldUsePrivacy />
           ) : null}
@@ -319,56 +320,48 @@ export default function Portfolio() {
               </TableBody>
             </Table>
           )}
-        </>
-      ),
-    },
-  ];
-
-  const itemsPerformances: CollapseProps['items'] = [
-    {
-      label: (
-        <Flex>
-          <Title>{t.performance}</Title>
-          {userHistoric.length > 1 && (
-            <Flex className="w-full" justify="center">
-              <SparkAreaChart
-                className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
-                data={userHistoric.sort((a, b) => a.date - b.date)}
-                categories={[t.total]}
-                index={'stringDate'}
-                colors={['emerald']}
-                curveType="monotone"
-                noDataText={t.loading}
-              />
-            </Flex>
-          )}
         </Flex>
-      ),
-      children: (
-        <AreaChart
-          className="h-80"
-          data={userHistoric.sort((a, b) => a.date - b.date)}
-          categories={[t.transfered, t.total]}
-          index="stringDate"
-          colors={['indigo', 'fuchsia']}
-          valueFormatter={amount => toPrivacy(amount, hasPrivacy, 'short')}
-          yAxisWidth={60}
-          showAnimation={true}
-          animationDuration={2000}
-          curveType="monotone"
-          noDataText={t.loading}
-          minValue={minHisto}
-          maxValue={maxHisto}
-        />
-      ),
-    },
-  ];
+      </CollapsiblePanel>
 
-  return (
-    <>
-      <CollapsiblePanel items={itemsGeneral} />
-
-      {userHistoric.length > 0 && <CollapsiblePanel items={itemsPerformances} isExpanded={!isMobile} />}
-    </>
+      {userHistoric.length > 0 && (
+        <CollapsiblePanel
+          label={
+            <Flex>
+              <Title>{t.performance}</Title>
+              {userHistoric.length > 1 && (
+                <Flex className="w-full" justify="center">
+                  <SparkAreaChart
+                    className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
+                    data={userHistoric.sort((a, b) => a.date - b.date)}
+                    categories={[t.total]}
+                    index={'stringDate'}
+                    colors={['emerald']}
+                    curveType="monotone"
+                    noDataText={t.loading}
+                  />
+                </Flex>
+              )}
+            </Flex>
+          }
+          isExpanded={!isMobile}
+        >
+          <AreaChart
+            className="h-80"
+            data={userHistoric.sort((a, b) => a.date - b.date)}
+            categories={[t.transfered, t.total]}
+            index="stringDate"
+            colors={['indigo', 'fuchsia']}
+            valueFormatter={amount => toPrivacy(amount, hasPrivacy, 'short')}
+            yAxisWidth={60}
+            showAnimation={true}
+            animationDuration={2000}
+            curveType="monotone"
+            noDataText={t.loading}
+            minValue={minHisto}
+            maxValue={maxHisto}
+          />
+        </CollapsiblePanel>
+      )}
+    </Flex>
   );
 }
