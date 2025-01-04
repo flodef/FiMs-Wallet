@@ -37,7 +37,7 @@ export const Title = ({ children, className, type }: TitleProps) => (
   <Typography.Title
     level={4}
     style={type ? marginStyle : titleStyle}
-    className={twMerge(titleClassName, className)}
+    className={twMerge('h-10 content-center', titleClassName, className)}
     type={type}
   >
     {children}
