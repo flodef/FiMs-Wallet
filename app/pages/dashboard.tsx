@@ -27,11 +27,13 @@ const tokenValueStart = 100;
 const t: Dataset = {
   price: 'Prix',
   performances: 'Performances',
+  yearlyYield: 'Rendement annuel',
   volatility: 'Volatilité',
   risk: 'Risque',
   description: 'Description',
+  distribution: 'Répartition',
   creation: 'Création',
-  initPrice: 'Prix de création',
+  initPrice: 'Prix initial',
   historic: 'Historique',
   high: 'Fort',
   low: 'Faible',
@@ -331,7 +333,7 @@ export default function Dashboard() {
                         </LoadingMetric>
                       </Flex>
                       <Flex justify="space-between" align="center">
-                        <Title>{t.performances}</Title>
+                        <Title>{t.yearlyYield}</Title>
                         <RatioBadge data={currentToken.yearlyYield} />
                       </Flex>
                       <Flex vertical justify="space-between">
@@ -351,6 +353,15 @@ export default function Dashboard() {
                         </Title>
                         <Text type={getRisk(currentToken.volatility).type}>
                           {currentToken.volatility.toRatio(0)} / {getRisk(currentToken.volatility).label}
+                        </Text>
+                      </Flex>
+                      <Flex justify="space-between" align="center">
+                        <Title>{t.distribution}</Title>
+                        <Text>
+                          {(
+                            (result.data.find(t => t.name === currentToken.label)?.amount || 0) /
+                            result.total.fromCurrency()
+                          ).toRatio(0)}
                         </Text>
                       </Flex>
                       <Flex justify="space-between" align="center">
