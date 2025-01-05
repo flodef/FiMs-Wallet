@@ -1,13 +1,14 @@
-import { IconChevronLeft, IconChevronRight, IconChevronsRight } from '@tabler/icons-react';
+import { IconChartDonut3, IconChevronLeft, IconChevronRight, IconChevronsRight, IconGauge } from '@tabler/icons-react';
 import { AreaChart, SparkAreaChart, Tab, TabGroup, TabList } from '@tremor/react';
 
-import { Col, Drawer, Flex, Row } from 'antd';
+import { Col, Drawer, Flex, Row, Segmented } from 'antd';
 import { BaseType } from 'antd/es/typography/Base';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { BarList } from '../components/barList';
 import { CollapsiblePanel } from '../components/collapsiblePanel';
 import { DonutChart } from '../components/donutChart';
+import { Gauge } from '../components/gauge';
 import GainsBar from '../components/gainsBar';
 import RatioBadge from '../components/ratioBadge';
 import { LoadingMetric, Subtitle, Text, Title } from '../components/typography';
@@ -52,6 +53,11 @@ const t: Dataset = {
   learnMore: 'En savoir plus',
 };
 
+enum GraphType {
+  Distribution = 'Distribution',
+  Risk = 'Risk',
+}
+
 const tokenColors: AvailableChartColorsKeys[] = ['blue', 'amber', 'cyan'];
 
 const today = new Date();
@@ -68,8 +74,8 @@ export default function Dashboard() {
   const {
     dashboard,
     setDashboard,
-    token,
-    setToken,
+    tokens,
+    setTokens,
     historic,
     setHistoric,
     tokenHistoric,
@@ -82,16 +88,49 @@ export default function Dashboard() {
   const [isMobile, setIsMobile] = useState(false);
   const [isTokenListExpanded, setIsTokenListExpanded] = useState(false);
   const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
+  const [graphType, setGraphType] = useState(GraphType.Distribution);
 
   useEffect(() => {
     setIsMobile(width < 768);
     setIsTokenListExpanded(width > 480);
   }, [width]);
 
+  const getBarList = useCallback(
+    (labels: string[]) => {
+      return labels
+        .map(label => {
+          return getBarData(t[label] ?? label, getCurrency(dashboard, label).fromCurrency());
+        })
+        .sort((a, b) => b.value - a.value);
+    },
+    [dashboard],
+  );
+
+  const result = useMemo(
+    () => ({
+      category: t.total,
+      total: getCurrency(dashboard, 'assets', 1500000),
+      data: getBarList(tokens.map(t => t.label)),
+    }),
+    [dashboard, getBarList, tokens],
+  );
+
+  const overallVolatility = useMemo(() => {
+    if (!tokens.length) return 0;
+
+    const totalAmount = result.total.fromCurrency();
+    if (totalAmount === 0) return 0;
+
+    return result.data.reduce((weightedVolatility, data) => {
+      const weight = data.amount / totalAmount;
+      return weightedVolatility + (tokens.find(t => t.label === data.name)?.volatility ?? 0) * weight;
+    }, 0);
+  }, [tokens, result]);
+
   const generateTokenHistoric = useCallback(
     (token: DashboardToken[]) => {
       token = token.filter(({ label }) => label.includes(FIMS));
-      setToken(token);
+      setTokens(token);
 
       let min = tokenValueStart;
       let max = tokenValueStart;
@@ -117,7 +156,7 @@ export default function Dashboard() {
         max: max,
       });
     },
-    [setToken, setTokenHistoric, setTokenHistoricLimit],
+    [setTokens, setTokenHistoric, setTokenHistoricLimit],
   );
 
   const isLoading = useRef(false);
@@ -137,54 +176,34 @@ export default function Dashboard() {
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, generateTokenHistoric, setDashboard, setHistoric]);
 
-  const getBarList = useCallback(
-    (labels: string[]) => {
-      return labels
-        .map(label => {
-          return getBarData(t[label] ?? label, getCurrency(dashboard, label).fromCurrency());
-        })
-        .sort((a, b) => b.value - a.value);
-    },
-    [dashboard],
-  );
-
-  const result = useMemo(
-    () => ({
-      category: t.total,
-      total: getCurrency(dashboard, 'assets', 1500000),
-      data: getBarList(['FiMs SOL', 'FiMs Token', 'FiMs Liquidity Provider']),
-    }),
-    [dashboard, getBarList],
-  );
-
   const selectedPrice = useRef(0);
   const getSelectedPrice = (index: number | undefined) => {
     if (index === undefined) return selectedPrice.current;
-    const barList = getBarList(token.map(t => t.label));
-    const priceIndex = token.findIndex(t => t.label === barList[index].name) ?? selectedPrice.current;
+    const barList = getBarList(tokens.map(t => t.label));
+    const priceIndex = tokens.findIndex(t => t.label === barList[index].name) ?? selectedPrice.current;
     selectedPrice.current = priceIndex;
     return priceIndex;
   };
   const setSelectedPrice = useCallback(
     (index: number) => {
-      const barList = getBarList(token.map(t => t.label));
+      const barList = getBarList(tokens.map(t => t.label));
       selectedPrice.current = index;
-      setSelectedIndex(barList.findIndex(t => t.name === token[index].label));
+      setSelectedIndex(barList.findIndex(t => t.name === tokens[index].label));
     },
-    [getBarList, token],
+    [getBarList, tokens],
   );
 
   const [selectedIndex, setSelectedIndex] = useState<number>();
   const changeToken = useCallback(
     (increment = true) => {
       setTimeout(() => {
-        setSelectedPrice(((selectedPrice.current || token.length) + (increment ? 1 : -1)) % token.length);
+        setSelectedPrice(((selectedPrice.current || tokens.length) + (increment ? 1 : -1)) % tokens.length);
       }, 100); // Wait for indexChange event to be triggered
     },
-    [token.length, setSelectedPrice],
+    [tokens.length, setSelectedPrice],
   );
 
-  const currentToken = token.at(selectedPrice.current);
+  const currentToken = tokens.at(selectedPrice.current);
 
   return (
     <Flex vertical className="gap-4">
@@ -210,20 +229,43 @@ export default function Dashboard() {
           />
           <Row gutter={[16, 16]}>
             <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }}>
-              <DonutChart
-                className="mx-auto"
-                data={result.data}
-                category="name"
-                value="amount"
-                colors={tokenColors}
-                variant="donut"
-                label={t.price + ' : ' + getCurrency(token, currentToken?.label)}
-                showLabel={selectedIndex !== undefined && !!currentToken}
-                showTooltip={false}
-                selectedIndex={selectedIndex}
-                onSelectedIndexChange={setSelectedIndex}
-                valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
-              />
+              <Flex>
+                {isMobile && (
+                  <Segmented
+                    className="h-fit"
+                    vertical
+                    defaultValue={graphType}
+                    options={[
+                      { value: GraphType.Distribution, icon: <IconChartDonut3 /> },
+                      { value: GraphType.Risk, icon: <IconGauge /> },
+                    ]}
+                    onChange={setGraphType}
+                  />
+                )}
+                {graphType === GraphType.Risk || !isMobile ? (
+                  <Gauge
+                    value={selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility}
+                    title={`${t.volatility} : ${(selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility).toRatio(0)}`}
+                    subtitle={`${t.risk} : ${getRisk(selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility).label}`}
+                  />
+                ) : null}
+                {graphType === GraphType.Distribution || !isMobile ? (
+                  <DonutChart
+                    className="mx-auto"
+                    data={result.data}
+                    category="name"
+                    value="amount"
+                    colors={tokenColors}
+                    variant="donut"
+                    label={t.price + ' : ' + getCurrency(tokens, currentToken?.label)}
+                    showLabel={selectedIndex !== undefined && !!currentToken}
+                    showTooltip={false}
+                    selectedIndex={selectedIndex}
+                    onSelectedIndexChange={setSelectedIndex}
+                    valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
+                  />
+                ) : null}
+              </Flex>
             </Col>
             <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }} className="content-center">
               {dashboard.length > 0 && (
@@ -256,7 +298,7 @@ export default function Dashboard() {
                       >
                         <TabList variant="line" onClick={e => e.stopPropagation()}>
                           <Flex className="gap-6">
-                            {token.map((t, i) => (
+                            {tokens.map((t, i) => (
                               <div
                                 className={isTokenListExpanded || selectedPrice.current === i ? 'block' : 'hidden'}
                                 key={t.label}
@@ -284,8 +326,8 @@ export default function Dashboard() {
                     <Flex vertical className="gap-4">
                       <Flex justify="space-between" align="center">
                         <Title>{t.price}</Title>
-                        <LoadingMetric isReady={token.length > 0}>
-                          {getCurrency(token, currentToken.label)}
+                        <LoadingMetric isReady={tokens.length > 0}>
+                          {getCurrency(tokens, currentToken.label)}
                         </LoadingMetric>
                       </Flex>
                       <Flex justify="space-between" align="center">
