@@ -179,18 +179,21 @@ export default function Dashboard() {
   }, [needRefresh, setNeedRefresh, page, generateTokenHistoric, setDashboard, setHistoric]);
 
   const selectedPrice = useRef(0);
-  const getSelectedPrice = (index: number | undefined) => {
-    if (index === undefined) return selectedPrice.current;
-    const barList = getBarList(tokens.map(t => t.label));
-    const priceIndex = tokens.findIndex(t => t.label === barList[index].name) ?? selectedPrice.current;
-    selectedPrice.current = priceIndex;
-    return priceIndex;
-  };
-  const setSelectedPrice = useCallback(
-    (index: number) => {
+  const getSelectedPrice = useCallback(
+    (index: number | undefined) => {
+      if (index === undefined) return selectedPrice.current;
       const barList = getBarList(tokens.map(t => t.label));
-      selectedPrice.current = index;
-      setSelectedIndex(barList.findIndex(t => t.name === tokens[index].label));
+      const priceIndex = tokens.findIndex(t => t.label === barList[index].name) ?? selectedPrice.current;
+      selectedPrice.current = priceIndex;
+      return priceIndex;
+    },
+    [getBarList, tokens],
+  );
+  const setSelectedPrice = useCallback(
+    (priceIndex: number) => {
+      const barList = getBarList(tokens.map(t => t.label));
+      selectedPrice.current = priceIndex;
+      setSelectedIndex(barList.findIndex(t => t.name === tokens[priceIndex].label));
     },
     [getBarList, tokens],
   );
@@ -205,7 +208,10 @@ export default function Dashboard() {
     [tokens.length, setSelectedPrice],
   );
 
-  const currentToken = tokens.at(selectedPrice.current);
+  const currentToken = useMemo(
+    () => tokens[getSelectedPrice(selectedIndex)],
+    [selectedIndex, tokens, getSelectedPrice],
+  );
 
   return (
     <Flex vertical className="gap-4">
