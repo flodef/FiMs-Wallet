@@ -87,12 +87,12 @@ export interface Transaction {
 export interface DataContextState {
   // Dashboard data
   dashboard: Data[];
-  token: DashboardToken[];
+  tokens: DashboardToken[];
   historic: Historic[];
   tokenHistoric: TokenHistoric[][];
   tokenHistoricLimit: MinMax | undefined;
   setDashboard: (data: Data[]) => void;
-  setToken: (data: DashboardToken[]) => void;
+  setTokens: (data: DashboardToken[]) => void;
   setHistoric: (data: Historic[]) => void;
   setTokenHistoric: (data: TokenHistoric[][]) => void;
   setTokenHistoricLimit: (data: MinMax | undefined) => void;

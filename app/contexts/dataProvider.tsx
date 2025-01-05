@@ -17,7 +17,7 @@ import { Data, MinMax } from '../utils/types';
 export function DataProvider({ children }: { children: ReactNode }) {
   // Dashboard
   const [dashboard, setDashboard] = useState<Data[]>([]);
-  const [token, setToken] = useState<DashboardToken[]>([]);
+  const [tokens, setTokens] = useState<DashboardToken[]>([]);
   const [historic, setHistoric] = useState<Historic[]>([]);
   const [tokenHistoric, setTokenHistoric] = useState<TokenHistoric[][]>([]);
   const [tokenHistoricLimit, setTokenHistoricLimit] = useState<MinMax>();
@@ -39,12 +39,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
       value={{
         // Dashboard data
         dashboard,
-        token,
+        tokens,
         historic,
         tokenHistoric,
         tokenHistoricLimit,
         setDashboard,
-        setToken,
+        setTokens,
         setHistoric,
         setTokenHistoric,
         setTokenHistoricLimit,
