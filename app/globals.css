@@ -35,7 +35,8 @@
   border: 1px solid var(--border) !important;
 }
 
-.ant-card-body {
+.ant-card-body,
+.ant-drawer-body {
   padding: 12px 16px !important;
 }
 
