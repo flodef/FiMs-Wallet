@@ -184,8 +184,9 @@ function convertHistoricData(item: string[]): Historic {
   return {
     date: Number(item.at(0)),
     stringDate: Number(item.at(0)).toLocaleDateString(),
-    Trésorerie: Number(item.at(1)), // TO FIX: Should have the translated term already
-    Investi: Number(item.at(2)), // TO FIX: Should have the translated term already
+    Investi: Number(item.at(1)), // TO FIX: Should have the translated term already
+    // Gains: Number(item.at(2)), // not used
+    Trésorerie: Number(item.at(3)), // TO FIX: Should have the translated term already
   };
 }
 
