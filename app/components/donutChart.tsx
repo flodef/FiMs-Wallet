@@ -3,16 +3,17 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pie, PieChart as ReChartsDonutChart, ResponsiveContainer, Sector, Tooltip } from 'recharts';
 
+import { twMerge } from 'tailwind-merge';
+import { useNavigation } from '../hooks/useNavigation';
 import {
   AvailableChartColors,
   AvailableChartColorsKeys,
   constructCategoryColors,
   getColorClassName,
 } from '../utils/chart';
-import { twMerge } from 'tailwind-merge';
 
 const sumNumericArray = (arr: number[]): number => arr.reduce((sum, num) => sum + num, 0);
 
@@ -188,6 +189,16 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
     const prevActiveRef = React.useRef<boolean | undefined>(undefined);
     const prevCategoryRef = React.useRef<string | undefined>(undefined);
 
+    const { page } = useNavigation();
+    const [isAnimationActive, setIsAnimationActive] = React.useState(false);
+    useEffect(() => {
+      if (page === undefined) return;
+      setIsAnimationActive(true);
+      setTimeout(() => {
+        setIsAnimationActive(false);
+      }, 5000);
+    }, [page]);
+
     const handleShapeClick = (data: any, index: number, event: React.MouseEvent) => {
       event.stopPropagation();
       if (!isHandlingEvent) return;
@@ -247,7 +258,7 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
               strokeLinejoin="round"
               dataKey={value}
               nameKey={category}
-              isAnimationActive={true}
+              isAnimationActive={isAnimationActive}
               onClick={handleShapeClick}
               activeIndex={actualSelectedIndex}
               inactiveShape={renderInactiveShape}
