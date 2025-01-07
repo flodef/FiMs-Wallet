@@ -1,9 +1,9 @@
-import { MarkerBar } from '@tremor/react';
 import { Flex } from 'antd';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { transitionDuration } from '../utils/functions';
 import { Dataset } from '../utils/types';
+import { MarkerBar } from './markerBar';
 import { Privacy } from './privacy';
 import { Subtitle } from './typography';
 
@@ -75,20 +75,14 @@ export default function GainsBar({
       </Flex>
 
       {(profitRatio || !isReady) && (
-        <MarkerBar
-          className="mt-1 mb-1"
-          title={isPositive ? t.profits : t.loss}
-          color={isPositive ? 'green' : 'red'}
-          value={isOverKill ? overKillValue : isPositive ? 0 : 100}
-          minValue={isOverKill ? overKillValue : isPositive ? 0 : 100 - Math.abs(value)}
-          maxValue={isOverKill ? 100 : isPositive ? value : 100}
-        />
-        // <CategoryBar
-        //   values={isOverKill ? [100, value] : isPositive ? [value, 100 - value] : [100 + value, -value]}
-        //   markerValue={isOverKill ? 100.01 : isPositive ? value : 100 + value + 0.01}
-        //   colors={isOverKill ? ['neutral', 'green'] : isPositive ? ['green', 'zinc'] : ['neutral', 'red']}
-        //   showLabels={false}
-        // />
+        <Flex vertical>
+          <MarkerBar
+            className="mt-1 mb-1"
+            value={isOverKill ? overKillValue : isPositive ? 0 : 100}
+            minValue={isOverKill ? overKillValue : isPositive ? 0 : 100 - Math.abs(value)}
+            maxValue={isOverKill ? 100 : isPositive ? value : 100}
+          />
+        </Flex>
       )}
     </Flex>
   );
