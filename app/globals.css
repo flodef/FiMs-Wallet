@@ -28,7 +28,9 @@
   }
 }
 
-.ant-flex {
+.ant-flex,
+.ant-divider,
+.ant-modal-close {
   color: var(--text) !important;
 }
 
@@ -68,10 +70,6 @@
 .ant-modal-content {
   background-color: var(--bgSubtle) !important;
   border: 1px solid var(--scrollbar) !important;
-}
-
-.ant-modal-close {
-  color: var(--text) !important;
 }
 
 #popup > .ant-card {
