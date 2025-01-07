@@ -10,7 +10,7 @@ type Bar<T> = T & {
   key?: string;
   href?: string;
   value: number;
-  name: string;
+  label: string;
 };
 
 interface BarListProps<T = unknown> extends React.HTMLAttributes<HTMLDivElement> {
@@ -92,7 +92,7 @@ function BarListInner<T>(
       <div className="relative w-full space-y-1.5">
         {sortedData.map((item, index) => (
           <Component
-            key={item.key ?? item.name}
+            key={item.key ?? item.label}
             onClick={() => {
               handleClick(item, index);
             }}
@@ -143,7 +143,7 @@ function BarListInner<T>(
                     rel="noreferrer"
                     onClick={event => event.stopPropagation()}
                   >
-                    {item.name}
+                    {item.label}
                   </a>
                 ) : (
                   <p
@@ -154,7 +154,7 @@ function BarListInner<T>(
                       'text-gray-900 dark:text-gray-50',
                     )}
                   >
-                    {item.name}
+                    {item.label}
                   </p>
                 )}
               </div>
@@ -165,7 +165,7 @@ function BarListInner<T>(
       <div>
         {sortedData.map((item, index) => (
           <div
-            key={item.key ?? item.name}
+            key={item.key ?? item.label}
             className={twMerge(
               'flex items-center justify-end',
               rowHeight,

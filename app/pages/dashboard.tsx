@@ -1,45 +1,39 @@
-import { IconChartDonut3, IconChevronLeft, IconChevronRight, IconChevronsRight, IconGauge } from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight, IconChevronsRight } from '@tabler/icons-react';
 import { AreaChart, SparkAreaChart, Tab, TabGroup, TabList } from '@tremor/react';
 
-import { Col, Drawer, Flex, Row, Segmented } from 'antd';
-import { BaseType } from 'antd/es/typography/Base';
+import { Col, Drawer, Flex, Row } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { BarList } from '../components/barList';
 import { CollapsiblePanel } from '../components/collapsiblePanel';
-import { DonutChart } from '../components/donutChart';
-import { Gauge } from '../components/gauge';
 import GainsBar from '../components/gainsBar';
+import { getRisk, TokenGraphs } from '../components/tokenGraphs';
 import RatioBadge from '../components/ratioBadge';
 import { LoadingMetric, Subtitle, Text, Title } from '../components/typography';
 import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
-import { AvailableChartColorsKeys, getBarData } from '../utils/chart';
+import { AvailableChartColorsKeys } from '../utils/chart';
 import { FIMS } from '../utils/constants';
 import {} from '../utils/extensions';
-import { getCurrency, getRatio } from '../utils/functions';
+import { findValue, getCurrency, getRatio } from '../utils/functions';
 import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
 
 const tokenValueStart = 100;
+const tokenColors: AvailableChartColorsKeys[] = ['blue', 'amber', 'cyan'];
 
 const t: Dataset = {
   price: 'Prix',
-  performances: 'Performances',
-  yearlyYield: 'Rendement annuel',
   volatility: 'Volatilité',
   risk: 'Risque',
+  performances: 'Performances',
+  yearlyYield: 'Rendement annuel',
   description: 'Description',
   distribution: 'Répartition',
   creation: 'Création',
   initPrice: 'Prix initial',
   historic: 'Historique',
-  veryHigh: 'Très fort',
-  high: 'Fort',
-  low: 'Faible',
-  veryLow: 'Très faible',
-  medium: 'Moyen',
   result: 'Résultats FiMs',
   total: 'Trésorerie',
   profit: 'Profits',
@@ -57,23 +51,8 @@ const t: Dataset = {
   learnMore: 'En savoir plus',
 };
 
-enum GraphType {
-  Distribution = 'Distribution',
-  Risk = 'Risk',
-}
-
-const tokenColors: AvailableChartColorsKeys[] = ['blue', 'amber', 'cyan'];
-
 const today = new Date();
 const thisPage = Page.Dashboard;
-
-export const getRisk = (ratio: number): { label: string; type: BaseType } => {
-  if (ratio >= 0.8) return { label: t.veryHigh, type: 'danger' };
-  if (ratio >= 0.6) return { label: t.high, type: 'danger' };
-  if (ratio >= 0.4) return { label: t.medium, type: 'warning' };
-  if (ratio >= 0.2) return { label: t.low, type: 'success' };
-  return { label: t.veryLow, type: 'success' };
-};
 
 export default function Dashboard() {
   const { page, needRefresh, setNeedRefresh } = useNavigation();
@@ -94,7 +73,6 @@ export default function Dashboard() {
   const [isMobile, setIsMobile] = useState(false);
   const [isTokenListExpanded, setIsTokenListExpanded] = useState(false);
   const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
-  const [graphType, setGraphType] = useState(GraphType.Distribution);
 
   useEffect(() => {
     setIsMobile(width < 768);
@@ -102,11 +80,13 @@ export default function Dashboard() {
   }, [width]);
 
   const getBarList = useCallback(
-    (labels: string[]) => {
+    (labels: string[]): Data[] => {
       return labels
-        .map(label => {
-          return getBarData(t[label] ?? label, getCurrency(dashboard, label).fromCurrency());
-        })
+        .map(label => ({
+          label: t[label] ?? label,
+          value: getCurrency(dashboard, label).fromCurrency(),
+          ratio: 0,
+        }))
         .sort((a, b) => b.value - a.value);
     },
     [dashboard],
@@ -114,24 +94,11 @@ export default function Dashboard() {
 
   const result = useMemo(
     () => ({
-      category: t.total,
-      total: getCurrency(dashboard, 'assets', 1500000),
+      total: findValue(dashboard, 'assets')?.value ?? 1500000,
       data: getBarList(tokens.map(t => t.label)),
     }),
     [dashboard, getBarList, tokens],
   );
-
-  const overallVolatility = useMemo(() => {
-    if (!tokens.length) return -1;
-
-    const totalAmount = result.total.fromCurrency();
-    if (totalAmount === 0) return -1;
-
-    return result.data.reduce((weightedVolatility, data) => {
-      const weight = data.amount / totalAmount;
-      return weightedVolatility + (tokens.find(t => t.label === data.name)?.volatility ?? 0) * weight;
-    }, 0);
-  }, [tokens, result]);
 
   const generateTokenHistoric = useCallback(
     (token: DashboardToken[]) => {
@@ -187,7 +154,7 @@ export default function Dashboard() {
     (index: number | undefined) => {
       if (index === undefined) return selectedPrice.current;
       const barList = getBarList(tokens.map(t => t.label));
-      const priceIndex = tokens.findIndex(t => t.label === barList[index].name) ?? selectedPrice.current;
+      const priceIndex = tokens.findIndex(t => t.label === barList[index].label) ?? selectedPrice.current;
       selectedPrice.current = priceIndex;
       return priceIndex;
     },
@@ -197,7 +164,7 @@ export default function Dashboard() {
     (priceIndex: number) => {
       const barList = getBarList(tokens.map(t => t.label));
       selectedPrice.current = priceIndex;
-      setSelectedIndex(barList.findIndex(t => t.name === tokens[priceIndex].label));
+      setSelectedIndex(barList.findIndex(t => t.label === tokens[priceIndex].label));
     },
     [getBarList, tokens],
   );
@@ -246,45 +213,15 @@ export default function Dashboard() {
           ) : (
             <Row gutter={[16, 16]}>
               <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }}>
-                <Flex>
-                  {isMobile && (
-                    <Segmented
-                      className="h-fit"
-                      vertical
-                      defaultValue={graphType}
-                      options={[
-                        { value: GraphType.Distribution, icon: <IconChartDonut3 /> },
-                        { value: GraphType.Risk, icon: <IconGauge /> },
-                      ]}
-                      onChange={setGraphType}
-                    />
-                  )}
-                  {graphType === GraphType.Risk || !isMobile ? (
-                    <Gauge
-                      value={
-                        selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility
-                      }
-                      title={`${t.volatility} : ${(selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility).toRatio(0)}`}
-                      subtitle={`${t.risk} : ${getRisk(selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility).label}`}
-                    />
-                  ) : null}
-                  {graphType === GraphType.Distribution || !isMobile ? (
-                    <DonutChart
-                      className="mx-auto"
-                      data={result.data}
-                      category="name"
-                      value="amount"
-                      colors={tokenColors}
-                      variant="donut"
-                      label={t.price + ' : ' + getCurrency(tokens, currentToken?.label)}
-                      showLabel={selectedIndex !== undefined && !!currentToken}
-                      showTooltip={false}
-                      selectedIndex={selectedIndex}
-                      onSelectedIndexChange={setSelectedIndex}
-                      valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
-                    />
-                  ) : null}
-                </Flex>
+                <TokenGraphs
+                  selectedIndex={selectedIndex}
+                  setSelectedIndex={setSelectedIndex}
+                  currentToken={currentToken}
+                  data={result.data}
+                  total={result.total}
+                  tokens={tokens}
+                  tokenColors={tokenColors}
+                />
               </Col>
               <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }} className="content-center">
                 <BarList
@@ -376,8 +313,7 @@ export default function Dashboard() {
                           <Title>{t.distribution}</Title>
                           <Text>
                             {(
-                              (result.data.find(t => t.name === currentToken.label)?.amount || 0) /
-                              result.total.fromCurrency()
+                              (result.data.find(t => t.label === currentToken.label)?.value || 0) / result.total
                             ).toRatio(0)}
                           </Text>
                         </Flex>

@@ -1,12 +1,3 @@
-export function getBarData(name: string, amount: number, color?: string) {
-  return {
-    name,
-    amount,
-    value: Math.abs(amount),
-    color: color || (amount < 0 ? 'red' : 'green'),
-  };
-}
-
 // Tremor chartColors [v0.1.0]
 
 export type ColorUtility = 'bg' | 'stroke' | 'fill' | 'text';
