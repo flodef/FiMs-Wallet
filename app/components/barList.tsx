@@ -1,8 +1,9 @@
 // Tremor BarList [v0.1.1]
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { twMerge } from 'tailwind-merge';
+import { useNavigation } from '../hooks/useNavigation';
 import { AvailableChartColors, AvailableChartColorsKeys, getColorClassName } from '../utils/chart';
 
 type Bar<T> = T & {
@@ -44,6 +45,10 @@ function BarListInner<T>(
   const setActualSelectedIndex = onSelectedIndexChange ?? setInternalSelectedIndex;
   const isHandlingEvent = onValueChange || onSelectedIndexChange;
 
+  const { page } = useNavigation();
+
+  const [animatedWidths, setAnimatedWidths] = useState<number[]>([]);
+
   const handleClick = useCallback(
     (bar: Bar<T>, index: number) => {
       setActualSelectedIndex(index === actualSelectedIndex ? undefined : index);
@@ -66,6 +71,13 @@ function BarListInner<T>(
     const maxValue = Math.max(...sortedData.map(item => item.value), 0);
     return sortedData.map(item => (item.value === 0 ? 0 : Math.max((item.value / maxValue) * 100, 2)));
   }, [sortedData]);
+
+  useEffect(() => {
+    setAnimatedWidths(Array.from({ length: data.length }, () => 0));
+    setTimeout(() => {
+      setAnimatedWidths(widths);
+    }, 100);
+  }, [page, widths, data.length]);
 
   const rowHeight = 'h-8';
 
@@ -109,9 +121,9 @@ function BarListInner<T>(
                 actualSelectedIndex !== undefined && actualSelectedIndex !== index ? 'opacity-30' : '',
                 // margin and duration
                 index === sortedData.length - 1 && 'mb-0',
-                showAnimation && 'duration-800',
+                showAnimation && 'duration-1000',
               )}
-              style={{ width: `${widths[index]}%` }}
+              style={{ width: `${animatedWidths[index]}%` }}
             >
               <div className={twMerge('absolute left-2 flex max-w-full pr-2')}>
                 {item.href ? (

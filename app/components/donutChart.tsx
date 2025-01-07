@@ -221,7 +221,7 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
           >
             {showLabel && isDonut && (
               <text
-                className="fill-gray-700 dark:fill-gray-300"
+                className="fill-theme-content-emphasis dark:fill-dark-theme-content-emphasis"
                 x="50%"
                 y="50%"
                 textAnchor="middle"
@@ -247,7 +247,7 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
               strokeLinejoin="round"
               dataKey={value}
               nameKey={category}
-              isAnimationActive={false}
+              isAnimationActive={true}
               onClick={handleShapeClick}
               activeIndex={actualSelectedIndex}
               inactiveShape={renderInactiveShape}

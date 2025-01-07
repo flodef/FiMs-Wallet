@@ -35,8 +35,10 @@ const t: Dataset = {
   creation: 'Création',
   initPrice: 'Prix initial',
   historic: 'Historique',
+  veryHigh: 'Très fort',
   high: 'Fort',
   low: 'Faible',
+  veryLow: 'Très faible',
   medium: 'Moyen',
   result: 'Résultats FiMs',
   total: 'Trésorerie',
@@ -66,9 +68,11 @@ const today = new Date();
 const thisPage = Page.Dashboard;
 
 export const getRisk = (ratio: number): { label: string; type: BaseType } => {
-  if (ratio >= 2 / 3) return { label: t.high, type: 'danger' };
-  if (ratio <= 1 / 3) return { label: t.low, type: 'success' };
-  return { label: t.medium, type: 'warning' };
+  if (ratio >= 0.8) return { label: t.veryHigh, type: 'danger' };
+  if (ratio >= 0.6) return { label: t.high, type: 'danger' };
+  if (ratio >= 0.4) return { label: t.medium, type: 'warning' };
+  if (ratio >= 0.2) return { label: t.low, type: 'success' };
+  return { label: t.veryLow, type: 'success' };
 };
 
 export default function Dashboard() {
@@ -118,10 +122,10 @@ export default function Dashboard() {
   );
 
   const overallVolatility = useMemo(() => {
-    if (!tokens.length) return 0;
+    if (!tokens.length) return -1;
 
     const totalAmount = result.total.fromCurrency();
-    if (totalAmount === 0) return 0;
+    if (totalAmount === 0) return -1;
 
     return result.data.reduce((weightedVolatility, data) => {
       const weight = data.amount / totalAmount;
@@ -170,8 +174,8 @@ export default function Dashboard() {
 
     loadData(DataName.dashboard)
       .then(dashboard => setDashboard(dashboard as Data[]))
-      .then(() => loadData(DataName.token))
-      .then(token => generateTokenHistoric(token as DashboardToken[]))
+      .then(() => loadData(DataName.tokens))
+      .then(tokens => generateTokenHistoric(tokens as DashboardToken[]))
       .then(() => loadData(DataName.historic))
       .then(historic => setHistoric(historic as Historic[]))
       .catch(console.error)
@@ -235,48 +239,54 @@ export default function Dashboard() {
             }}
             isReady={!!dashboard.length}
           />
-          <Row gutter={[16, 16]}>
-            <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }}>
-              <Flex>
-                {isMobile && (
-                  <Segmented
-                    className="h-fit"
-                    vertical
-                    defaultValue={graphType}
-                    options={[
-                      { value: GraphType.Distribution, icon: <IconChartDonut3 /> },
-                      { value: GraphType.Risk, icon: <IconGauge /> },
-                    ]}
-                    onChange={setGraphType}
-                  />
-                )}
-                {graphType === GraphType.Risk || !isMobile ? (
-                  <Gauge
-                    value={selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility}
-                    title={`${t.volatility} : ${(selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility).toRatio(0)}`}
-                    subtitle={`${t.risk} : ${getRisk(selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility).label}`}
-                  />
-                ) : null}
-                {graphType === GraphType.Distribution || !isMobile ? (
-                  <DonutChart
-                    className="mx-auto"
-                    data={result.data}
-                    category="name"
-                    value="amount"
-                    colors={tokenColors}
-                    variant="donut"
-                    label={t.price + ' : ' + getCurrency(tokens, currentToken?.label)}
-                    showLabel={selectedIndex !== undefined && !!currentToken}
-                    showTooltip={false}
-                    selectedIndex={selectedIndex}
-                    onSelectedIndexChange={setSelectedIndex}
-                    valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
-                  />
-                ) : null}
-              </Flex>
-            </Col>
-            <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }} className="content-center">
-              {dashboard.length > 0 && (
+          {tokens.length === 0 ? (
+            <Flex className="h-40" justify="center" align="center">
+              {t.loading}
+            </Flex>
+          ) : (
+            <Row gutter={[16, 16]}>
+              <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }}>
+                <Flex>
+                  {isMobile && (
+                    <Segmented
+                      className="h-fit"
+                      vertical
+                      defaultValue={graphType}
+                      options={[
+                        { value: GraphType.Distribution, icon: <IconChartDonut3 /> },
+                        { value: GraphType.Risk, icon: <IconGauge /> },
+                      ]}
+                      onChange={setGraphType}
+                    />
+                  )}
+                  {graphType === GraphType.Risk || !isMobile ? (
+                    <Gauge
+                      value={
+                        selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility
+                      }
+                      title={`${t.volatility} : ${(selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility).toRatio(0)}`}
+                      subtitle={`${t.risk} : ${getRisk(selectedIndex !== undefined && !!currentToken ? currentToken.volatility : overallVolatility).label}`}
+                    />
+                  ) : null}
+                  {graphType === GraphType.Distribution || !isMobile ? (
+                    <DonutChart
+                      className="mx-auto"
+                      data={result.data}
+                      category="name"
+                      value="amount"
+                      colors={tokenColors}
+                      variant="donut"
+                      label={t.price + ' : ' + getCurrency(tokens, currentToken?.label)}
+                      showLabel={selectedIndex !== undefined && !!currentToken}
+                      showTooltip={false}
+                      selectedIndex={selectedIndex}
+                      onSelectedIndexChange={setSelectedIndex}
+                      valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
+                    />
+                  ) : null}
+                </Flex>
+              </Col>
+              <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }} className="content-center">
                 <BarList
                   className="opacity-100"
                   data={result.data}
@@ -286,131 +296,133 @@ export default function Dashboard() {
                   onSelectedIndexChange={setSelectedIndex}
                   valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
                 />
-              )}
-              {currentToken && (
-                <Flex justify="end">
-                  <Flex
-                    className="gap-2 cursor-pointer hover:animate-pulse"
-                    onClick={() => setIsTokenDetailsOpen(true)}
-                  >
-                    <Subtitle>{t.learnMore}</Subtitle>
-                    <IconChevronsRight />
-                  </Flex>
-                  <Drawer
-                    size="large"
-                    title={
-                      <TabGroup
-                        index={getSelectedPrice(selectedIndex)}
-                        onIndexChange={isTokenListExpanded ? setSelectedPrice : undefined}
-                        className="flex justify-center"
-                      >
-                        <TabList variant="line" onClick={e => e.stopPropagation()}>
-                          <Flex className="gap-6">
-                            {tokens.map((t, i) => (
-                              <div
-                                className={isTokenListExpanded || selectedPrice.current === i ? 'block' : 'hidden'}
-                                key={t.label}
-                              >
-                                <Flex align="center">
-                                  <IconChevronLeft
-                                    className={twMerge('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
-                                    onClick={() => changeToken(false)}
-                                  />
-                                  <Tab onClick={!isTokenListExpanded ? () => changeToken() : undefined}>{t.label}</Tab>
-                                  <IconChevronRight
-                                    className={twMerge('h-4 w-4 ml-2', !isTokenListExpanded ? 'block' : 'hidden')}
-                                    onClick={() => changeToken(true)}
-                                  />
-                                </Flex>
-                              </div>
-                            ))}
-                          </Flex>
-                        </TabList>
-                      </TabGroup>
-                    }
-                    onClose={() => setIsTokenDetailsOpen(false)}
-                    open={isTokenDetailsOpen}
-                  >
-                    <Flex vertical className="gap-4">
-                      <Flex justify="space-between" align="center">
-                        <Title>{t.price}</Title>
-                        <LoadingMetric isReady={tokens.length > 0}>
-                          {getCurrency(tokens, currentToken.label)}
-                        </LoadingMetric>
-                      </Flex>
-                      <Flex justify="space-between" align="center">
-                        <Title>{t.yearlyYield}</Title>
-                        <RatioBadge data={currentToken.yearlyYield} />
-                      </Flex>
-                      <Flex vertical justify="space-between">
-                        <CollapsiblePanel
-                          isExpanded={false}
-                          hasCardStyle={false}
-                          label={<Title>{t.description}</Title>}
-                        >
-                          <Text className="text-justify break-words whitespace-normal overflow-y-auto">
-                            {currentToken.description}
-                          </Text>
-                        </CollapsiblePanel>
-                      </Flex>
-                      <Flex justify="space-between" align="center">
-                        <Title>
-                          {t.volatility} / {t.risk}
-                        </Title>
-                        <Text type={getRisk(currentToken.volatility).type}>
-                          {currentToken.volatility.toRatio(0)} / {getRisk(currentToken.volatility).label}
-                        </Text>
-                      </Flex>
-                      <Flex justify="space-between" align="center">
-                        <Title>{t.distribution}</Title>
-                        <Text>
-                          {(
-                            (result.data.find(t => t.name === currentToken.label)?.amount || 0) /
-                            result.total.fromCurrency()
-                          ).toRatio(0)}
-                        </Text>
-                      </Flex>
-                      <Flex justify="space-between" align="center">
-                        <Title>{t.creation}</Title>
-                        <Text>{currentToken.duration.formatDuration()}</Text>
-                      </Flex>
-                      <Flex justify="space-between" align="center">
-                        <Title>{t.initPrice}</Title>
-                        <Text>{currentToken.inceptionPrice.toLocaleCurrency()}</Text>
-                      </Flex>
-                      <Flex vertical className="gap-4" justify="space-between">
-                        <CollapsiblePanel hasCardStyle={false} label={<Title>{t.historic}</Title>}>
-                          <AreaChart
-                            className="h-40"
-                            data={tokenHistoric[selectedPrice.current]}
-                            categories={[t.amount]}
-                            index="date"
-                            colors={[
-                              tokenHistoric.length &&
-                              tokenHistoric[selectedPrice.current][0].Montant <
-                                tokenHistoric[selectedPrice.current][1].Montant
-                                ? 'green'
-                                : 'red',
-                            ]}
-                            valueFormatter={number => number.toFixed(0)}
-                            yAxisWidth={50}
-                            showAnimation={true}
-                            animationDuration={2000}
-                            curveType="monotone"
-                            noDataText={t.loading}
-                            minValue={tokenHistoricLimit?.min ?? 0}
-                            maxValue={tokenHistoricLimit?.max ?? 0}
-                            showLegend={false}
-                            startEndOnly={true}
-                          />
-                        </CollapsiblePanel>
-                      </Flex>
+                {currentToken && (
+                  <Flex justify="end">
+                    <Flex
+                      className="gap-2 cursor-pointer hover:animate-pulse"
+                      onClick={() => setIsTokenDetailsOpen(true)}
+                    >
+                      <Subtitle>{t.learnMore}</Subtitle>
+                      <IconChevronsRight />
                     </Flex>
-                  </Drawer>
-                </Flex>
-              )}
-            </Col>
-          </Row>
+                    <Drawer
+                      size="large"
+                      title={
+                        <TabGroup
+                          index={getSelectedPrice(selectedIndex)}
+                          onIndexChange={isTokenListExpanded ? setSelectedPrice : undefined}
+                          className="flex justify-center"
+                        >
+                          <TabList variant="line" onClick={e => e.stopPropagation()}>
+                            <Flex className="gap-6">
+                              {tokens.map((t, i) => (
+                                <div
+                                  className={isTokenListExpanded || selectedPrice.current === i ? 'block' : 'hidden'}
+                                  key={t.label}
+                                >
+                                  <Flex align="center">
+                                    <IconChevronLeft
+                                      className={twMerge('h-4 w-4 mr-2', !isTokenListExpanded ? 'block' : 'hidden')}
+                                      onClick={() => changeToken(false)}
+                                    />
+                                    <Tab onClick={!isTokenListExpanded ? () => changeToken() : undefined}>
+                                      {t.label}
+                                    </Tab>
+                                    <IconChevronRight
+                                      className={twMerge('h-4 w-4 ml-2', !isTokenListExpanded ? 'block' : 'hidden')}
+                                      onClick={() => changeToken(true)}
+                                    />
+                                  </Flex>
+                                </div>
+                              ))}
+                            </Flex>
+                          </TabList>
+                        </TabGroup>
+                      }
+                      onClose={() => setIsTokenDetailsOpen(false)}
+                      open={isTokenDetailsOpen}
+                    >
+                      <Flex vertical className="gap-4">
+                        <Flex justify="space-between" align="center">
+                          <Title>{t.price}</Title>
+                          <LoadingMetric isReady={tokens.length > 0}>
+                            {getCurrency(tokens, currentToken.label)}
+                          </LoadingMetric>
+                        </Flex>
+                        <Flex justify="space-between" align="center">
+                          <Title>{t.yearlyYield}</Title>
+                          <RatioBadge data={currentToken.yearlyYield} />
+                        </Flex>
+                        <Flex vertical justify="space-between">
+                          <CollapsiblePanel
+                            isExpanded={false}
+                            hasCardStyle={false}
+                            label={<Title>{t.description}</Title>}
+                          >
+                            <Text className="text-justify break-words whitespace-normal overflow-y-auto">
+                              {currentToken.description}
+                            </Text>
+                          </CollapsiblePanel>
+                        </Flex>
+                        <Flex justify="space-between" align="center">
+                          <Title>
+                            {t.volatility} / {t.risk}
+                          </Title>
+                          <Text type={getRisk(currentToken.volatility).type}>
+                            {currentToken.volatility.toRatio(0)} / {getRisk(currentToken.volatility).label}
+                          </Text>
+                        </Flex>
+                        <Flex justify="space-between" align="center">
+                          <Title>{t.distribution}</Title>
+                          <Text>
+                            {(
+                              (result.data.find(t => t.name === currentToken.label)?.amount || 0) /
+                              result.total.fromCurrency()
+                            ).toRatio(0)}
+                          </Text>
+                        </Flex>
+                        <Flex justify="space-between" align="center">
+                          <Title>{t.creation}</Title>
+                          <Text>{currentToken.duration.formatDuration()}</Text>
+                        </Flex>
+                        <Flex justify="space-between" align="center">
+                          <Title>{t.initPrice}</Title>
+                          <Text>{currentToken.inceptionPrice.toLocaleCurrency()}</Text>
+                        </Flex>
+                        <Flex vertical className="gap-4" justify="space-between">
+                          <CollapsiblePanel hasCardStyle={false} label={<Title>{t.historic}</Title>}>
+                            <AreaChart
+                              className="h-40"
+                              data={tokenHistoric[selectedPrice.current]}
+                              categories={[t.amount]}
+                              index="date"
+                              colors={[
+                                tokenHistoric.length &&
+                                tokenHistoric[selectedPrice.current][0].Montant <
+                                  tokenHistoric[selectedPrice.current][1].Montant
+                                  ? 'green'
+                                  : 'red',
+                              ]}
+                              valueFormatter={number => number.toFixed(0)}
+                              yAxisWidth={50}
+                              showAnimation={true}
+                              animationDuration={2000}
+                              curveType="monotone"
+                              noDataText={t.loading}
+                              minValue={tokenHistoricLimit?.min ?? 0}
+                              maxValue={tokenHistoricLimit?.max ?? 0}
+                              showLegend={false}
+                              startEndOnly={true}
+                            />
+                          </CollapsiblePanel>
+                        </Flex>
+                      </Flex>
+                    </Drawer>
+                  </Flex>
+                )}
+              </Col>
+            </Row>
+          )}
         </Flex>
       </CollapsiblePanel>
       <CollapsiblePanel

@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { useNavigation } from '../hooks/useNavigation';
 import { Text } from './typography';
 
 interface GaugeProps {
@@ -7,6 +9,23 @@ interface GaugeProps {
 }
 
 export function Gauge({ value, title, subtitle }: GaugeProps) {
+  const { page } = useNavigation();
+
+  const [animatedValue, setAnimatedValue] = useState(0);
+
+  useEffect(() => {
+    if (value !== animatedValue) {
+      setAnimatedValue(value);
+    } else {
+      setAnimatedValue(0);
+      setTimeout(() => {
+        setAnimatedValue(value);
+      }, 100);
+    }
+  }, [page, value]); // eslint-disable-line
+
+  if (value < 0) return null;
+
   // SVG parameters
   const size = 160;
   const strokeWidth = 16;
@@ -19,7 +38,7 @@ export function Gauge({ value, title, subtitle }: GaugeProps) {
   const range = endAngle - startAngle;
 
   // Calculate the current value angle
-  const valueAngle = startAngle + range * value;
+  const valueAngle = startAngle + range * animatedValue;
 
   // Convert angle to coordinates
   const getCoordinates = (angle: number) => {
@@ -52,20 +71,34 @@ export function Gauge({ value, title, subtitle }: GaugeProps) {
   ];
 
   return (
-    <div className="relative w-full aspect-square max-w-[160px] mx-auto">
+    <div id="gauge" className="relative w-full aspect-square max-w-[160px] mx-auto">
       <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full">
-        {/* Segments */}
-        {segments.map(({ start, end, color }) => (
+        {/* Inactive Segments */}
+        {segments.map(({ start, end }) => (
           <path
-            key={start}
+            key={`inactive-${start}`}
             d={createArc(startAngle + range * start, startAngle + range * end)}
             fill="none"
-            stroke={color}
+            stroke="var(--bgSubtle)"
             strokeWidth={strokeWidth}
             strokeLinecap="round"
-            className={value < start ? 'opacity-30' : 'opacity-100'}
           />
         ))}
+
+        {/* Active Segments */}
+        {segments.map(
+          ({ start, end, color }) =>
+            animatedValue >= start && (
+              <path
+                key={`active-${start}`}
+                d={createArc(startAngle + range * start, startAngle + range * end)}
+                fill="none"
+                stroke={color}
+                strokeWidth={strokeWidth}
+                strokeLinecap="round"
+              />
+            ),
+        )}
 
         {/* Needle */}
         <g transform={`rotate(${valueAngle} ${center} ${center})`} className="transition-all duration-1000">
