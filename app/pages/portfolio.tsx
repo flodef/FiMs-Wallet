@@ -53,6 +53,7 @@ export default function Portfolio() {
   const { hasPrivacy } = usePrivacy();
   const { wallet, setWallet, portfolio, setPortfolio, userHistoric, setUserHistoric } = useData();
 
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>();
   const [isMobile, setIsMobile] = useState(false);
 
@@ -232,6 +233,7 @@ export default function Portfolio() {
           .catch(console.error),
       )
       .catch(console.error)
+      .finally(() => setHasLoaded(true))
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, user, setUserHistoric, computeFiMsAssets, computeOtherAssets, userHistoric]);
 
@@ -281,11 +283,7 @@ export default function Portfolio() {
       >
         <Flex vertical className="gap-4">
           {!portfolio || portfolio.invested ? (
-            <GainsBar
-              values={isLoading.current ? undefined : portfolio}
-              isReady={!isLoading.current && !!portfolio}
-              shouldUsePrivacy
-            />
+            <GainsBar values={hasLoaded ? portfolio : undefined} isReady={hasLoaded && !!portfolio} shouldUsePrivacy />
           ) : null}
           <TokenGraphs
             selectedIndex={selectedIndex}

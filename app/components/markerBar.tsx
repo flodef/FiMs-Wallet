@@ -15,6 +15,7 @@ export function MarkerBar({ className, color, value, minValue, maxValue }: Marke
 
   const [animatedMin, setAnimatedMin] = useState(value);
   const [animatedMax, setAnimatedMax] = useState(value);
+  const [isFirstRender, setIsFirstRender] = useState(false);
 
   // Determine if the range is positive or negative
   const isPositive = maxValue > value;
@@ -22,6 +23,18 @@ export function MarkerBar({ className, color, value, minValue, maxValue }: Marke
     color || minValue + maxValue === 0 ? 'var(--bgSubtle)' : isPositive ? 'var(--success)' : 'var(--error)';
 
   useEffect(() => {
+    setIsFirstRender(true);
+  }, []);
+
+  useEffect(() => {
+    if (isFirstRender) return;
+    setAnimatedMin(minValue);
+    setAnimatedMax(maxValue);
+  }, [minValue, maxValue, isFirstRender]);
+
+  useEffect(() => {
+    setIsFirstRender(false);
+
     // Start from the marker position
     setAnimatedMin(value);
     setAnimatedMax(value);
@@ -32,7 +45,7 @@ export function MarkerBar({ className, color, value, minValue, maxValue }: Marke
       setAnimatedMax(maxValue);
     }, 100);
     return () => clearTimeout(timeout);
-  }, [page, minValue, maxValue, value]);
+  }, [page, minValue, maxValue, value, isFirstRender]);
 
   return (
     <div className={twMerge('flex flex-col gap-1', className)}>
