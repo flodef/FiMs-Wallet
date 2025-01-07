@@ -417,7 +417,7 @@ export default function Transactions() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center">
+                    <TableCell colSpan={7} className="text-center">
                       {t.transactionLoading}
                     </TableCell>
                   </TableRow>
