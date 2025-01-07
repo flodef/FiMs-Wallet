@@ -3,6 +3,7 @@
 import { createContext, useContext } from 'react';
 import { Data, MinMax } from '../utils/types';
 import { User } from './useUser';
+import { TokenData } from '../utils/processData';
 
 export interface DashboardToken extends Data {
   yearlyYield: number;
@@ -10,6 +11,22 @@ export interface DashboardToken extends Data {
   volatility: number;
   description: string;
   inceptionPrice: number;
+}
+
+export interface PortfolioToken extends Data {
+  symbol: string;
+  address: string;
+  duration: number;
+  volatility: number;
+  description: string;
+  inceptionPrice: number;
+}
+
+export interface Token extends TokenData {
+  image: string;
+  balance: number;
+  value: number;
+  total: number;
 }
 
 export interface Historic {
@@ -24,15 +41,6 @@ export interface TokenHistoric {
   Montant: number;
 }
 
-export interface PortfolioToken extends Data {
-  symbol: string;
-  address: string;
-  duration: number;
-  volatility: number;
-  description: string;
-  inceptionPrice: number;
-}
-
 export interface Portfolio {
   id: number;
   address: string;
@@ -42,16 +50,7 @@ export interface Portfolio {
   profitValue: number;
   profitRatio: number;
   yearlyYield: number;
-  solProfitPrice: number;
-}
-
-export interface Token {
-  image: string;
-  name: string;
-  symbol: string;
-  balance: number;
-  value: number;
-  total: number;
+  transferCost: number;
 }
 
 export interface UserHistoric {

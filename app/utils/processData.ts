@@ -202,7 +202,7 @@ function convertPortfolioData(item: string[]): PortfolioData {
     profitValue: Number(item.at(9)),
     profitRatio: Number(item.at(10)),
     yearlyYield: Number(item.at(11)),
-    solProfitPrice: Number(item.at(12)),
+    transferCost: Number(item.at(12)),
   };
 }
 
