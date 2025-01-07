@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     // Convert prices to the requested currency
     const convertedData: { [key: string]: number } = {};
     Object.entries(jupiterData.data).forEach(([tokenId, tokenData]) => {
-      convertedData[tokenId] = Number(tokenData.price) * rate;
+      if (tokenId && tokenData) convertedData[tokenId] = Number(tokenData.price) * rate;
     });
 
     return NextResponse.json({ data: convertedData });
