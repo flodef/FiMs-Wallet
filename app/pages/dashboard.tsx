@@ -206,23 +206,19 @@ export default function Dashboard() {
             }}
             isReady={!!dashboard.length}
           />
-          {tokens.length === 0 ? (
-            <Flex className="h-40" justify="center" align="center">
-              {t.loading}
-            </Flex>
-          ) : (
-            <Row gutter={[16, 16]}>
-              <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }}>
-                <TokenGraphs
-                  selectedIndex={selectedIndex}
-                  setSelectedIndex={setSelectedIndex}
-                  currentToken={currentToken}
-                  data={result.data}
-                  total={result.total}
-                  tokens={tokens}
-                  tokenColors={tokenColors}
-                />
-              </Col>
+          <Row gutter={[16, 16]}>
+            <Col xs={{ flex: '100%' }} sm={{ flex: tokens.length > 0 ? '50%' : '100%' }}>
+              <TokenGraphs
+                selectedIndex={selectedIndex}
+                setSelectedIndex={setSelectedIndex}
+                currentToken={currentToken}
+                data={result.data}
+                total={result.total}
+                tokens={tokens}
+                tokenColors={tokenColors}
+              />
+            </Col>
+            {tokens.length > 0 && (
               <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }} className="content-center">
                 <BarList
                   className="opacity-100"
@@ -357,8 +353,8 @@ export default function Dashboard() {
                   </Flex>
                 )}
               </Col>
-            </Row>
-          )}
+            )}
+          </Row>
         </Flex>
       </CollapsiblePanel>
       <CollapsiblePanel

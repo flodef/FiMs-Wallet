@@ -19,6 +19,7 @@ const t: Dataset = {
   volatility: 'Volatilité',
   risk: 'Risque',
   price: 'Prix',
+  loading: 'Chargement...',
 };
 
 enum GraphType {
@@ -68,7 +69,11 @@ export function TokenGraphs({
     }, 0);
   }, [tokens, data, total]);
 
-  return (
+  return tokens.length === 0 ? (
+    <Flex className="h-40" justify="center" align="center">
+      {t.loading}
+    </Flex>
+  ) : (
     <Flex>
       {isMobile && (
         <Segmented
