@@ -2,10 +2,12 @@ import { AreaChart, SparkAreaChart, Table, TableBody, TableCell, TableRow } from
 import { Divider, Flex } from 'antd';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { CollapsiblePanel } from '../components/collapsiblePanel';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
 import RatioBadge from '../components/ratioBadge';
+import { TokenGraphs } from '../components/tokenGraphs';
 import { LoadingMetric, Title } from '../components/typography';
 import { usePrivacy } from '../contexts/privacyProvider';
 import type { UserHistoric } from '../hooks/useData';
@@ -132,7 +134,6 @@ export default function Portfolio() {
               image: t.label.includes(FIMS)
                 ? FIMS_TOKEN_PATH + t.symbol + '.png'
                 : SPL_TOKEN_PATH + getAsset(t, assets)?.id + '.webp',
-              name: t.label,
               balance: portfolio.token[i],
               total: portfolio.token[i] * t.value,
             }))
@@ -161,7 +162,7 @@ export default function Portfolio() {
         profitValue: 0,
         profitRatio: 0,
         yearlyYield: 0,
-        solProfitPrice: 0,
+        transferCost: 0,
       };
       const w = computeWallet(tokenData, p);
 
@@ -245,6 +246,21 @@ export default function Portfolio() {
     return { minHisto, maxHisto };
   }, [userHistoric]);
 
+  const graphData = useMemo(() => {
+    if (!wallet) return [];
+
+    return wallet.map(token => ({
+      label: token.label,
+      value: token.total,
+      ratio: 0,
+    }));
+  }, [wallet]);
+
+  const currentToken = useMemo(
+    () => (selectedIndex !== undefined ? wallet?.[selectedIndex] : undefined),
+    [selectedIndex, wallet],
+  );
+
   return (
     <Flex vertical className="gap-4">
       <CollapsiblePanel
@@ -263,7 +279,7 @@ export default function Portfolio() {
           </Flex>
         }
       >
-        <Flex vertical>
+        <Flex vertical className="gap-4">
           {!portfolio || portfolio.invested ? (
             <GainsBar
               values={isLoading.current ? undefined : portfolio}
@@ -271,62 +287,79 @@ export default function Portfolio() {
               shouldUsePrivacy
             />
           ) : null}
-          {!wallet || wallet.length ? <Divider style={{ fontSize: 18 }}>{t.assets}</Divider> : null}
+          <TokenGraphs
+            selectedIndex={selectedIndex}
+            setSelectedIndex={setSelectedIndex}
+            currentToken={currentToken}
+            data={graphData}
+            total={portfolio?.total ?? 0}
+            tokens={wallet ?? []}
+          />
 
-          {wallet ? (
-            <Table>
-              <TableBody>
-                {wallet.map(asset => (
-                  <TableRow
-                    key={asset.name}
-                    className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle"
-                  >
-                    <TableCell className="px-0 hidden 2xs:table-cell xs:px-2 sm:px-4">
-                      <Image
-                        className="rounded-full"
-                        src={asset.image}
-                        alt={t.tokenLogo}
-                        width={50}
-                        height={50}
-                      ></Image>
+          <Flex vertical>
+            {!wallet || wallet.length ? <Divider style={{ fontSize: 18, margin: 0 }}>{t.assets}</Divider> : null}
+
+            {wallet ? (
+              <Table>
+                <TableBody>
+                  {wallet.map((asset, index) => (
+                    <TableRow
+                      key={asset.label}
+                      className={twMerge(
+                        'cursor-pointer',
+                        selectedIndex === index
+                          ? 'bg-theme-background-subtle dark:bg-dark-theme-background-subtle'
+                          : 'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle',
+                      )}
+                      onClick={() => setSelectedIndex(selectedIndex === index ? undefined : index)}
+                    >
+                      <TableCell className="px-0 hidden 2xs:table-cell xs:px-2 sm:px-4">
+                        <Image
+                          className="rounded-full"
+                          src={asset.image}
+                          alt={t.tokenLogo}
+                          width={50}
+                          height={50}
+                        ></Image>
+                      </TableCell>
+                      <TableCell className="px-2 xs:px-4">
+                        <Flex justify="space-between">
+                          <div className="text-xl max-w-36 xs:max-w-full truncate">{asset.label}</div>
+                          <div>{`${asset.balance.toFixed(asset.balance.getPrecision())} ${asset.symbol}`}</div>
+                        </Flex>
+                        <Flex justify="space-between">
+                          <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
+                          <div className="font-bold text-lg">
+                            <Privacy amount={asset.total} />
+                          </div>
+                        </Flex>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Table>
+                <TableBody>
+                  <TableRow className="animate-pulse">
+                    <TableCell>
+                      <div className="rounded-full w-[50px] h-[50px] bg-theme-border"></div>
                     </TableCell>
-                    <TableCell className="px-2 xs:px-4">
+                    <TableCell>
                       <Flex justify="space-between">
-                        <div className="text-xl max-w-36 xs:max-w-full truncate">{asset.name}</div>
-                        <div>{`${asset.balance.toFixed(asset.balance.getPrecision())} ${asset.symbol}`}</div>
+                        <div className="bg-theme-border w-24 h-7 mb-1 rounded-md"></div>
+                        <div className="bg-theme-border w-10 h-5 mb-1 rounded-md"></div>
                       </Flex>
                       <Flex justify="space-between">
-                        <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
-                        <div className="font-bold text-lg">
-                          <Privacy amount={asset.total} />
-                        </div>
+                        <div className="bg-theme-border w-16 h-5 mb-1 rounded-md"></div>
+                        <div className="bg-theme-border w-24 h-7 mb-1 rounded-md"></div>
                       </Flex>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <Table>
-              <TableBody>
-                <TableRow className="animate-pulse">
-                  <TableCell>
-                    <div className="rounded-full w-[50px] h-[50px] bg-theme-border"></div>
-                  </TableCell>
-                  <TableCell>
-                    <Flex justify="space-between">
-                      <div className="bg-theme-border w-24 h-7 mb-1 rounded-md"></div>
-                      <div className="bg-theme-border w-10 h-5 mb-1 rounded-md"></div>
-                    </Flex>
-                    <Flex justify="space-between">
-                      <div className="bg-theme-border w-16 h-5 mb-1 rounded-md"></div>
-                      <div className="bg-theme-border w-24 h-7 mb-1 rounded-md"></div>
-                    </Flex>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          )}
+                </TableBody>
+              </Table>
+            )}
+          </Flex>
         </Flex>
       </CollapsiblePanel>
 
