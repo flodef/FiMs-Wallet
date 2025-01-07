@@ -18,7 +18,8 @@ export function MarkerBar({ className, color, value, minValue, maxValue }: Marke
 
   // Determine if the range is positive or negative
   const isPositive = maxValue > value;
-  const barColor = color || value === 0 ? 'var(--bgSubtle)' : isPositive ? 'var(--success)' : 'var(--error)';
+  const barColor =
+    color || minValue + maxValue === 0 ? 'var(--bgSubtle)' : isPositive ? 'var(--success)' : 'var(--error)';
 
   useEffect(() => {
     // Start from the marker position
@@ -26,10 +27,11 @@ export function MarkerBar({ className, color, value, minValue, maxValue }: Marke
     setAnimatedMax(value);
 
     // Animate to final positions after a brief delay
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       setAnimatedMin(minValue);
       setAnimatedMax(maxValue);
     }, 100);
+    return () => clearTimeout(timeout);
   }, [page, minValue, maxValue, value]);
 
   return (

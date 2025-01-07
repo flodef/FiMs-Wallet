@@ -74,9 +74,10 @@ function BarListInner<T>(
 
   useEffect(() => {
     setAnimatedWidths(Array.from({ length: data.length }, () => 0));
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       setAnimatedWidths(widths);
     }, 100);
+    return () => clearTimeout(timeout);
   }, [page, widths, data.length]);
 
   const rowHeight = 'h-8';

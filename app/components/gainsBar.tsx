@@ -42,9 +42,10 @@ export default function GainsBar({
 
   useEffect(() => {
     if (isReady) {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         setIsLoaded(true);
       }, transitionDuration);
+      return () => clearTimeout(timeout);
     }
   }, [isReady]);
 

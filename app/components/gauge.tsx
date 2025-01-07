@@ -18,9 +18,10 @@ export function Gauge({ value, title, subtitle }: GaugeProps) {
       setAnimatedValue(value);
     } else {
       setAnimatedValue(0);
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         setAnimatedValue(value);
       }, 100);
+      return () => clearTimeout(timeout);
     }
   }, [page, value]); // eslint-disable-line
 

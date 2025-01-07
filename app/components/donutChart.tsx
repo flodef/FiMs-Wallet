@@ -194,9 +194,13 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
     useEffect(() => {
       if (page === undefined) return;
       setIsAnimationActive(true);
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         setIsAnimationActive(false);
-      }, 5000);
+      }, 10000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
     }, [page]);
 
     const handleShapeClick = (data: any, index: number, event: React.MouseEvent) => {
