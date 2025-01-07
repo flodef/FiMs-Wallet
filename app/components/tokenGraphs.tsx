@@ -2,9 +2,7 @@ import { IconChartDonut3, IconGauge } from '@tabler/icons-react';
 import { Flex, Segmented } from 'antd';
 import { BaseType } from 'antd/es/typography/Base';
 import { useMemo, useState } from 'react';
-import { DashboardToken } from '../hooks/useData';
 import { AvailableChartColorsKeys } from '../utils/chart';
-import { getCurrency } from '../utils/functions';
 import { useIsMobile } from '../utils/mobile';
 import { Data, Dataset } from '../utils/types';
 import { DonutChart } from './donutChart';
@@ -35,13 +33,17 @@ export const getRisk = (ratio: number): { label: string; type: BaseType } => {
   return { label: t.veryLow, type: 'success' };
 };
 
+interface TokenGraphData extends Data {
+  volatility: number;
+}
+
 interface TokenGraphsProps {
   selectedIndex: number | undefined;
   setSelectedIndex: (index?: number) => void;
-  currentToken?: DashboardToken;
+  currentToken?: TokenGraphData;
   data: Data[];
   total: number;
-  tokens: DashboardToken[];
+  tokens: TokenGraphData[];
   tokenColors?: AvailableChartColorsKeys[];
 }
 
@@ -107,7 +109,7 @@ export function TokenGraphs({
           value="value"
           colors={tokenColors}
           variant="donut"
-          label={t.price + ' : ' + getCurrency(tokens, currentToken?.label)}
+          label={t.price + ' : ' + currentToken?.value.toLocaleCurrency()}
           showLabel={selectedIndex !== undefined && !!currentToken}
           showTooltip={false}
           selectedIndex={selectedIndex}
