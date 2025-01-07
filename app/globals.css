@@ -22,6 +22,10 @@
   }
 }
 
+.ant-flex {
+  color: var(--text) !important;
+}
+
 .ant-tabs-content-holder {
   background-color: var(--bgSubtle) !important;
 }
