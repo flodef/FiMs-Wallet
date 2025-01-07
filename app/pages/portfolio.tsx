@@ -51,6 +51,7 @@ export default function Portfolio() {
   const { hasPrivacy } = usePrivacy();
   const { wallet, setWallet, portfolio, setPortfolio, userHistoric, setUserHistoric } = useData();
 
+  const [selectedIndex, setSelectedIndex] = useState<number>();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -219,14 +220,16 @@ export default function Portfolio() {
       .then((tokens: convertedData[]) =>
         loadData(DataName.portfolio)
           .then(async (portfolios: convertedData[]) => {
-            computeFiMsAssets(tokens as TokenData[], portfolios as PortfolioData[]).then(computeOtherAssets);
+            const promises = [
+              computeFiMsAssets(tokens as TokenData[], portfolios as PortfolioData[]).then(computeOtherAssets),
+              !userHistoric.length
+                ? loadData(String(user.id)).then(historic => setUserHistoric(historic as UserHistoric[]))
+                : Promise.resolve(),
+            ];
+            await Promise.all(promises);
           })
           .catch(console.error),
       )
-      .then(() => {
-        if (!userHistoric.length)
-          loadData(String(user.id)).then(historic => setUserHistoric(historic as UserHistoric[]));
-      })
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, user, setUserHistoric, computeFiMsAssets, computeOtherAssets, userHistoric]);
@@ -262,7 +265,11 @@ export default function Portfolio() {
       >
         <Flex vertical>
           {!portfolio || portfolio.invested ? (
-            <GainsBar values={portfolio} isReady={!!portfolio} shouldUsePrivacy />
+            <GainsBar
+              values={isLoading.current ? undefined : portfolio}
+              isReady={!isLoading.current && !!portfolio}
+              shouldUsePrivacy
+            />
           ) : null}
           {!wallet || wallet.length ? <Divider style={{ fontSize: 18 }}>{t.assets}</Divider> : null}
 

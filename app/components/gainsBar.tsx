@@ -51,7 +51,6 @@ export default function GainsBar({
 
   return (
     <Flex vertical>
-      <style>{`.tremor-MarkerBar-rangeBar { background-color: ${isPositive ? 'green' : 'red'} !important; }`}</style>
       <Flex justify="space-between">
         {invested || !isReady ? (
           <Subtitle
