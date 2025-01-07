@@ -18,7 +18,7 @@ export function MarkerBar({ className, color, value, minValue, maxValue }: Marke
 
   // Determine if the range is positive or negative
   const isPositive = maxValue > value;
-  const barColor = color || (isPositive ? 'var(--success)' : 'var(--error)');
+  const barColor = color || value === 0 ? 'var(--bgSubtle)' : isPositive ? 'var(--success)' : 'var(--error)';
 
   useEffect(() => {
     // Start from the marker position
