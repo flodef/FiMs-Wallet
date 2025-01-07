@@ -24,7 +24,7 @@ export class UserNotFoundError extends Error {
 export enum DataName {
   dashboard = 'Dashboard',
   historic = 'Historic',
-  token = 'Token',
+  tokens = 'Tokens',
   portfolio = 'Portfolio',
   userHistoric = 'UserHistoric',
   transactions = 'Transactions',
@@ -45,7 +45,7 @@ type Parameter = {
 const dataNameParameters = new Map<DataName, Parameter>([
   [DataName.dashboard, { convert: convertDashboardData, range: 'A:C' }],
   [DataName.historic, { convert: convertHistoricData, range: 'A:D' }],
-  [DataName.token, { convert: convertTokenData, range: 'A:J' }],
+  [DataName.tokens, { convert: convertTokenData, range: 'A:J' }],
   [DataName.portfolio, { convert: convertPortfolioData, range: 'A:O' }],
   [DataName.userHistoric, { convert: convertUserHistoricData, range: 'A:I' }],
   [DataName.transactions, { convert: convertTransactionsData, range: 'A:H' }],

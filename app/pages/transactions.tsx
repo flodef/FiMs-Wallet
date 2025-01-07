@@ -141,7 +141,7 @@ export default function Transactions() {
     setNeedRefresh(false);
 
     // First load tokens
-    loadData(DataName.token)
+    loadData(DataName.tokens)
       .then(tokenData => {
         // Then load and process transactions with token data
         loadData(DataName.transactions)

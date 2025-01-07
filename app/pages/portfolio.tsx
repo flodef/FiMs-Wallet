@@ -144,7 +144,7 @@ export default function Portfolio() {
 
   const computeFiMsAssets = useCallback(
     async (tokenData: TokenData[], portfolioData: PortfolioData[]) => {
-      tokenData = (tokenData.length ? tokenData : await forceData(DataName.token)) as TokenData[];
+      tokenData = (tokenData.length ? tokenData : await forceData(DataName.tokens)) as TokenData[];
       portfolioData = (portfolioData.length ? portfolioData : await forceData(DataName.portfolio)) as PortfolioData[];
 
       if (!user || portfolio) return { tokenData, portfolioData };
@@ -215,7 +215,7 @@ export default function Portfolio() {
     isLoading.current = true;
     setNeedRefresh(false);
 
-    loadData(DataName.token)
+    loadData(DataName.tokens)
       .then((tokens: convertedData[]) =>
         loadData(DataName.portfolio)
           .then(async (portfolios: convertedData[]) => {

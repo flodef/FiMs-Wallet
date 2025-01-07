@@ -128,7 +128,7 @@ export default function AdminPage() {
 
     loadUsers();
     loadTransactions();
-    loadData(DataName.token).then(tokens => setTokens(tokens as PortfolioToken[]));
+    loadData(DataName.tokens).then(tokens => setTokens(tokens as PortfolioToken[]));
     setIsAuthorized(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
