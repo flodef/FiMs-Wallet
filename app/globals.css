@@ -9,6 +9,9 @@
   --scrollbar: #37415180;
   --bgSubtle: #f3f4f6;
   --border: #d1d5db;
+  --success: #52c41a;
+  --error: #ff4d4f;
+  --warning: #faad14;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,11 +22,29 @@
     --scrollbar: #9ca3af80;
     --bgSubtle: #1f2937;
     --border: #303030;
+    --success: #49aa19;
+    --error: #dc4446;
+    --warning: #d89614;
   }
 }
 
 .ant-flex {
   color: var(--text) !important;
+}
+
+@keyframes drawSegment {
+  from {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-draw-segment {
+  animation: drawSegment 1s ease-out forwards;
 }
 
 .ant-tabs-content-holder {
