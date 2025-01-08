@@ -16,8 +16,13 @@ const marginStyle = { margin: 0 };
 const colorStyle = { color: 'var(--text)' };
 const titleStyle = { margin: 0, color: 'var(--text)' };
 
+const getTitleStyle = (type?: BaseType, className?: string) =>
+  type || className?.includes('text-theme') ? marginStyle : titleStyle;
+const getTextStyle = (type?: BaseType, className?: string) =>
+  type || className?.includes('text-theme') ? undefined : colorStyle;
+
 export const Metric = ({ children, className, type }: TitleProps) => (
-  <Typography.Title style={type ? marginStyle : titleStyle} className={twMerge(titleClassName, className)} type={type}>
+  <Typography.Title style={getTitleStyle(type, className)} className={twMerge(titleClassName, className)} type={type}>
     {children}
   </Typography.Title>
 );
@@ -25,7 +30,7 @@ export const Metric = ({ children, className, type }: TitleProps) => (
 export const BigTitle = ({ children, className, type }: TitleProps) => (
   <Typography.Title
     level={3}
-    style={type ? marginStyle : titleStyle}
+    style={getTitleStyle(type, className)}
     className={twMerge(titleClassName, className)}
     type={type}
   >
@@ -36,7 +41,7 @@ export const BigTitle = ({ children, className, type }: TitleProps) => (
 export const Title = ({ children, className, type }: TitleProps) => (
   <Typography.Title
     level={4}
-    style={type ? marginStyle : titleStyle}
+    style={getTitleStyle(type, className)}
     className={twMerge('h-10 content-center', titleClassName, className)}
     type={type}
   >
@@ -47,7 +52,7 @@ export const Title = ({ children, className, type }: TitleProps) => (
 export const Subtitle = ({ children, className, type }: TitleProps) => (
   <Typography.Title
     level={5}
-    style={type ? marginStyle : titleStyle}
+    style={getTitleStyle(type, className)}
     className={twMerge(titleClassName, className)}
     type={type}
   >
@@ -56,7 +61,7 @@ export const Subtitle = ({ children, className, type }: TitleProps) => (
 );
 
 export const Text = ({ children, className, type }: TitleProps) => (
-  <Typography.Text style={!type ? colorStyle : undefined} className={twMerge(titleClassName, className)} type={type}>
+  <Typography.Text style={getTextStyle(type, className)} className={twMerge(titleClassName, className)} type={type}>
     {children}
   </Typography.Text>
 );
@@ -85,7 +90,7 @@ export function LoadingMetric({ isReady = false, type = 'success', className, ch
     <Typography.Title
       type={type}
       level={isMobile ? 3 : isTablet ? 2 : 1}
-      style={{ margin: 0 }}
+      style={getTitleStyle(type, className)}
       className={twMerge(titleClassName, className, !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}
     >
       {children}
