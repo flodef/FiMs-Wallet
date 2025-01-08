@@ -1,12 +1,14 @@
 import { CaretRightOutlined, DownOutlined } from '@ant-design/icons';
 import { Collapse } from 'antd';
 import { ReactNode, useEffect, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 interface CollapsiblePanelProps {
   label: ReactNode;
   children: ReactNode;
   isExpanded?: boolean;
   hasCardStyle?: boolean;
+  className?: string;
 }
 
 export const CollapsiblePanel = ({
@@ -14,6 +16,7 @@ export const CollapsiblePanel = ({
   children,
   isExpanded = true,
   hasCardStyle = true,
+  className,
 }: CollapsiblePanelProps) => {
   const [activeKey, setActiveKey] = useState<Array<string | number> | string | number | undefined>();
 
@@ -42,7 +45,7 @@ export const CollapsiblePanel = ({
           )}
         </div>
       )}
-      className={hasCardStyle ? 'ant-card' : 'ant-cardless'}
+      className={twMerge(hasCardStyle ? 'ant-card' : 'ant-cardless', className)}
       bordered={false}
       expandIconPosition="end"
       onChange={setActiveKey}
