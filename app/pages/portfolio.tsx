@@ -291,7 +291,7 @@ export default function Portfolio() {
             currentToken={currentToken}
             data={graphData}
             total={portfolio?.total ?? 0}
-            tokens={wallet ?? []}
+            tokens={hasLoaded && wallet ? wallet : []}
           />
 
           <Flex vertical>

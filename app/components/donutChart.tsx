@@ -3,9 +3,8 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Pie, PieChart as ReChartsDonutChart, ResponsiveContainer, Sector, Tooltip } from 'recharts';
-
 import { twMerge } from 'tailwind-merge';
 import { useNavigation } from '../hooks/useNavigation';
 import {
@@ -105,6 +104,75 @@ const ChartTooltip = ({ active, payload, valueFormatter }: ChartTooltipProps) =>
   return null;
 };
 
+interface UseRenderActiveShapeProps {
+  cx: number;
+  cy: number;
+  innerRadius: number;
+  outerRadius: number;
+  startAngle: number;
+  endAngle: number;
+  fill: string;
+  className?: string;
+}
+
+// Easing function for smooth animation
+const easeOutQuad = (t: number): number => t * (2 - t);
+
+const RenderActiveShape = (props: UseRenderActiveShapeProps) => {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, className } = props;
+  const [currentAngle, setCurrentAngle] = useState(startAngle);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const startTimeRef = useRef<number>(0);
+  const duration = 800;
+
+  useEffect(() => {
+    // Only animate on mount
+    if (hasAnimated) {
+      setCurrentAngle(endAngle);
+      return;
+    }
+
+    let animationFrame: number;
+
+    const animate = (timestamp: number) => {
+      if (!startTimeRef.current) startTimeRef.current = timestamp;
+
+      const progress = Math.min(1, (timestamp - startTimeRef.current) / duration);
+      const easedProgress = easeOutQuad(progress);
+      const newAngle = startAngle + (endAngle - startAngle) * easedProgress;
+
+      setCurrentAngle(newAngle);
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      } else {
+        setHasAnimated(true);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+    };
+  }, [startAngle, endAngle, hasAnimated]);
+
+  return (
+    <g>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
+        startAngle={startAngle}
+        endAngle={currentAngle}
+        fill={fill}
+        className={className}
+      />
+    </g>
+  );
+};
+
 const renderInactiveShape = (props: any) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, className } = props;
 
@@ -155,8 +223,8 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
   (
     {
       data = [],
-      value,
       category,
+      value,
       colors = AvailableChartColors,
       variant = 'donut',
       valueFormatter = (value: number) => value.toString(),
@@ -189,20 +257,6 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
     const prevActiveRef = React.useRef<boolean | undefined>(undefined);
     const prevCategoryRef = React.useRef<string | undefined>(undefined);
 
-    const { page } = useNavigation();
-    const [isAnimationActive, setIsAnimationActive] = React.useState(false);
-    useEffect(() => {
-      if (page === undefined) return;
-      setIsAnimationActive(true);
-      const timeout = setTimeout(() => {
-        setIsAnimationActive(false);
-      }, 10000);
-
-      return () => {
-        clearTimeout(timeout);
-      };
-    }, [page]);
-
     const handleShapeClick = (data: any, index: number, event: React.MouseEvent) => {
       event.stopPropagation();
       if (!isHandlingEvent) return;
@@ -219,6 +273,47 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
         });
       }
     };
+
+    const parsedData = parseData(data, categoryColors, category);
+
+    const ActiveShape = ({ props }: { props: any }) => {
+      const index = parsedData.findIndex(
+        (item: any) => item[value] === props.value && item[category] === props.payload[category],
+      );
+
+      const shapeProps = {
+        ...props,
+        className: index >= 0 ? parsedData[index].className : undefined,
+      };
+
+      return RenderActiveShape(shapeProps);
+    };
+    const renderActiveShape = (props: any) => {
+      return <ActiveShape props={props} />;
+    };
+
+    const { page } = useNavigation();
+    const [activeIndex, setActiveIndex] = useState<number | number[]>();
+    const [isLoaded, setIsLoaded] = useState(false);
+    useEffect(() => {
+      if (actualSelectedIndex !== undefined) return;
+
+      setActiveIndex(Array.from({ length: parsedData.length }, (_, i) => i));
+      setIsLoaded(true);
+
+      const timeout = setTimeout(() => {
+        setActiveIndex(actualSelectedIndex);
+      }, 1500);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }, [page]); // eslint-disable-line
+
+    useEffect(() => {
+      if (!isLoaded) return;
+      setActiveIndex(actualSelectedIndex);
+    }, [actualSelectedIndex, isLoaded]);
 
     return (
       <div ref={forwardedRef} className={twMerge('h-40 w-40', className)} tremor-id="tremor-raw" {...other}>
@@ -251,7 +346,7 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
                 'group [&_.recharts-pie-sector]:transition-opacity [&_.recharts-pie-sector]:duration-800 [&_.recharts-pie-sector:hover]:opacity-80',
                 isHandlingEvent ? 'cursor-pointer' : 'cursor-default',
               )}
-              data={parseData(data, categoryColors, category)}
+              data={parsedData}
               cx="50%"
               cy="50%"
               startAngle={90}
@@ -262,9 +357,10 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
               strokeLinejoin="round"
               dataKey={value}
               nameKey={category}
-              isAnimationActive={isAnimationActive}
+              isAnimationActive={false}
+              activeShape={renderActiveShape}
               onClick={handleShapeClick}
-              activeIndex={actualSelectedIndex}
+              activeIndex={activeIndex}
               inactiveShape={renderInactiveShape}
               style={{ outline: 'none' }}
             />
