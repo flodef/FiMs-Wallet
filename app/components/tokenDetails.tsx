@@ -1,14 +1,15 @@
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { AreaChart, Tab, TabGroup, TabList } from '@tremor/react';
 import { Drawer, Flex } from 'antd';
+import { useCallback, useEffect } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { getCurrency } from '../utils/functions';
+import { TokenHistoric, useData } from '../hooks/useData';
+import { getCurrency, getRatio } from '../utils/functions';
 import { Data, Dataset } from '../utils/types';
 import { CollapsiblePanel } from './collapsiblePanel';
 import RatioBadge from './ratioBadge';
 import { getRisk } from './tokenGraphs';
 import { LoadingMetric, Text, Title } from './typography';
-import { TokenHistoric } from '../hooks/useData';
 
 const t: Dataset = {
   price: 'Prix',
@@ -23,6 +24,9 @@ const t: Dataset = {
   loading: 'Chargement...',
   amount: 'Montant',
 };
+
+const tokenValueStart = 100;
+const today = new Date();
 
 interface TokenDetailsData extends Data {
   label: string;
@@ -41,9 +45,6 @@ interface TokenDetailsProps {
   selectedPrice: { current: number };
   isTokenListExpanded: boolean;
   setSelectedPrice: (index: number) => void;
-  changeToken: (next?: boolean) => void;
-  tokenHistoric: TokenHistoric[][];
-  tokenHistoricLimit?: { min: number; max: number };
   result: { data: Data[]; total: number };
 }
 
@@ -55,11 +56,45 @@ export const TokenDetails = ({
   selectedPrice,
   isTokenListExpanded,
   setSelectedPrice,
-  changeToken,
-  tokenHistoric,
-  tokenHistoricLimit,
   result,
 }: TokenDetailsProps) => {
+  const { tokenHistoric, setTokenHistoric, tokenHistoricLimit, setTokenHistoricLimit } = useData();
+
+  useEffect(() => {
+    let min = tokenValueStart;
+    let max = tokenValueStart;
+    const tokenHistoric: TokenHistoric[][] = [];
+    tokens.forEach(t => {
+      const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(tokens, t.label)) / 100);
+      tokenHistoric.push([
+        {
+          date: new Date(today.getTime() - t.duration * 24 * 60 * 60 * 1000).toShortDate(),
+          Montant: tokenValueStart,
+        },
+        {
+          date: today.toShortDate(),
+          Montant: tokenValueEnd,
+        },
+      ]);
+      min = Math.min(min, tokenValueEnd);
+      max = Math.max(max, tokenValueEnd);
+    });
+    setTokenHistoric(tokenHistoric);
+    setTokenHistoricLimit({
+      min: min,
+      max: max,
+    });
+  }, [setTokenHistoric, setTokenHistoricLimit, tokens]);
+
+  const changeToken = useCallback(
+    (increment = true) => {
+      setTimeout(() => {
+        setSelectedPrice(((selectedPrice.current || tokens.length) + (increment ? 1 : -1)) % tokens.length);
+      }, 100); // Wait for indexChange event to be triggered
+    },
+    [tokens.length, setSelectedPrice, selectedPrice],
+  );
+
   const getSelectedPrice = (index?: number) => {
     return index ?? selectedPrice.current;
   };

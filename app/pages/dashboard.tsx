@@ -10,7 +10,7 @@ import RatioBadge from '../components/ratioBadge';
 import { TokenDetails } from '../components/tokenDetails';
 import { TokenGraphs } from '../components/tokenGraphs';
 import { LoadingMetric, Subtitle, Title } from '../components/typography';
-import { DashboardToken, Historic, TokenHistoric, useData } from '../hooks/useData';
+import { DashboardToken, Historic, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { AvailableChartColorsKeys } from '../utils/chart';
@@ -20,7 +20,6 @@ import { findValue, getCurrency, getRatio } from '../utils/functions';
 import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
 
-const tokenValueStart = 100;
 const tokenColors: AvailableChartColorsKeys[] = ['blue', 'amber', 'cyan'];
 
 const t: Dataset = {
@@ -40,23 +39,11 @@ const t: Dataset = {
   learnMore: 'En savoir plus',
 };
 
-const today = new Date();
 const thisPage = Page.Dashboard;
 
 export default function Dashboard() {
   const { page, needRefresh, setNeedRefresh } = useNavigation();
-  const {
-    dashboard,
-    setDashboard,
-    tokens,
-    setTokens,
-    historic,
-    setHistoric,
-    tokenHistoric,
-    setTokenHistoric,
-    tokenHistoricLimit,
-    setTokenHistoricLimit,
-  } = useData();
+  const { dashboard, setDashboard, tokens, setTokens, historic, setHistoric } = useData();
   const { width } = useWindowParam();
 
   const [isMobile, setIsMobile] = useState(false);
@@ -89,38 +76,6 @@ export default function Dashboard() {
     [dashboard, getBarList, tokens],
   );
 
-  const generateTokenHistoric = useCallback(
-    (token: DashboardToken[]) => {
-      token = token.filter(({ label }) => label.includes(FIMS));
-      setTokens(token);
-
-      let min = tokenValueStart;
-      let max = tokenValueStart;
-      const tokenHistoric: TokenHistoric[][] = [];
-      token.forEach(t => {
-        const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(token, t.label)) / 100);
-        tokenHistoric.push([
-          {
-            date: new Date(today.getTime() - t.duration * 24 * 60 * 60 * 1000).toShortDate(),
-            Montant: tokenValueStart,
-          },
-          {
-            date: today.toShortDate(),
-            Montant: tokenValueEnd,
-          },
-        ]);
-        min = Math.min(min, tokenValueEnd);
-        max = Math.max(max, tokenValueEnd);
-      });
-      setTokenHistoric(tokenHistoric);
-      setTokenHistoricLimit({
-        min: min,
-        max: max,
-      });
-    },
-    [setTokens, setTokenHistoric, setTokenHistoricLimit],
-  );
-
   const isLoading = useRef(false);
   useEffect(() => {
     if (isLoading.current || !needRefresh || page !== thisPage) return;
@@ -131,12 +86,12 @@ export default function Dashboard() {
     loadData(DataName.dashboard)
       .then(dashboard => setDashboard(dashboard as Data[]))
       .then(() => loadData(DataName.tokens))
-      .then(tokens => generateTokenHistoric(tokens as DashboardToken[]))
+      .then(tokens => setTokens((tokens as DashboardToken[]).filter(({ label }) => label.includes(FIMS))))
       .then(() => loadData(DataName.historic))
       .then(historic => setHistoric(historic as Historic[]))
       .catch(console.error)
       .finally(() => (isLoading.current = false));
-  }, [needRefresh, setNeedRefresh, page, generateTokenHistoric, setDashboard, setHistoric]);
+  }, [needRefresh, setNeedRefresh, page, setDashboard, setHistoric, setTokens]);
 
   const selectedPrice = useRef(0);
   const getSelectedPrice = useCallback(
@@ -159,14 +114,6 @@ export default function Dashboard() {
   );
 
   const [selectedIndex, setSelectedIndex] = useState<number>();
-  const changeToken = useCallback(
-    (increment = true) => {
-      setTimeout(() => {
-        setSelectedPrice(((selectedPrice.current || tokens.length) + (increment ? 1 : -1)) % tokens.length);
-      }, 100); // Wait for indexChange event to be triggered
-    },
-    [tokens.length, setSelectedPrice],
-  );
 
   const currentToken = useMemo(
     () => tokens[getSelectedPrice(selectedIndex)],
@@ -237,9 +184,6 @@ export default function Dashboard() {
                       selectedPrice={selectedPrice}
                       setSelectedPrice={setSelectedPrice}
                       isTokenListExpanded={isTokenListExpanded}
-                      changeToken={changeToken}
-                      tokenHistoric={tokenHistoric}
-                      tokenHistoricLimit={tokenHistoricLimit}
                       result={result}
                     />
                   </Flex>
