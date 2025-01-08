@@ -18,6 +18,7 @@ import { FIMS, FIMS_TOKEN_PATH, SPL_TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { convertedData, DataName, forceData, loadData, PortfolioData, TokenData } from '../utils/processData';
 import { Dataset } from '../utils/types';
+import { IconSend2 } from '@tabler/icons-react';
 
 const t: Dataset = {
   totalValue: 'Valeur totale',
@@ -311,7 +312,7 @@ export default function Portfolio() {
                       )}
                       onClick={() => setSelectedIndex(selectedIndex === index ? undefined : index)}
                     >
-                      <TableCell className="px-0 hidden 2xs:table-cell xs:px-2 sm:px-4">
+                      <TableCell className="px-0 hidden 2xs:table-cell xs:px-2 sm:px-4 justify-items-center">
                         <Image
                           className="rounded-full"
                           src={asset.image}
@@ -320,12 +321,12 @@ export default function Portfolio() {
                           height={50}
                         ></Image>
                       </TableCell>
-                      <TableCell className="px-2 xs:px-4">
-                        <Flex justify="space-between">
+                      <TableCell className="px-2 xs:px-4 justify-items-center">
+                        <Flex className="w-56 xs:w-auto" justify="space-between">
                           <div className="text-xl max-w-36 xs:max-w-full truncate">{asset.label}</div>
                           <div>{`${asset.balance.toFixed(asset.balance.getPrecision())} ${asset.symbol}`}</div>
                         </Flex>
-                        <Flex justify="space-between">
+                        <Flex className="w-56 xs:w-auto" justify="space-between">
                           <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
                           <div className="font-bold text-lg">
                             <Privacy amount={asset.total} />
