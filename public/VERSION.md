@@ -1,3 +1,10 @@
+# 1.10
+
+- **Ajout d'animations** : encore plus de graphiques animés
+- **Volatilité et Répartition** : affichage dans "Mon compte", de manière globale et pour chaque jeton
+- **Détails des jetons** : sélectionner un jeton de son portefeuille pour en savoir plus (click long sur mobile)
+- **Filtre des transactions** : transactions filtrables par jeton
+
 # 1.9
 
 - **Profit réalisé** : indique le profit de chaque transaction
