@@ -46,13 +46,12 @@ export default function Dashboard() {
   const { dashboard, setDashboard, tokens, setTokens, historic, setHistoric } = useData();
   const { width } = useWindowParam();
 
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTokenListExpanded, setIsTokenListExpanded] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number>();
   const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setIsMobile(width < 768);
-    setIsTokenListExpanded(width > 480);
   }, [width]);
 
   const getBarList = useCallback(
@@ -68,7 +67,7 @@ export default function Dashboard() {
     [dashboard],
   );
 
-  const result = useMemo(
+  const tokenDetails = useMemo(
     () => ({
       total: findValue(dashboard, 'assets')?.value ?? 1500000,
       data: getBarList(tokens.map(t => t.label)),
@@ -92,33 +91,6 @@ export default function Dashboard() {
       .catch(console.error)
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, setDashboard, setHistoric, setTokens]);
-
-  const selectedPrice = useRef(0);
-  const getSelectedPrice = useCallback(
-    (index: number | undefined) => {
-      if (index === undefined) return selectedPrice.current;
-      const barList = getBarList(tokens.map(t => t.label));
-      const priceIndex = tokens.findIndex(t => t.label === barList[index].label) ?? selectedPrice.current;
-      selectedPrice.current = priceIndex;
-      return priceIndex;
-    },
-    [getBarList, tokens],
-  );
-  const setSelectedPrice = useCallback(
-    (priceIndex: number) => {
-      const barList = getBarList(tokens.map(t => t.label));
-      selectedPrice.current = priceIndex;
-      setSelectedIndex(barList.findIndex(t => t.label === tokens[priceIndex].label));
-    },
-    [getBarList, tokens],
-  );
-
-  const [selectedIndex, setSelectedIndex] = useState<number>();
-
-  const currentToken = useMemo(
-    () => tokens[getSelectedPrice(selectedIndex)],
-    [selectedIndex, tokens, getSelectedPrice],
-  );
 
   return (
     <Flex vertical className="gap-4">
@@ -146,10 +118,9 @@ export default function Dashboard() {
             <Col xs={{ flex: '100%' }} sm={{ flex: tokens.length > 0 ? '50%' : '100%' }}>
               <TokenGraphs
                 selectedIndex={selectedIndex}
-                setSelectedIndex={setSelectedIndex}
-                currentToken={currentToken}
-                data={result.data}
-                total={result.total}
+                onSelectedIndexChange={setSelectedIndex}
+                data={tokenDetails.data}
+                total={tokenDetails.total}
                 tokens={tokens}
                 tokenColors={tokenColors}
               />
@@ -158,36 +129,33 @@ export default function Dashboard() {
               <Col xs={{ flex: '100%' }} sm={{ flex: '50%' }} className="content-center">
                 <BarList
                   className="opacity-100"
-                  data={result.data}
+                  data={tokenDetails.data}
                   colors={tokenColors}
                   showAnimation={true}
                   selectedIndex={selectedIndex}
                   onSelectedIndexChange={setSelectedIndex}
                   valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
                 />
-                {currentToken && (
-                  <Flex justify="end">
-                    <Flex
-                      className="gap-2 cursor-pointer hover:animate-pulse"
-                      onClick={() => setIsTokenDetailsOpen(true)}
-                    >
-                      <Subtitle className="text-theme-content-strong dark:text-dark-theme-content-strong">
-                        {t.learnMore}
-                      </Subtitle>
-                      <IconChevronsRight className="text-theme-content-strong dark:text-dark-theme-content-strong" />
-                    </Flex>
-                    <TokenDetails
-                      isOpen={isTokenDetailsOpen}
-                      onClose={() => setIsTokenDetailsOpen(false)}
-                      tokens={tokens}
-                      currentToken={currentToken}
-                      selectedPrice={selectedPrice}
-                      setSelectedPrice={setSelectedPrice}
-                      isTokenListExpanded={isTokenListExpanded}
-                      result={result}
-                    />
+                <Flex justify="end">
+                  <Flex
+                    className="gap-2 cursor-pointer hover:animate-pulse"
+                    onClick={() => setIsTokenDetailsOpen(true)}
+                  >
+                    <Subtitle className="text-theme-content-strong dark:text-dark-theme-content-strong">
+                      {t.learnMore}
+                    </Subtitle>
+                    <IconChevronsRight className="text-theme-content-strong dark:text-dark-theme-content-strong" />
                   </Flex>
-                )}
+                  <TokenDetails
+                    isOpen={isTokenDetailsOpen}
+                    onClose={() => setIsTokenDetailsOpen(false)}
+                    selectedIndex={selectedIndex}
+                    onSelectedIndexChange={setSelectedIndex}
+                    tokens={tokens}
+                    data={tokenDetails.data}
+                    total={tokenDetails.total}
+                  />
+                </Flex>
               </Col>
             )}
           </Row>

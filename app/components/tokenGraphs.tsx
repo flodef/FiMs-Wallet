@@ -39,8 +39,7 @@ interface TokenGraphData extends Data {
 
 interface TokenGraphsProps {
   selectedIndex: number | undefined;
-  setSelectedIndex: (index?: number) => void;
-  currentToken?: TokenGraphData;
+  onSelectedIndexChange: (index?: number) => void;
   data: Data[];
   total: number;
   tokens: TokenGraphData[];
@@ -49,8 +48,7 @@ interface TokenGraphsProps {
 
 export function TokenGraphs({
   selectedIndex,
-  setSelectedIndex,
-  currentToken,
+  onSelectedIndexChange,
   data,
   total,
   tokens,
@@ -70,6 +68,12 @@ export function TokenGraphs({
       return weightedVolatility + (tokens.find(t => t.label === data.label)?.volatility ?? 0) * weight;
     }, 0);
   }, [tokens, data, total]);
+
+  const currentToken = useMemo(
+    () =>
+      selectedIndex !== undefined ? (tokens.find(t => t.label === data[selectedIndex]?.label) ?? tokens[0]) : tokens[0],
+    [data, selectedIndex, tokens],
+  );
 
   return tokens.length === 0 ? (
     <Flex className="h-40" justify="center" align="center">
@@ -113,7 +117,7 @@ export function TokenGraphs({
           showLabel={selectedIndex !== undefined && !!currentToken}
           showTooltip={false}
           selectedIndex={selectedIndex}
-          onSelectedIndexChange={setSelectedIndex}
+          onSelectedIndexChange={onSelectedIndexChange}
           valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
         />
       ) : null}
