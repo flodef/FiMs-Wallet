@@ -195,7 +195,8 @@ export const TokenDetails = ({
                   tokenHistoric.length &&
                   tokenHistoric[selectedIndex || 0][0].Montant < tokenHistoric[selectedIndex || 0][1].Montant
                     ? 'green'
-                    : tokenHistoric[selectedIndex || 0][0].Montant > tokenHistoric[selectedIndex || 0][1].Montant
+                    : tokenHistoric.length &&
+                        tokenHistoric[selectedIndex || 0][0].Montant > tokenHistoric[selectedIndex || 0][1].Montant
                       ? 'red'
                       : 'white',
                 ]}
