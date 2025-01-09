@@ -301,7 +301,7 @@ export default function Portfolio() {
                     <TableRow
                       key={asset.label}
                       className={twMerge(
-                        'group cursor-pointer',
+                        'group cursor-pointer select-none touch-none',
                         selectedIndex === index
                           ? 'bg-theme-background-subtle dark:bg-dark-theme-background-subtle'
                           : 'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle',
@@ -309,6 +309,7 @@ export default function Portfolio() {
                       onClick={() => setSelectedIndex(selectedIndex === index ? undefined : index)}
                       onContextMenu={e => {
                         e.preventDefault();
+                        e.stopPropagation();
                         setSelectedIndex(index);
                         setIsTokenDetailsOpen(true);
                       }}
