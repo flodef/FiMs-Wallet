@@ -55,6 +55,7 @@ const t: Dataset = {
   selectTransactionDate: 'Sélectionner une date',
   selectTransactionMovement: 'Sélectionner un mouvement',
   selectTransactionType: 'Sélectionner un type',
+  selectTransactionToken: 'Sélectionner un jeton',
   to: 'à',
   from: 'du',
   search: 'Rechercher',
@@ -64,6 +65,7 @@ enum TransactionFilter {
   date,
   movement,
   type,
+  token,
 }
 
 export const getTransactionType = (transaction: Transaction | { movement: number | string; cost: number | string }) => {
@@ -101,9 +103,11 @@ export default function Transactions() {
   const [selectedType, setSelectedType] = useState<string>();
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [selectedMovements, setSelectedMovements] = useState<string[]>([]);
+  const [selectedToken, setSelectedToken] = useState<string[]>([]);
   const [dateFilter, setDateFilter] = useState<number[]>();
   const [movementFilter, setMovementFilter] = useState<number[]>();
   const [typeFilter, setTypeFilter] = useState<Transaction[]>();
+  const [tokenFilter, setTokenFilter] = useState<Transaction[]>();
   const [costFilter, setCostFilter] = useState(false);
 
   const processTransactions = useCallback(
@@ -161,6 +165,7 @@ export default function Transactions() {
       const isMovementSelected = (t: Transaction) =>
         selectedMovements.includes(String(t.movement.toClosestPowerOfTen())) || !selectedMovements.length;
       const isTypeSelected = (t: Transaction) => selectedType === TransactionType[t.type ?? -1] || !selectedType;
+      const isTokenSelected = (t: Transaction) => selectedToken.includes(t.token) || !selectedToken.length;
 
       const dateFilter = (filter: TransactionFilter) =>
         filter === TransactionFilter.date ? isDateSelected : () => true;
@@ -168,29 +173,40 @@ export default function Transactions() {
         filter === TransactionFilter.movement ? isMovementSelected : () => true;
       const typeFilter = (filter: TransactionFilter) =>
         filter === TransactionFilter.type ? isTypeSelected : () => true;
+      const tokenFilter = (filter: TransactionFilter) =>
+        filter === TransactionFilter.token ? isTokenSelected : () => true;
       return filters.reduce(
         (filteredTransactions, filter) =>
-          filteredTransactions?.filter(dateFilter(filter)).filter(movementFilter(filter)).filter(typeFilter(filter)),
+          filteredTransactions
+            ?.filter(dateFilter(filter))
+            .filter(movementFilter(filter))
+            .filter(typeFilter(filter))
+            .filter(tokenFilter(filter)),
         transactions?.filter(t => (costFilter ? t.cost < 0 : true)),
       );
     },
-    [selectedDates, selectedMovements, selectedType, costFilter, transactions],
+    [selectedDates, selectedMovements, selectedType, selectedToken, costFilter, transactions],
   );
 
   useEffect(() => {
     setDateFilter(
-      getFilteredTransactions([TransactionFilter.movement, TransactionFilter.type])
+      getFilteredTransactions([TransactionFilter.movement, TransactionFilter.type, TransactionFilter.token])
         ?.map(({ date }) => new Date(date).getFullYear())
         .filter((v, i, a) => a.findIndex(t => t === v) === i),
     );
     setMovementFilter(
-      getFilteredTransactions([TransactionFilter.date, TransactionFilter.type])
+      getFilteredTransactions([TransactionFilter.date, TransactionFilter.type, TransactionFilter.token])
         ?.map(({ movement }) => movement.toClosestPowerOfTen())
         .filter((v, i, a) => a.findIndex(t => t === v) === i),
     );
     setTypeFilter(
-      getFilteredTransactions([TransactionFilter.date, TransactionFilter.movement])?.filter(
+      getFilteredTransactions([TransactionFilter.date, TransactionFilter.movement, TransactionFilter.token])?.filter(
         (v, i, a) => a.findIndex(t => t.type === v.type) === i,
+      ),
+    );
+    setTokenFilter(
+      getFilteredTransactions([TransactionFilter.date, TransactionFilter.movement, TransactionFilter.type])?.filter(
+        (v, i, a) => a.findIndex(t => t.token === v.token) === i,
       ),
     );
   }, [getFilteredTransactions]);
@@ -253,6 +269,7 @@ export default function Transactions() {
                   setSelectedType(undefined);
                   setSelectedDates([]);
                   setSelectedMovements([]);
+                  setSelectedToken([]);
                 }}
               >
                 <TableCell>{t.total}</TableCell>
@@ -347,6 +364,30 @@ export default function Transactions() {
                   )}
                 </Select>
               ) : null}
+
+              <label htmlFor="searchToken" className="sr-only">
+                {t.searchByToken}
+              </label>
+              {(tokenFilter?.length ?? 0) > 1 ? (
+                <MultiSelect
+                  id="searchToken"
+                  icon={IconSearch}
+                  placeholder={t.selectTransactionToken}
+                  placeholderSearch={t.search}
+                  spellCheck={false}
+                  value={selectedToken}
+                  onValueChange={setSelectedToken}
+                >
+                  {tokenFilter?.map(
+                    item =>
+                      item.token !== undefined && (
+                        <MultiSelectItem key={item.token} value={item.token}>
+                          {item.token}
+                        </MultiSelectItem>
+                      ),
+                  )}
+                </MultiSelect>
+              ) : null}
             </Grid>
             <Table>
               <SortTableHead
@@ -361,6 +402,7 @@ export default function Transactions() {
                     TransactionFilter.date,
                     TransactionFilter.movement,
                     TransactionFilter.type,
+                    TransactionFilter.token,
                   ])?.map((transaction, index) => (
                     <TableRow
                       key={index}
