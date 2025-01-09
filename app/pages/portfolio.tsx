@@ -1,3 +1,4 @@
+import { IconSend2 } from '@tabler/icons-react';
 import { AreaChart, SparkAreaChart, Table, TableBody, TableCell, TableRow } from '@tremor/react';
 import { Divider, Flex } from 'antd';
 import Image from 'next/image';
@@ -7,6 +8,7 @@ import { CollapsiblePanel } from '../components/collapsiblePanel';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
 import RatioBadge from '../components/ratioBadge';
+import { TokenDetails } from '../components/tokenDetails';
 import { TokenGraphs } from '../components/tokenGraphs';
 import { LoadingMetric, Title } from '../components/typography';
 import { usePrivacy } from '../contexts/privacyProvider';
@@ -18,7 +20,6 @@ import { FIMS, FIMS_TOKEN_PATH, SPL_TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { convertedData, DataName, forceData, loadData, PortfolioData, TokenData } from '../utils/processData';
 import { Dataset } from '../utils/types';
-import { IconSend2 } from '@tabler/icons-react';
 
 const t: Dataset = {
   totalValue: 'Valeur totale',
@@ -54,6 +55,7 @@ export default function Portfolio() {
   const { hasPrivacy } = usePrivacy();
   const { wallet, setWallet, portfolio, setPortfolio, userHistoric, setUserHistoric } = useData();
 
+  const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>();
   const [isMobile, setIsMobile] = useState(false);
@@ -249,7 +251,7 @@ export default function Portfolio() {
     return { minHisto, maxHisto };
   }, [userHistoric]);
 
-  const graphData = useMemo(() => {
+  const tokenDetails = useMemo(() => {
     if (!wallet) return [];
 
     return wallet.map(token => ({
@@ -258,11 +260,6 @@ export default function Portfolio() {
       ratio: 0,
     }));
   }, [wallet]);
-
-  const currentToken = useMemo(
-    () => (selectedIndex !== undefined ? wallet?.[selectedIndex] : undefined),
-    [selectedIndex, wallet],
-  );
 
   return (
     <Flex vertical className="gap-4">
@@ -288,9 +285,8 @@ export default function Portfolio() {
           ) : null}
           <TokenGraphs
             selectedIndex={selectedIndex}
-            setSelectedIndex={setSelectedIndex}
-            currentToken={currentToken}
-            data={graphData}
+            onSelectedIndexChange={setSelectedIndex}
+            data={tokenDetails}
             total={portfolio?.total ?? 0}
             tokens={hasLoaded && wallet ? wallet : []}
           />
@@ -305,12 +301,17 @@ export default function Portfolio() {
                     <TableRow
                       key={asset.label}
                       className={twMerge(
-                        'cursor-pointer',
+                        'group cursor-pointer',
                         selectedIndex === index
                           ? 'bg-theme-background-subtle dark:bg-dark-theme-background-subtle'
                           : 'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle',
                       )}
                       onClick={() => setSelectedIndex(selectedIndex === index ? undefined : index)}
+                      onContextMenu={e => {
+                        e.preventDefault();
+                        setSelectedIndex(index);
+                        setIsTokenDetailsOpen(true);
+                      }}
                     >
                       <TableCell className="px-0 hidden 2xs:table-cell xs:px-2 sm:px-4 justify-items-center">
                         <Image
@@ -322,16 +323,41 @@ export default function Portfolio() {
                         ></Image>
                       </TableCell>
                       <TableCell className="px-2 xs:px-4 justify-items-center">
-                        <Flex className="w-56 xs:w-auto" justify="space-between">
+                        <Flex className="w-full" justify="space-between">
                           <div className="text-xl max-w-36 xs:max-w-full truncate">{asset.label}</div>
                           <div>{`${asset.balance.toFixed(asset.balance.getPrecision())} ${asset.symbol}`}</div>
                         </Flex>
-                        <Flex className="w-56 xs:w-auto" justify="space-between">
+                        <Flex className="w-full" justify="space-between">
                           <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
                           <div className="font-bold text-lg">
                             <Privacy amount={asset.total} />
                           </div>
                         </Flex>
+                      </TableCell>
+                      <TableCell className="px-0 hidden xs:table-cell xs:px-2 sm:px-4 justify-items-center">
+                        <IconSend2
+                          className={twMerge(
+                            'h-8 w-8 text-theme-content-strong dark:text-dark-theme-content-strong',
+                            'transition-all duration-500 group-hover:animate-pulse',
+                            index === selectedIndex ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+                          )}
+                          onClick={e => {
+                            e.stopPropagation();
+                            setSelectedIndex(index);
+                            setIsTokenDetailsOpen(true);
+                          }}
+                        />
+                        {hasLoaded ? (
+                          <TokenDetails
+                            isOpen={isTokenDetailsOpen}
+                            onClose={() => setIsTokenDetailsOpen(false)}
+                            tokens={wallet}
+                            data={tokenDetails}
+                            total={portfolio?.total ?? 0}
+                            selectedIndex={selectedIndex}
+                            onSelectedIndexChange={setSelectedIndex}
+                          />
+                        ) : null}
                       </TableCell>
                     </TableRow>
                   ))}
