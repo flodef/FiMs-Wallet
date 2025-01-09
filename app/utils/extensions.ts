@@ -7,7 +7,7 @@ import { MinMax, RoundingDirection, SymbolPosition } from './types';
 declare global {
   interface Number {
     toLocaleCurrency(minDecimals?: number, maxDecimals?: number, currency?: string): string;
-    toShortCurrency(maxDecimals?: number, symbol?: string): string;
+    toShortCurrency(maxDecimals?: number, currency?: string): string;
     toCurrency(maxDecimals?: number, symbol?: string, symbolPosition?: SymbolPosition): string;
     toRatio(maxDecimals?: number): string;
     toLocaleDateString(): string;

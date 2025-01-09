@@ -325,7 +325,13 @@ export default function Portfolio() {
                       <TableCell className="px-2 xs:px-4 justify-items-center">
                         <Flex className="w-full" justify="space-between">
                           <div className="text-xl max-w-36 xs:max-w-full truncate">{asset.label}</div>
-                          <div>{`${asset.balance.toFixed(asset.balance.getPrecision())} ${asset.symbol}`}</div>
+                          <Flex className="gap-1">
+                            <Privacy
+                              amount={asset.balance.toDecimalPlace(asset.balance.getPrecision(), 'down')}
+                              currencyType="none"
+                            />
+                            {asset.symbol}
+                          </Flex>
                         </Flex>
                         <Flex className="w-full" justify="space-between">
                           <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
