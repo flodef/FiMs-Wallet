@@ -101,9 +101,9 @@ export default function Transactions() {
   const { transactions, setTransactions } = useData();
 
   const [selectedType, setSelectedType] = useState<string>();
+  const [selectedToken, setSelectedToken] = useState<string>();
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [selectedMovements, setSelectedMovements] = useState<string[]>([]);
-  const [selectedToken, setSelectedToken] = useState<string[]>([]);
   const [dateFilter, setDateFilter] = useState<number[]>();
   const [movementFilter, setMovementFilter] = useState<number[]>();
   const [typeFilter, setTypeFilter] = useState<Transaction[]>();
@@ -165,7 +165,7 @@ export default function Transactions() {
       const isMovementSelected = (t: Transaction) =>
         selectedMovements.includes(String(t.movement.toClosestPowerOfTen())) || !selectedMovements.length;
       const isTypeSelected = (t: Transaction) => selectedType === TransactionType[t.type ?? -1] || !selectedType;
-      const isTokenSelected = (t: Transaction) => selectedToken.includes(t.token) || !selectedToken.length;
+      const isTokenSelected = (t: Transaction) => selectedToken === t.token || !selectedToken;
 
       const dateFilter = (filter: TransactionFilter) =>
         filter === TransactionFilter.date ? isDateSelected : () => true;
@@ -269,7 +269,7 @@ export default function Transactions() {
                   setSelectedType(undefined);
                   setSelectedDates([]);
                   setSelectedMovements([]);
-                  setSelectedToken([]);
+                  setSelectedToken(undefined);
                 }}
               >
                 <TableCell>{t.total}</TableCell>
@@ -369,11 +369,11 @@ export default function Transactions() {
                 {t.searchByToken}
               </label>
               {(tokenFilter?.length ?? 0) > 1 ? (
-                <MultiSelect
+                <Select
                   id="searchToken"
                   icon={IconSearch}
+                  enableClear={true}
                   placeholder={t.selectTransactionToken}
-                  placeholderSearch={t.search}
                   spellCheck={false}
                   value={selectedToken}
                   onValueChange={setSelectedToken}
@@ -381,12 +381,12 @@ export default function Transactions() {
                   {tokenFilter?.map(
                     item =>
                       item.token !== undefined && (
-                        <MultiSelectItem key={item.token} value={item.token}>
+                        <SelectItem key={item.token} value={item.token}>
                           {item.token}
-                        </MultiSelectItem>
+                        </SelectItem>
                       ),
                   )}
-                </MultiSelect>
+                </Select>
               ) : null}
             </Grid>
             <Table>
