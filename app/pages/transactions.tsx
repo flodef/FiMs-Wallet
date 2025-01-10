@@ -159,7 +159,9 @@ export default function Transactions() {
   }, [needRefresh, setNeedRefresh, page, processTransactions]);
 
   const getFilteredTransactions = useCallback(
-    (filters: TransactionFilter[]) => {
+    (
+      filters = [TransactionFilter.date, TransactionFilter.movement, TransactionFilter.type, TransactionFilter.token],
+    ) => {
       const isDateSelected = (t: Transaction) =>
         selectedDates.includes(new Date(t.date).getFullYear().toString()) || !selectedDates.length;
       const isMovementSelected = (t: Transaction) =>
@@ -228,7 +230,7 @@ export default function Transactions() {
                 .filter(v => typeof v !== 'number')
                 .map(
                   (type, index) =>
-                    transactions?.filter(t => t.type === index).length !== 0 && (
+                    getFilteredTransactions()?.filter(t => t.type === index).length !== 0 && (
                       <TableRow
                         className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
                         onClick={() => {
@@ -238,16 +240,32 @@ export default function Transactions() {
                         key={type}
                       >
                         <TableCell>{t[type]}</TableCell>
-                        <TableCell className="ml-4">{transactions?.filter(t => t.type === index).length}</TableCell>
-                        <TableCell className="ml-4">
+                        <TableCell>{getFilteredTransactions()?.filter(t => t.type === index).length}</TableCell>
+                        <TableCell>
                           <Privacy
-                            amount={transactions?.filter(t => t.type === index).reduce((a, b) => a + b.movement, 0)}
+                            amount={getFilteredTransactions()
+                              ?.filter(t => t.type === index)
+                              .reduce((a, b) => a + b.movement, 0)}
                           />
                         </TableCell>
                       </TableRow>
                     ),
                 )}
-              {transactions?.filter(t => t.cost < 0).length !== 0 && (
+              <TableRow className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle">
+                <TableCell>{t.profit}</TableCell>
+                <TableCell>{getFilteredTransactions()?.length}</TableCell>
+                <TableCell
+                  className={twMerge(
+                    'font-bold',
+                    (getFilteredTransactions()?.reduce((a, b) => a + (b.profit ?? 0), 0) ?? 0) >= 0
+                      ? 'text-ok'
+                      : 'text-error',
+                  )}
+                >
+                  <Privacy amount={getFilteredTransactions()?.reduce((a, b) => a + (b.profit ?? 0), 0)} />
+                </TableCell>
+              </TableRow>
+              {getFilteredTransactions()?.filter(t => t.cost < 0).length !== 0 && (
                 <TableRow
                   className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
                   onClick={() => {
@@ -256,31 +274,34 @@ export default function Transactions() {
                   }}
                 >
                   <TableCell>{t.cost}</TableCell>
-                  <TableCell className="ml-4">{transactions?.filter(t => t.cost < 0).length}</TableCell>
-                  <TableCell className="ml-4">
-                    <Privacy amount={transactions?.filter(t => t.cost < 0).reduce((a, b) => a + b.cost, 0)} />
+                  <TableCell>{getFilteredTransactions()?.filter(t => t.cost < 0).length}</TableCell>
+                  <TableCell>
+                    <Privacy
+                      amount={getFilteredTransactions()
+                        ?.filter(t => t.cost < 0)
+                        .reduce((a, b) => a + b.cost, 0)}
+                    />
                   </TableCell>
                 </TableRow>
               )}
               <TableRow
-                className="font-bold hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
+                className={twMerge(
+                  'font-bold cursor-pointer',
+                  'text-theme-content-emphasis dark:text-dark-theme-content-emphasis',
+                  'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle',
+                )}
                 onClick={() => {
                   setCostFilter(false);
-                  setSelectedType(undefined);
+                  setSelectedType('');
                   setSelectedDates([]);
                   setSelectedMovements([]);
-                  setSelectedToken(undefined);
+                  setSelectedToken('');
                 }}
               >
                 <TableCell>{t.total}</TableCell>
-                <TableCell className="ml-4">{transactions?.length}</TableCell>
-                <TableCell
-                  className={twMerge(
-                    'font-bold',
-                    (transactions?.reduce((a, b) => a + b.movement, 0) ?? 0) >= 0 ? 'text-green-400' : 'text-red-400',
-                  )}
-                >
-                  <Privacy amount={transactions?.reduce((a, b) => a + b.movement, 0)} />
+                <TableCell>{getFilteredTransactions()?.length}</TableCell>
+                <TableCell>
+                  <Privacy amount={getFilteredTransactions()?.reduce((a, b) => a + b.movement, 0)} />
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -398,12 +419,7 @@ export default function Transactions() {
               />
               <TableBody>
                 {transactions ? (
-                  getFilteredTransactions([
-                    TransactionFilter.date,
-                    TransactionFilter.movement,
-                    TransactionFilter.type,
-                    TransactionFilter.token,
-                  ])?.map((transaction, index) => (
+                  getFilteredTransactions()?.map((transaction, index) => (
                     <TableRow
                       key={index}
                       className="group hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer lg:cursor-default"
