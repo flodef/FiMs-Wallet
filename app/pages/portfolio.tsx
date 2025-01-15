@@ -304,7 +304,7 @@ export default function Portfolio() {
                         'group cursor-pointer select-none touch-none transition-colors duration-200',
                         selectedIndex === index
                           ? 'bg-theme-background-subtle dark:bg-dark-theme-background-subtle'
-                          : 'hover:bg-theme-background-subtle dark:hover:bg-theme-background-subtle [@media(hover:none)]:hover:bg-transparent [@media(hover:none)]:dark:hover:bg-transparent',
+                          : 'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle [@media(hover:none)]:hover:bg-transparent [@media(hover:none)]:dark:hover:bg-transparent',
                       )}
                       onClick={() => setSelectedIndex(selectedIndex === index ? undefined : index)}
                       onContextMenu={e => {
