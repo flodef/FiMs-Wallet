@@ -104,6 +104,14 @@ export const TokenDetails = ({
     [tokens.length, onSelectedIndexChange, selectedIndex],
   );
 
+  const handleClose = useCallback(
+    (e: React.MouseEvent | React.KeyboardEvent) => {
+      e.stopPropagation();
+      onClose();
+    },
+    [onClose],
+  );
+
   const currentToken = useMemo(
     () => tokens.find(t => t.label === data.at(selectedIndex)?.label) ?? tokens[0],
     [data, selectedIndex, tokens],
@@ -113,7 +121,7 @@ export const TokenDetails = ({
     <Drawer
       size="large"
       open={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       onClick={e => e.stopPropagation()}
       title={
         <TabGroup
