@@ -29,7 +29,7 @@ import { Page, useNavigation } from '../hooks/useNavigation';
 import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
 import { useIsMobile } from '../utils/mobile';
-import { DataName, loadData } from '../utils/processData';
+import { convertedData, DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
 
 const t: Dataset = {
@@ -91,6 +91,50 @@ const getTokenProfit = (transaction: Transaction) =>
     ? 0
     : (transaction.price ?? 0) * (transaction.amount ?? 0) - transaction.movement - transaction.cost;
 
+export const loadTransactionData = async (
+  tokenData: PortfolioToken[],
+  userId: number,
+  transactions: Transaction[] | undefined,
+  setTransactions: (transactions: Transaction[] | undefined) => void,
+) => {
+  const storeTransactions = (data: convertedData[]) => {
+    const tx = (data as Transaction[]).filter(d => d.userid === userId);
+
+    if (!transactions || tx.length > transactions.length)
+      setTransactions(
+        tx
+          .map(d => ({
+            // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
+            date: new Date(d.date), // Date is a string, so we need to convert it to a Date object to be able to use it in the table
+            movement: Number(d.movement),
+            type: getTransactionType(d),
+            amount: Number(d.amount),
+            profit: getTokenProfit({
+              ...d,
+              price: getTokenPrice(d, tokenData),
+            }),
+            rate: Math.abs(Number(d.movement) / Number(d.amount)),
+            token: d.token,
+            address: d.address,
+            cost: Number(d.cost),
+            price: getTokenPrice(d, tokenData),
+          }))
+          .sort((a, b) => b.date.getTime() - a.date.getTime()),
+      );
+  };
+
+  // Only load initial data if transactions are empty
+  const loadInitialData = !transactions?.length
+    ? loadData(DataName.transactions).then(storeTransactions)
+    : Promise.resolve();
+
+  return loadInitialData
+    .then(() => fetch('/api/database/getTransactions'))
+    .then(result => result.ok && result.json())
+    .then(data => storeTransactions(data))
+    .catch(console.error);
+};
+
 const thisPage = Page.Transactions;
 
 export default function Transactions() {
@@ -110,36 +154,9 @@ export default function Transactions() {
   const [tokenFilter, setTokenFilter] = useState<Transaction[]>();
   const [costFilter, setCostFilter] = useState(false);
 
-  const processTransactions = useCallback(
-    (data: Transaction[], tokenData: PortfolioToken[]) => {
-      setTransactions(
-        data
-          .filter(d => d.userid === user?.id)
-          .map(d => ({
-            // WARNING: Properties must be in the same order as the table headers in order to be able to sort them
-            date: new Date(d.date),
-            movement: Number(d.movement),
-            type: getTransactionType(d),
-            amount: Number(d.amount),
-            profit: getTokenProfit({
-              ...d,
-              price: getTokenPrice(d, tokenData),
-            }),
-            rate: Math.abs(Number(d.movement) / Number(d.amount)),
-            token: d.token,
-            address: d.address,
-            cost: Number(d.cost),
-            price: getTokenPrice(d, tokenData),
-          }))
-          .sort((a, b) => b.date.getTime() - a.date.getTime()),
-      );
-    },
-    [user, setTransactions],
-  );
-
   const isLoading = useRef(false);
   useEffect(() => {
-    if (isLoading.current || !needRefresh || page !== thisPage) return;
+    if (isLoading.current || !needRefresh || page !== thisPage || !user) return;
 
     isLoading.current = true;
     setNeedRefresh(false);
@@ -147,16 +164,11 @@ export default function Transactions() {
     // First load tokens
     loadData(DataName.tokens)
       .then(tokenData => {
-        // Then load and process transactions with token data
-        loadData(DataName.transactions)
-          .then(data => processTransactions(data as Transaction[], tokenData as PortfolioToken[]))
-          .then(() => fetch('/api/database/getTransactions'))
-          .then(result => result.ok && result.json())
-          .then(data => processTransactions(data, tokenData as PortfolioToken[]));
+        loadTransactionData(tokenData as PortfolioToken[], user.id, transactions, setTransactions);
       })
       .catch(console.error)
       .finally(() => (isLoading.current = false));
-  }, [needRefresh, setNeedRefresh, page, processTransactions]);
+  }, [needRefresh, setNeedRefresh, page, setTransactions, user, transactions]);
 
   const getFilteredTransactions = useCallback(
     (
