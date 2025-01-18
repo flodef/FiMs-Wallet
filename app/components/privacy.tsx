@@ -1,5 +1,6 @@
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { Icon } from '@tremor/react';
+import { twMerge } from 'tailwind-merge';
 import { usePrivacy } from '../contexts/privacyProvider';
 
 export function toPrivacy(
@@ -23,12 +24,14 @@ export function toPrivacy(
 export type CurrencyType = 'short' | 'standard' | 'strict' | 'none';
 export type PrivacyType = 'blur' | 'star';
 export function Privacy({
+  className,
   amount,
   currencyType,
   type = 'blur',
   hideZero = false,
   currency,
 }: {
+  className?: string;
   amount: Readonly<number | undefined>;
   currencyType?: CurrencyType;
   type?: PrivacyType;
@@ -40,7 +43,7 @@ export function Privacy({
   return (
     amount !== undefined &&
     (!hideZero || amount !== 0) && (
-      <div className={hasPrivacy && type === 'blur' ? 'blur' : 'blur-none'}>
+      <div className={twMerge(className, 'whitespace-nowrap', hasPrivacy && type === 'blur' ? 'blur' : 'blur-none')}>
         {toPrivacy(amount, hasPrivacy && type === 'star', currencyType, currency)}
       </div>
     )
