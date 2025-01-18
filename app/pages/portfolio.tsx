@@ -380,16 +380,14 @@ export default function Portfolio() {
                       </TableCell>
                       <TableCell className="px-2 xs:px-4 justify-items-end">
                         <Flex vertical>
-                          <Flex className="gap-1">
+                          <Flex className="gap-1 justify-end">
                             <Privacy
                               amount={asset.balance.toDecimalPlace(asset.balance.getPrecision(), 'down')}
                               currencyType="none"
                             />
                             {asset.symbol}
                           </Flex>
-                          <div className="font-bold text-lg text-right">
-                            <Privacy amount={asset.total} />
-                          </div>
+                          <Privacy className="font-bold text-lg text-right" amount={asset.total} />
                         </Flex>
                       </TableCell>
                       <TableCell className="px-0 hidden xs:table-cell xs:px-2 sm:px-4 justify-items-center">
