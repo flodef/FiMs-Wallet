@@ -12,7 +12,7 @@ import { TokenDetails } from '../components/tokenDetails';
 import { TokenGraphs } from '../components/tokenGraphs';
 import { LoadingMetric, Title } from '../components/typography';
 import { usePrivacy } from '../contexts/privacyProvider';
-import type { UserHistoric } from '../hooks/useData';
+import type { PortfolioToken, UserHistoric } from '../hooks/useData';
 import { useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
@@ -20,6 +20,7 @@ import { FIMS, FIMS_TOKEN_PATH, SPL_TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
 import { convertedData, DataName, forceData, loadData, PortfolioData, TokenData } from '../utils/processData';
 import { Dataset } from '../utils/types';
+import { loadTransactionData } from './transactions';
 
 const t: Dataset = {
   totalValue: 'Valeur totale',
@@ -29,6 +30,7 @@ const t: Dataset = {
   tokenLogo: 'Logo du token',
   total: 'Total',
   transfered: 'Investi',
+  profit: 'Profits',
   performance: 'Performances FiMs',
   loading: 'Chargement...',
 };
@@ -53,7 +55,8 @@ export default function Portfolio() {
   const { user } = useUser();
   const { page, needRefresh, setNeedRefresh } = useNavigation();
   const { hasPrivacy } = usePrivacy();
-  const { wallet, setWallet, portfolio, setPortfolio, userHistoric, setUserHistoric } = useData();
+  const { wallet, setWallet, portfolio, setPortfolio, userHistoric, setUserHistoric, transactions, setTransactions } =
+    useData();
 
   const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -232,13 +235,41 @@ export default function Portfolio() {
                 : Promise.resolve(),
             ];
             await Promise.all(promises);
+            return tokens;
           })
-          .catch(console.error),
+          .catch(console.error)
+          .finally(() => setHasLoaded(true))
+          .finally(() => (isLoading.current = false)),
       )
-      .catch(console.error)
-      .finally(() => setHasLoaded(true))
-      .finally(() => (isLoading.current = false));
-  }, [needRefresh, setNeedRefresh, page, user, setUserHistoric, computeFiMsAssets, computeOtherAssets, userHistoric]);
+      .then(tokens => loadTransactionData(tokens as PortfolioToken[], user.id, transactions, setTransactions))
+      .catch(console.error);
+  }, [
+    needRefresh,
+    setNeedRefresh,
+    page,
+    user,
+    setUserHistoric,
+    computeFiMsAssets,
+    computeOtherAssets,
+    userHistoric,
+    transactions,
+    setTransactions,
+  ]);
+
+  const calculateTotalMovement = useCallback(
+    (symbol: string) =>
+      transactions
+        ?.filter(transaction => transaction.token === symbol)
+        .reduce((t, transaction) => t + transaction.movement, 0),
+    [transactions],
+  );
+  const calculateTotalProfit = useCallback(
+    (symbol: string) =>
+      transactions
+        ?.filter(transaction => transaction.token === symbol)
+        .reduce((t, transaction) => t + (transaction.profit ?? 0), 0),
+    [transactions],
+  );
 
   const { minHisto, maxHisto } = useMemo(() => {
     const minHisto = Math.min(
@@ -323,9 +354,32 @@ export default function Portfolio() {
                           height={50}
                         ></Image>
                       </TableCell>
-                      <TableCell className="px-2 xs:px-4 justify-items-center">
-                        <Flex className="w-full" justify="space-between">
-                          <div className="text-xl max-w-36 xs:max-w-full truncate">{asset.label}</div>
+                      <TableCell className="px-2 xs:px-4">
+                        <Flex vertical>
+                          <div className="text-xl max-w-36 md:max-w-full truncate">{asset.label}</div>
+                          <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
+                        </Flex>
+                      </TableCell>
+                      <TableCell className="px-0 hidden sm:table-cell">
+                        <Flex vertical className={calculateTotalMovement(asset.symbol) ? 'opacity-100' : 'opacity-0'}>
+                          <Flex>
+                            {t.transfered}&nbsp;:&nbsp;
+                            <Privacy className="font-bold" amount={calculateTotalMovement(asset.symbol)} />
+                          </Flex>
+                          <Flex>
+                            {t.profit}&nbsp;:&nbsp;
+                            <Privacy
+                              className={twMerge(
+                                'font-bold',
+                                (calculateTotalProfit(asset.symbol) ?? 0) >= 0 ? 'text-ok' : 'text-error',
+                              )}
+                              amount={calculateTotalProfit(asset.symbol)}
+                            />
+                          </Flex>
+                        </Flex>
+                      </TableCell>
+                      <TableCell className="px-2 xs:px-4 justify-items-end">
+                        <Flex vertical>
                           <Flex className="gap-1">
                             <Privacy
                               amount={asset.balance.toDecimalPlace(asset.balance.getPrecision(), 'down')}
@@ -333,10 +387,7 @@ export default function Portfolio() {
                             />
                             {asset.symbol}
                           </Flex>
-                        </Flex>
-                        <Flex className="w-full" justify="space-between">
-                          <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
-                          <div className="font-bold text-lg">
+                          <div className="font-bold text-lg text-right">
                             <Privacy amount={asset.total} />
                           </div>
                         </Flex>
@@ -374,18 +425,29 @@ export default function Portfolio() {
               <Table>
                 <TableBody>
                   <TableRow className="animate-pulse">
-                    <TableCell>
+                    <TableCell className="px-0 hidden 2xs:table-cell xs:px-2 sm:px-4 justify-items-center">
                       <div className="rounded-full w-[50px] h-[50px] bg-theme-border"></div>
                     </TableCell>
-                    <TableCell>
-                      <Flex justify="space-between">
-                        <div className="bg-theme-border w-24 h-7 mb-1 rounded-md"></div>
-                        <div className="bg-theme-border w-10 h-5 mb-1 rounded-md"></div>
+                    <TableCell className="px-2 xs:px-4">
+                      <Flex vertical>
+                        <div className="bg-theme-border w-36 md:w-44 h-7 mb-1 rounded-md"></div>
+                        <div className="bg-theme-border w-12 h-5 mb-1 rounded-md"></div>
                       </Flex>
-                      <Flex justify="space-between">
-                        <div className="bg-theme-border w-16 h-5 mb-1 rounded-md"></div>
-                        <div className="bg-theme-border w-24 h-7 mb-1 rounded-md"></div>
+                    </TableCell>
+                    <TableCell className="px-0 hidden sm:table-cell">
+                      <Flex vertical>
+                        <div className="bg-theme-border w-32 h-5 mb-1 rounded-md"></div>
+                        <div className="bg-theme-border w-32 h-5 mb-1 rounded-md"></div>
                       </Flex>
+                    </TableCell>
+                    <TableCell className="px-2 xs:px-4 justify-items-end">
+                      <Flex vertical>
+                        <div className="bg-theme-border w-24 h-5 mb-1 rounded-md"></div>
+                        <div className="bg-theme-border w-16 h-7 mb-1 rounded-md self-end"></div>
+                      </Flex>
+                    </TableCell>
+                    <TableCell className="px-0 hidden xs:table-cell xs:px-2 sm:px-4 justify-items-center">
+                      <div className="bg-theme-border w-8 h-8 mb-1 rounded-md"></div>
                     </TableCell>
                   </TableRow>
                 </TableBody>

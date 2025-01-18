@@ -84,15 +84,15 @@ export const getTokenRate = (transaction: Transaction) =>
 export const getTokenCurrentRate = (transaction: Transaction) =>
   getTokenRate({ ...transaction, movement: transaction.price ?? 0, amount: 1 });
 
-const getTokenPrice = (transaction: Transaction, tokenData: PortfolioToken[]) =>
-  tokenData.find(t => t.symbol === transaction.token)?.value;
+const getTokenPrice = (transaction: Transaction, tokens: PortfolioToken[]) =>
+  tokens.find(t => t.symbol === transaction.token)?.value;
 const getTokenProfit = (transaction: Transaction) =>
   transaction.cost > 0 || !transaction.token
     ? 0
     : (transaction.price ?? 0) * (transaction.amount ?? 0) - transaction.movement - transaction.cost;
 
 export const loadTransactionData = async (
-  tokenData: PortfolioToken[],
+  tokens: PortfolioToken[],
   userId: number,
   transactions: Transaction[] | undefined,
   setTransactions: (transactions: Transaction[] | undefined) => void,
@@ -111,13 +111,13 @@ export const loadTransactionData = async (
             amount: Number(d.amount),
             profit: getTokenProfit({
               ...d,
-              price: getTokenPrice(d, tokenData),
+              price: getTokenPrice(d, tokens),
             }),
             rate: Math.abs(Number(d.movement) / Number(d.amount)),
             token: d.token,
             address: d.address,
             cost: Number(d.cost),
-            price: getTokenPrice(d, tokenData),
+            price: getTokenPrice(d, tokens),
           }))
           .sort((a, b) => b.date.getTime() - a.date.getTime()),
       );
@@ -156,15 +156,15 @@ export default function Transactions() {
 
   const isLoading = useRef(false);
   useEffect(() => {
-    if (isLoading.current || !needRefresh || page !== thisPage || !user) return;
+    if (!user || isLoading.current || !needRefresh || page !== thisPage) return;
 
     isLoading.current = true;
     setNeedRefresh(false);
 
     // First load tokens
     loadData(DataName.tokens)
-      .then(tokenData => {
-        loadTransactionData(tokenData as PortfolioToken[], user.id, transactions, setTransactions);
+      .then(tokens => {
+        loadTransactionData(tokens as PortfolioToken[], user.id, transactions, setTransactions);
       })
       .catch(console.error)
       .finally(() => (isLoading.current = false));
