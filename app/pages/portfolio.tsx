@@ -8,7 +8,7 @@ import { CollapsiblePanel } from '../components/collapsiblePanel';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
 import RatioBadge from '../components/ratioBadge';
-import { TokenDetails } from '../components/tokenDetails';
+import { TokenInfo } from '../components/tokenInfo';
 import { TokenGraphs } from '../components/tokenGraphs';
 import { LoadingMetric, Title } from '../components/typography';
 import { usePrivacy } from '../contexts/privacyProvider';
@@ -406,7 +406,7 @@ export default function Portfolio() {
                           }}
                         />
                         {hasLoaded ? (
-                          <TokenDetails
+                          <TokenInfo
                             isOpen={isTokenDetailsOpen}
                             onClose={() => setIsTokenDetailsOpen(false)}
                             tokens={wallet}

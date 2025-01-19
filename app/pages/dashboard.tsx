@@ -7,7 +7,7 @@ import { BarList } from '../components/barList';
 import { CollapsiblePanel } from '../components/collapsiblePanel';
 import GainsBar from '../components/gainsBar';
 import RatioBadge from '../components/ratioBadge';
-import { TokenDetails } from '../components/tokenDetails';
+import { TokenInfo } from '../components/tokenInfo';
 import { TokenGraphs } from '../components/tokenGraphs';
 import { LoadingMetric, Subtitle, Title } from '../components/typography';
 import { DashboardToken, Historic, useData } from '../hooks/useData';
@@ -47,7 +47,7 @@ export default function Dashboard() {
   const { width } = useWindowParam();
 
   const [selectedIndex, setSelectedIndex] = useState<number>();
-  const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
+  const [isTokenInfoOpen, setIsTokenInfoOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -137,18 +137,15 @@ export default function Dashboard() {
                   valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
                 />
                 <Flex justify="end">
-                  <Flex
-                    className="gap-2 cursor-pointer hover:animate-pulse"
-                    onClick={() => setIsTokenDetailsOpen(true)}
-                  >
+                  <Flex className="gap-2 cursor-pointer hover:animate-pulse" onClick={() => setIsTokenInfoOpen(true)}>
                     <Subtitle className="text-theme-content-strong dark:text-dark-theme-content-strong">
                       {t.learnMore}
                     </Subtitle>
                     <IconChevronsRight className="text-theme-content-strong dark:text-dark-theme-content-strong" />
                   </Flex>
-                  <TokenDetails
-                    isOpen={isTokenDetailsOpen}
-                    onClose={() => setIsTokenDetailsOpen(false)}
+                  <TokenInfo
+                    isOpen={isTokenInfoOpen}
+                    onClose={() => setIsTokenInfoOpen(false)}
                     selectedIndex={selectedIndex}
                     onSelectedIndexChange={setSelectedIndex}
                     tokens={tokens}
