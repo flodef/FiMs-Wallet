@@ -30,7 +30,9 @@ const t: Dataset = {
   tokenLogo: 'Logo du token',
   total: 'Total',
   transfered: 'Investi',
-  profit: 'Profits',
+  withdrawn: 'Retiré',
+  gains: 'Gains',
+  loss: 'Pertes',
   performance: 'Performances FiMs',
   loading: 'Chargement...',
 };
@@ -260,14 +262,14 @@ export default function Portfolio() {
     (symbol: string) =>
       transactions
         ?.filter(transaction => transaction.token === symbol)
-        .reduce((t, transaction) => t + transaction.movement, 0),
+        .reduce((t, transaction) => t + transaction.movement, 0) ?? 0,
     [transactions],
   );
   const calculateTotalProfit = useCallback(
     (symbol: string) =>
       transactions
         ?.filter(transaction => transaction.token === symbol)
-        .reduce((t, transaction) => t + (transaction.profit ?? 0), 0),
+        .reduce((t, transaction) => t + (transaction.profit ?? 0), 0) ?? 0,
     [transactions],
   );
 
@@ -363,15 +365,15 @@ export default function Portfolio() {
                       <TableCell className="px-0 hidden sm:table-cell">
                         <Flex vertical className={calculateTotalMovement(asset.symbol) ? 'opacity-100' : 'opacity-0'}>
                           <Flex>
-                            {t.transfered}&nbsp;:&nbsp;
+                            {calculateTotalMovement(asset.symbol) >= 0 ? t.transfered : t.withdrawn}&nbsp;:&nbsp;
                             <Privacy className="font-bold" amount={calculateTotalMovement(asset.symbol)} />
                           </Flex>
                           <Flex>
-                            {t.profit}&nbsp;:&nbsp;
+                            {calculateTotalProfit(asset.symbol) >= 0 ? t.gains : t.loss}&nbsp;:&nbsp;
                             <Privacy
                               className={twMerge(
                                 'font-bold',
-                                (calculateTotalProfit(asset.symbol) ?? 0) >= 0 ? 'text-ok' : 'text-error',
+                                calculateTotalProfit(asset.symbol) >= 0 ? 'text-ok' : 'text-error',
                               )}
                               amount={calculateTotalProfit(asset.symbol)}
                             />

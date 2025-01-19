@@ -9,7 +9,7 @@ import { Subtitle } from './typography';
 
 const t: Dataset = {
   invested: 'Investi',
-  profits: 'Gains',
+  gains: 'Gains',
   loss: 'Pertes',
 };
 
@@ -67,7 +67,7 @@ export default function GainsBar({
           <Subtitle
             className={twMerge('flex whitespace-nowrap', !isLoaded ? (!isReady ? 'blur-sm' : 'animate-unblur') : '')}
           >
-            {isPositive ? t.profits : t.loss}&nbsp;:&nbsp;
+            {isPositive ? t.gains : t.loss}&nbsp;:&nbsp;
             {shouldUsePrivacy ? <Privacy amount={profitValue} /> : profitValue.toLocaleCurrency()}
             &nbsp;{profitRatio ? '(' + profitRatio.toRatio() + ')' : ''}
           </Subtitle>
