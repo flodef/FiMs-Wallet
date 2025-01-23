@@ -6,8 +6,10 @@ import { twMerge } from 'tailwind-merge';
 import { Transaction } from '../hooks/useData';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { Data, Dataset } from '../utils/types';
-import { Subtitle, Title } from './typography';
+import { CollapsiblePanel } from './collapsiblePanel';
 import { TokenInfo } from './tokenInfo';
+import { TransactionsTable } from './transactionsTable';
+import { Subtitle, Title } from './typography';
 
 const t: Dataset = {
   invested: 'Investi',
@@ -15,7 +17,16 @@ const t: Dataset = {
   gains: 'Gains',
   loss: 'Pertes',
   total: 'Total',
+  transactions: 'Transactions',
   learnMore: 'En savoir plus',
+  date: 'Date',
+  movement: 'Mouvement',
+  type: 'Type',
+  token: 'Tokens',
+  profit: 'Profit',
+  rate: "Taux d'échange",
+  price: 'Taux courant',
+  withdrawalCost: 'Frais de retrait',
 };
 
 interface TokenDetailsData extends Data {
@@ -23,6 +34,7 @@ interface TokenDetailsData extends Data {
   movement: number;
   profit: number;
   total: number;
+  symbol: string;
   transactions: Transaction[];
   yearlyYield: number;
   description: string;
@@ -85,6 +97,14 @@ export const TokenDetails = ({
     [data, selectedIndex, tokens],
   );
 
+  const getFilteredTransactions = useCallback(
+    (transactions?: Transaction[] | undefined) => {
+      if (!transactions || !currentToken) return [];
+      return transactions.filter(transaction => transaction.token === currentToken.symbol);
+    },
+    [currentToken],
+  );
+
   return currentToken && data.length > 0 ? (
     <Drawer
       size="large"
@@ -122,11 +142,11 @@ export const TokenDetails = ({
       <Flex vertical className="gap-4">
         <Flex justify="space-between" align="center">
           <Title>{currentToken.movement >= 0 ? t.invested : t.withdrawn}</Title>
-          <Subtitle>{currentToken.movement.toLocaleCurrency()}</Subtitle>
+          <Subtitle>{(currentToken.movement ? currentToken.movement : currentToken.total).toLocaleCurrency()}</Subtitle>
         </Flex>
         <Flex justify="space-between" align="center">
           <Title>{currentToken.profit >= 0 ? t.gains : t.loss}</Title>
-          <Subtitle type={currentToken.profit >= 0 ? 'success' : 'danger'}>
+          <Subtitle type={currentToken.profit ? (currentToken.profit > 0 ? 'success' : 'danger') : 'secondary'}>
             {currentToken.profit.toLocaleCurrency()}
           </Subtitle>
         </Flex>
@@ -134,6 +154,17 @@ export const TokenDetails = ({
           <Title>{t.total}</Title>
           <Title>{currentToken.total.toLocaleCurrency()}</Title>
         </Flex>
+        <Flex vertical justify="space-between">
+          <CollapsiblePanel
+            className="text-justify"
+            isExpanded={false}
+            hasCardStyle={false}
+            label={<Title>{t.transactions}</Title>}
+          >
+            <TransactionsTable getFilteredTransactions={getFilteredTransactions} />
+          </CollapsiblePanel>
+        </Flex>
+
         <Flex
           className="gap-2 cursor-pointer hover:animate-pulse justify-center"
           align="center"
