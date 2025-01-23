@@ -27,6 +27,9 @@ export interface Token extends TokenData {
   balance: number;
   value: number;
   total: number;
+  movement: number;
+  profit: number;
+  transactions: Transaction[];
 }
 
 export interface Historic {
