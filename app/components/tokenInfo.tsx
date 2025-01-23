@@ -97,9 +97,13 @@ export const TokenInfo = ({
 
   const changeToken = useCallback(
     (increment = true) => {
-      setTimeout(() => {
-        onSelectedIndexChange((selectedIndex + (increment ? 1 : -1)) % tokens.length);
-      }, 100); // Wait for indexChange event to be triggered
+      setTimeout(
+        () =>
+          onSelectedIndexChange(
+            ((selectedIndex || increment ? selectedIndex : tokens.length) + (increment ? 1 : -1)) % tokens.length,
+          ),
+        100,
+      ); // Wait for indexChange event to be triggered
     },
     [tokens.length, onSelectedIndexChange, selectedIndex],
   );
