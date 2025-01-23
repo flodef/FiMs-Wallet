@@ -1,13 +1,6 @@
-import {
-  IconArrowDownRight,
-  IconArrowUpRight,
-  IconExclamationCircleFilled,
-  IconHeartFilled,
-  IconSearch,
-} from '@tabler/icons-react';
+import { IconArrowDownRight, IconArrowUpRight, IconHeartFilled, IconSearch } from '@tabler/icons-react';
 import {
   Grid,
-  Icon,
   MultiSelect,
   MultiSelectItem,
   Select,
@@ -21,14 +14,11 @@ import { Card, Flex } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Privacy, PrivacyButton } from '../components/privacy';
-import SortTableHead from '../components/sortTableHead';
-import { TransactionDetails } from '../components/transactionDetails';
-import { Text, Title } from '../components/typography';
+import { TransactionsTable } from '../components/transactionsTable';
+import { Title } from '../components/typography';
 import { PortfolioToken, Transaction, TransactionType, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
-import { usePopup } from '../hooks/usePopup';
 import { useUser } from '../hooks/useUser';
-import { useIsMobile } from '../utils/mobile';
 import { convertedData, DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
 
@@ -72,7 +62,7 @@ export const getTransactionType = (transaction: Transaction | { movement: number
   const depositType = Number(transaction.cost) > 0 ? TransactionType.donation : TransactionType.deposit;
   return Number(transaction.movement) > 0 ? depositType : TransactionType.withdrawal;
 };
-const getTransactionIcon = (transaction: Transaction) => {
+export const getTransactionIcon = (transaction: Transaction) => {
   const transactionIcon = transaction.type === TransactionType.deposit ? IconArrowDownRight : IconArrowUpRight;
   return transaction.type === TransactionType.donation ? IconHeartFilled : transactionIcon;
 };
@@ -140,7 +130,6 @@ const thisPage = Page.Transactions;
 export default function Transactions() {
   const { user } = useUser();
   const { page, needRefresh, setNeedRefresh } = useNavigation();
-  const { openPopup } = usePopup();
 
   const { transactions, setTransactions } = useData();
 
@@ -172,6 +161,7 @@ export default function Transactions() {
 
   const getFilteredTransactions = useCallback(
     (
+      tx: Transaction[] | undefined = transactions,
       filters = [TransactionFilter.date, TransactionFilter.movement, TransactionFilter.type, TransactionFilter.token],
     ) => {
       const isDateSelected = (t: Transaction) =>
@@ -196,7 +186,7 @@ export default function Transactions() {
             .filter(movementFilter(filter))
             .filter(typeFilter(filter))
             .filter(tokenFilter(filter)),
-        transactions?.filter(t => (costFilter ? t.cost < 0 : true)),
+        tx?.filter(t => (costFilter ? t.cost < 0 : true)),
       );
     },
     [selectedDates, selectedMovements, selectedType, selectedToken, costFilter, transactions],
@@ -204,28 +194,34 @@ export default function Transactions() {
 
   useEffect(() => {
     setDateFilter(
-      getFilteredTransactions([TransactionFilter.movement, TransactionFilter.type, TransactionFilter.token])
+      getFilteredTransactions(transactions, [
+        TransactionFilter.movement,
+        TransactionFilter.type,
+        TransactionFilter.token,
+      ])
         ?.map(({ date }) => new Date(date).getFullYear())
         .filter((v, i, a) => a.findIndex(t => t === v) === i),
     );
     setMovementFilter(
-      getFilteredTransactions([TransactionFilter.date, TransactionFilter.type, TransactionFilter.token])
+      getFilteredTransactions(transactions, [TransactionFilter.date, TransactionFilter.type, TransactionFilter.token])
         ?.map(({ movement }) => movement.toClosestPowerOfTen())
         .filter((v, i, a) => a.findIndex(t => t === v) === i),
     );
     setTypeFilter(
-      getFilteredTransactions([TransactionFilter.date, TransactionFilter.movement, TransactionFilter.token])?.filter(
-        (v, i, a) => a.findIndex(t => t.type === v.type) === i,
-      ),
+      getFilteredTransactions(transactions, [
+        TransactionFilter.date,
+        TransactionFilter.movement,
+        TransactionFilter.token,
+      ])?.filter((v, i, a) => a.findIndex(t => t.type === v.type) === i),
     );
     setTokenFilter(
-      getFilteredTransactions([TransactionFilter.date, TransactionFilter.movement, TransactionFilter.type])?.filter(
-        (v, i, a) => a.findIndex(t => t.token === v.token) === i,
-      ),
+      getFilteredTransactions(transactions, [
+        TransactionFilter.date,
+        TransactionFilter.movement,
+        TransactionFilter.type,
+      ])?.filter((v, i, a) => a.findIndex(t => t.token === v.token) === i),
     );
-  }, [getFilteredTransactions]);
-
-  const isDesktop = !useIsMobile(1024);
+  }, [getFilteredTransactions, transactions]);
 
   return (
     <>
@@ -422,78 +418,7 @@ export default function Transactions() {
                 </Select>
               ) : null}
             </Grid>
-            <Table>
-              <SortTableHead
-                labels={[t.date, t.movement, t.type, t.token, t.profit, t.rate, t.price]}
-                table={transactions}
-                setTable={setTransactions}
-                sizes={{ xs: 4, sm: 5, md: 6, lg: 7 }}
-              />
-              <TableBody>
-                {transactions ? (
-                  getFilteredTransactions()?.map((transaction, index) => (
-                    <TableRow
-                      key={index}
-                      className="group hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer lg:cursor-default"
-                      onClick={
-                        !isDesktop ? () => openPopup(<TransactionDetails transaction={transaction} />) : undefined
-                      }
-                    >
-                      <TableCell>{transaction.date.toShortDate()}</TableCell>
-                      <TableCell
-                        className={twMerge('font-bold', transaction.movement >= 0 ? 'text-green-400' : 'text-red-400')}
-                      >
-                        <Flex align="center" className="flex-col sm:flex-row">
-                          <Privacy amount={transaction.movement} currencyType="strict" />
-                          {transaction.type === TransactionType.withdrawal && transaction.cost < 0 && (
-                            <Icon
-                              className="self-center"
-                              icon={IconExclamationCircleFilled}
-                              color="gray"
-                              tooltip={t.withdrawalCost + ' : ' + transaction.cost.toLocaleCurrency()}
-                            />
-                          )}
-                        </Flex>
-                      </TableCell>
-                      <TableCell>
-                        <Flex className="flex-col sm:flex-row">
-                          <Icon
-                            className="group-hover:animate-pulse"
-                            icon={getTransactionIcon(transaction)}
-                            size="lg"
-                            color={transaction.type === TransactionType.deposit ? 'green' : 'red'}
-                          />
-                          <Text className="self-center sm:ml-2">{t[TransactionType[transaction?.type ?? 0]]}</Text>
-                        </Flex>
-                      </TableCell>
-                      <TableCell className="hidden xs:table-cell">
-                        <Flex>
-                          <Privacy amount={transaction.amount} currencyType="none" hideZero />
-                          &nbsp;
-                          {transaction.token}
-                        </Flex>
-                      </TableCell>
-                      <TableCell
-                        className={twMerge(
-                          'hidden sm:table-cell font-bold',
-                          Number(transaction.profit) >= 0 ? 'text-green-400' : 'text-red-400',
-                        )}
-                      >
-                        <Privacy amount={transaction.profit} currencyType="strict" hideZero />
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">{getTokenRate(transaction)}</TableCell>
-                      <TableCell className="hidden lg:table-cell">{getTokenCurrentRate(transaction)}</TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center">
-                      {t.transactionLoading}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+            <TransactionsTable getFilteredTransactions={getFilteredTransactions} />
           </>
         ) : null}
       </Card>
