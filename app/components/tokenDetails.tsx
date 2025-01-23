@@ -1,36 +1,29 @@
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
-import { AreaChart, Tab, TabGroup, TabList } from '@tremor/react';
+import { IconChevronLeft, IconChevronRight, IconChevronsRight } from '@tabler/icons-react';
+import { Tab, TabGroup, TabList } from '@tremor/react';
 import { Drawer, Flex } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { TokenHistoric, useData } from '../hooks/useData';
+import { Transaction } from '../hooks/useData';
 import { useWindowParam } from '../hooks/useWindowParam';
-import { getCurrency, getRatio } from '../utils/functions';
 import { Data, Dataset } from '../utils/types';
-import { CollapsiblePanel } from './collapsiblePanel';
-import RatioBadge from './ratioBadge';
-import { getRisk } from './tokenGraphs';
-import { LoadingMetric, Text, Title } from './typography';
+import { Subtitle, Title } from './typography';
+import { TokenInfo } from './tokenInfo';
 
 const t: Dataset = {
-  price: 'Prix',
-  volatility: 'Volatilité',
-  risk: 'Risque',
-  yearlyYield: 'Rendement annuel',
-  description: 'Description',
-  distribution: 'Répartition',
-  creation: 'Création',
-  initPrice: 'Prix initial',
-  historic: 'Historique',
-  loading: 'Chargement...',
-  amount: 'Montant',
+  invested: 'Investi',
+  withdrawn: 'Retiré',
+  gains: 'Gains',
+  loss: 'Pertes',
+  total: 'Total',
+  learnMore: 'En savoir plus',
 };
-
-const tokenValueStart = 100;
-const today = new Date();
 
 interface TokenDetailsData extends Data {
   label: string;
+  movement: number;
+  profit: number;
+  total: number;
+  transactions: Transaction[];
   yearlyYield: number;
   description: string;
   volatility: number;
@@ -57,43 +50,14 @@ export const TokenDetails = ({
   selectedIndex = 0,
   onSelectedIndexChange,
 }: TokenDetailsProps) => {
-  const { tokenHistoric, setTokenHistoric, tokenHistoricLimit, setTokenHistoricLimit } = useData();
   const { width } = useWindowParam();
 
+  const [isTokenInfoOpen, setIsTokenInfoOpen] = useState(false);
   const [isTokenListExpanded, setIsTokenListExpanded] = useState(false);
 
   useEffect(() => {
     setIsTokenListExpanded(width > 480);
   }, [width]);
-
-  useEffect(() => {
-    let min = tokenValueStart;
-    let max = tokenValueStart;
-    const tokenHistoric: TokenHistoric[][] = [];
-    data
-      .map(({ label }) => tokens.find(t => t.label === label))
-      .forEach(token => {
-        if (!token) return;
-        const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(tokens, token.label)) / 100);
-        tokenHistoric.push([
-          {
-            date: new Date(today.getTime() - token.duration * 24 * 60 * 60 * 1000).toShortDate(),
-            Montant: tokenValueStart,
-          },
-          {
-            date: today.toShortDate(),
-            Montant: tokenValueEnd,
-          },
-        ]);
-        min = Math.min(min, tokenValueEnd);
-        max = Math.max(max, tokenValueEnd);
-      });
-    setTokenHistoric(tokenHistoric);
-    setTokenHistoricLimit({
-      min: min,
-      max: max,
-    });
-  }, [setTokenHistoric, setTokenHistoricLimit, tokens]); // eslint-disable-line
 
   const changeToken = useCallback(
     (increment = true) => {
@@ -153,10 +117,38 @@ export const TokenDetails = ({
     >
       <Flex vertical className="gap-4">
         <Flex justify="space-between" align="center">
-          <Title>{t.price}</Title>
-          <LoadingMetric isReady={tokens.length > 0}>{getCurrency(tokens, currentToken.label)}</LoadingMetric>
+          <Title>{currentToken.movement >= 0 ? t.invested : t.withdrawn}</Title>
+          <Subtitle>{currentToken.movement.toLocaleCurrency()}</Subtitle>
         </Flex>
         <Flex justify="space-between" align="center">
+          <Title>{currentToken.profit >= 0 ? t.gains : t.loss}</Title>
+          <Subtitle type={currentToken.profit >= 0 ? 'success' : 'danger'}>
+            {currentToken.profit.toLocaleCurrency()}
+          </Subtitle>
+        </Flex>
+        <Flex justify="space-between" align="center">
+          <Title>{t.total}</Title>
+          <Title>{currentToken.total.toLocaleCurrency()}</Title>
+        </Flex>
+        <Flex
+          className="gap-2 cursor-pointer hover:animate-pulse justify-center"
+          align="center"
+          onClick={() => setIsTokenInfoOpen(true)}
+        >
+          <Title>{t.learnMore}</Title>
+          <IconChevronsRight />
+          <TokenInfo
+            isOpen={isTokenInfoOpen}
+            onClose={() => setIsTokenInfoOpen(false)}
+            selectedIndex={selectedIndex}
+            onSelectedIndexChange={onSelectedIndexChange}
+            tokens={tokens}
+            data={data}
+            total={total}
+          />
+        </Flex>
+
+        {/* <Flex justify="space-between" align="center">
           <Title>{t.yearlyYield}</Title>
           <RatioBadge data={currentToken.yearlyYield} />
         </Flex>
@@ -218,7 +210,7 @@ export const TokenDetails = ({
               startEndOnly={true}
             />
           </CollapsiblePanel>
-        </Flex>
+        </Flex> */}
       </Flex>
     </Drawer>
   ) : null;
