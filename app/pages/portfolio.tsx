@@ -8,11 +8,11 @@ import { CollapsiblePanel } from '../components/collapsiblePanel';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
 import RatioBadge from '../components/ratioBadge';
-import { TokenInfo } from '../components/tokenInfo';
+import { TokenDetails } from '../components/tokenDetails';
 import { TokenGraphs } from '../components/tokenGraphs';
 import { LoadingMetric, Title } from '../components/typography';
 import { usePrivacy } from '../contexts/privacyProvider';
-import type { PortfolioToken, UserHistoric } from '../hooks/useData';
+import type { PortfolioToken, Token, UserHistoric } from '../hooks/useData';
 import { useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
@@ -133,6 +133,19 @@ export default function Portfolio() {
     p.token = tokenData.map(t => getAsset(t, combinedAssets)?.balance ?? 0).filter(b => b);
   };
 
+  const computeTransactions = useCallback(
+    (asset: Token) => {
+      const assetTransactions = transactions?.filter(transaction => transaction.token === asset.symbol) ?? [];
+      return {
+        ...asset,
+        transactions: assetTransactions,
+        movement: assetTransactions.reduce((total, transaction) => total + transaction.movement, 0),
+        profit: assetTransactions.reduce((total, transaction) => total + (transaction.profit ?? 0), 0),
+      };
+    },
+    [transactions],
+  );
+
   const computeWallet = useCallback(
     (tokenData: TokenData[], portfolio: PortfolioData, assets: Asset[] = [], isAssetsLoaded = false) => {
       return portfolio.token.length
@@ -145,12 +158,16 @@ export default function Portfolio() {
                 : SPL_TOKEN_PATH + getAsset(t, assets)?.id + '.webp',
               balance: portfolio.token[i],
               total: portfolio.token[i] * t.value,
+              movement: 0,
+              profit: 0,
+              transactions: [],
             }))
+            .map(computeTransactions)
             .filter(t => t.total.toDecimalPlace(2, 'down') > 0)
             .sort((a, b) => b.total - a.total)
         : [];
     },
-    [],
+    [computeTransactions],
   );
 
   const computeFiMsAssets = useCallback(
@@ -258,20 +275,13 @@ export default function Portfolio() {
     setTransactions,
   ]);
 
-  const calculateTotalMovement = useCallback(
-    (symbol: string) =>
-      transactions
-        ?.filter(transaction => transaction.token === symbol)
-        .reduce((t, transaction) => t + transaction.movement, 0) ?? 0,
-    [transactions],
-  );
-  const calculateTotalProfit = useCallback(
-    (symbol: string) =>
-      transactions
-        ?.filter(transaction => transaction.token === symbol)
-        .reduce((t, transaction) => t + (transaction.profit ?? 0), 0) ?? 0,
-    [transactions],
-  );
+  // Update wallet with transactions data
+  useEffect(() => {
+    if (!wallet || !transactions) return;
+
+    const updatedWallet = wallet.map(computeTransactions);
+    setWallet(updatedWallet);
+  }, [transactions]); // eslint-disable-line
 
   const { minHisto, maxHisto } = useMemo(() => {
     const minHisto = Math.min(
@@ -363,19 +373,16 @@ export default function Portfolio() {
                         </Flex>
                       </TableCell>
                       <TableCell className="px-0 hidden sm:table-cell">
-                        <Flex vertical className={calculateTotalMovement(asset.symbol) ? 'opacity-100' : 'opacity-0'}>
+                        <Flex vertical className={asset.movement ? 'opacity-100' : 'opacity-0'}>
                           <Flex>
-                            {calculateTotalMovement(asset.symbol) >= 0 ? t.transfered : t.withdrawn}&nbsp;:&nbsp;
-                            <Privacy className="font-bold" amount={calculateTotalMovement(asset.symbol)} />
+                            {asset.movement >= 0 ? t.transfered : t.withdrawn}&nbsp;:&nbsp;
+                            <Privacy className="font-bold" amount={asset.movement} />
                           </Flex>
                           <Flex>
-                            {calculateTotalProfit(asset.symbol) >= 0 ? t.gains : t.loss}&nbsp;:&nbsp;
+                            {asset.profit >= 0 ? t.gains : t.loss}&nbsp;:&nbsp;
                             <Privacy
-                              className={twMerge(
-                                'font-bold',
-                                calculateTotalProfit(asset.symbol) >= 0 ? 'text-ok' : 'text-error',
-                              )}
-                              amount={calculateTotalProfit(asset.symbol)}
+                              className={twMerge('font-bold', asset.profit >= 0 ? 'text-ok' : 'text-error')}
+                              amount={asset.profit}
                             />
                           </Flex>
                         </Flex>
@@ -406,7 +413,7 @@ export default function Portfolio() {
                           }}
                         />
                         {hasLoaded ? (
-                          <TokenInfo
+                          <TokenDetails
                             isOpen={isTokenDetailsOpen}
                             onClose={() => setIsTokenDetailsOpen(false)}
                             tokens={wallet}
