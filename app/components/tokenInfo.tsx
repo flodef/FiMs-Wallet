@@ -165,12 +165,7 @@ export const TokenInfo = ({
           <RatioBadge data={currentToken.yearlyYield} />
         </Flex>
         <Flex vertical justify="space-between">
-          <CollapsiblePanel
-            className="text-justify"
-            isExpanded={false}
-            hasCardStyle={false}
-            label={<Title>{t.description}</Title>}
-          >
+          <CollapsiblePanel className="text-justify" hasCardStyle={false} label={<Title>{t.description}</Title>}>
             <Text className="break-words whitespace-normal overflow-y-auto">{currentToken.description}</Text>
           </CollapsiblePanel>
         </Flex>

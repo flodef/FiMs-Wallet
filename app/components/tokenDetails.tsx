@@ -139,34 +139,38 @@ export const TokenDetails = ({
         </TabGroup>
       }
     >
-      <Flex vertical className="gap-4">
-        <Flex justify="space-between" align="center">
-          <Title>{currentToken.movement >= 0 ? t.invested : t.withdrawn}</Title>
-          <Subtitle>{(currentToken.movement ? currentToken.movement : currentToken.total).toLocaleCurrency()}</Subtitle>
+      <Flex vertical className="h-full">
+        <Flex vertical className="gap-4 flex-1 overflow-hidden">
+          <div className="space-y-4">
+            <Flex justify="space-between" align="center">
+              <Title>{currentToken.movement >= 0 ? t.invested : t.withdrawn}</Title>
+              <Subtitle>
+                {(currentToken.movement ? currentToken.movement : currentToken.total).toLocaleCurrency()}
+              </Subtitle>
+            </Flex>
+            <Flex justify="space-between" align="center">
+              <Title>{currentToken.profit >= 0 ? t.gains : t.loss}</Title>
+              <Subtitle type={currentToken.profit ? (currentToken.profit > 0 ? 'success' : 'danger') : 'secondary'}>
+                {currentToken.profit.toLocaleCurrency()}
+              </Subtitle>
+            </Flex>
+            <Flex justify="space-between" align="center">
+              <Title>{t.total}</Title>
+              <Title>{currentToken.total.toLocaleCurrency()}</Title>
+            </Flex>
+          </div>
+          <Flex vertical className="flex-1 overflow-auto min-h-0">
+            <CollapsiblePanel
+              className="text-justify h-full"
+              hasCardStyle={false}
+              label={<Title>{t.transactions}</Title>}
+            >
+              <TransactionsTable getFilteredTransactions={getFilteredTransactions} />
+            </CollapsiblePanel>
+          </Flex>
         </Flex>
-        <Flex justify="space-between" align="center">
-          <Title>{currentToken.profit >= 0 ? t.gains : t.loss}</Title>
-          <Subtitle type={currentToken.profit ? (currentToken.profit > 0 ? 'success' : 'danger') : 'secondary'}>
-            {currentToken.profit.toLocaleCurrency()}
-          </Subtitle>
-        </Flex>
-        <Flex justify="space-between" align="center">
-          <Title>{t.total}</Title>
-          <Title>{currentToken.total.toLocaleCurrency()}</Title>
-        </Flex>
-        <Flex vertical justify="space-between">
-          <CollapsiblePanel
-            className="text-justify"
-            isExpanded={false}
-            hasCardStyle={false}
-            label={<Title>{t.transactions}</Title>}
-          >
-            <TransactionsTable getFilteredTransactions={getFilteredTransactions} />
-          </CollapsiblePanel>
-        </Flex>
-
         <Flex
-          className="gap-2 cursor-pointer hover:animate-pulse justify-center"
+          className="gap-2 cursor-pointer hover:animate-pulse justify-center pt-2 border-t border-theme-border dark:border-dark-theme-border"
           align="center"
           onClick={() => setIsTokenInfoOpen(true)}
         >
@@ -182,70 +186,6 @@ export const TokenDetails = ({
             total={total}
           />
         </Flex>
-
-        {/* <Flex justify="space-between" align="center">
-          <Title>{t.yearlyYield}</Title>
-          <RatioBadge data={currentToken.yearlyYield} />
-        </Flex>
-        <Flex vertical justify="space-between">
-          <CollapsiblePanel
-            className="text-justify"
-            isExpanded={false}
-            hasCardStyle={false}
-            label={<Title>{t.description}</Title>}
-          >
-            <Text className="break-words whitespace-normal overflow-y-auto">{currentToken.description}</Text>
-          </CollapsiblePanel>
-        </Flex>
-        <Flex justify="space-between" align="center">
-          <Title>
-            {t.volatility} / {t.risk}
-          </Title>
-          <Text type={getRisk(currentToken.volatility).type}>
-            {currentToken.volatility.toRatio(0)} / {getRisk(currentToken.volatility).label}
-          </Text>
-        </Flex>
-        <Flex justify="space-between" align="center">
-          <Title>{t.distribution}</Title>
-          <Text>{((data.find(t => t.label === currentToken.label)?.value || 0) / total).toRatio(0)}</Text>
-        </Flex>
-        <Flex justify="space-between" align="center">
-          <Title>{t.creation}</Title>
-          <Text>{currentToken.duration.formatDuration()}</Text>
-        </Flex>
-        <Flex justify="space-between" align="center">
-          <Title>{t.initPrice}</Title>
-          <Text>{currentToken.inceptionPrice.toLocaleCurrency()}</Text>
-        </Flex>
-        <Flex vertical className="gap-4" justify="space-between">
-          <CollapsiblePanel hasCardStyle={false} label={<Title>{t.historic}</Title>}>
-            <AreaChart
-              className="h-40"
-              data={tokenHistoric[selectedIndex]}
-              categories={[t.amount]}
-              index="date"
-              colors={[
-                tokenHistoric.length &&
-                tokenHistoric[selectedIndex][0].Montant < tokenHistoric[selectedIndex][1].Montant
-                  ? 'green'
-                  : tokenHistoric.length &&
-                      tokenHistoric[selectedIndex][0].Montant > tokenHistoric[selectedIndex][1].Montant
-                    ? 'red'
-                    : 'white',
-              ]}
-              valueFormatter={number => number.toFixed(0)}
-              yAxisWidth={50}
-              showAnimation={true}
-              animationDuration={2000}
-              curveType="monotone"
-              noDataText={t.loading}
-              minValue={tokenHistoricLimit?.min ?? 0}
-              maxValue={tokenHistoricLimit?.max ?? 0}
-              showLegend={false}
-              startEndOnly={true}
-            />
-          </CollapsiblePanel>
-        </Flex> */}
       </Flex>
     </Drawer>
   ) : null;
