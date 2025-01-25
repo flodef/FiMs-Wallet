@@ -49,7 +49,7 @@ export default function VersionNotes({ versionNotes, onClose }: { versionNotes: 
           </ul>
         </Flex>
       ))}
-      <Flex className="gap-6 mt-6" justify="center" align="center">
+      <Flex className="gap-6" style={{ marginTop: 20 }} justify="center" align="center">
         <Button className="font-bold" style={{ borderRadius: 24 }} onClick={onClose}>
           {t.close}
         </Button>
