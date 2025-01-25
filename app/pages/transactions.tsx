@@ -310,7 +310,9 @@ export default function Transactions() {
                 <TableCell>{getFilteredTransactions()?.length}</TableCell>
                 <TableCell>
                   <Privacy
-                    amount={getFilteredTransactions()?.reduce((a, b) => a + b.movement + (b.profit ?? 0) + b.cost, 0)}
+                    amount={getFilteredTransactions()
+                      ?.filter(t => t.cost <= 0)
+                      .reduce((a, b) => a + b.movement + (b.profit ?? 0) + b.cost, 0)}
                   />
                 </TableCell>
               </TableRow>
