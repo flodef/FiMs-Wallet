@@ -114,10 +114,13 @@ export const TokenInfo = ({
     if (tokenIndex === -1) return [];
 
     // Extract prices for this token from all rows (excluding header)
-    return prices.slice(1).map(row => ({
-      date: row.date ?? new Date(0),
-      price: Number(row.prices[tokenIndex]),
-    }));
+    return prices
+      .slice(1)
+      .map(row => ({
+        date: row.date ?? new Date(0),
+        price: Number(row.prices[tokenIndex]),
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [prices, currentToken]);
 
   const tokenLimits = useMemo(() => {
@@ -172,11 +175,9 @@ export const TokenInfo = ({
           <Title>{t.yearlyYield}</Title>
           <RatioBadge data={currentToken.yearlyYield} />
         </Flex>
-        <Flex vertical justify="space-between">
-          <CollapsiblePanel className="text-justify" hasCardStyle={false} label={<Title>{t.description}</Title>}>
-            <Text className="break-words whitespace-normal overflow-y-auto">{currentToken.description}</Text>
-          </CollapsiblePanel>
-        </Flex>
+        <CollapsiblePanel className="text-justify" hasCardStyle={false} label={<Title>{t.description}</Title>}>
+          <Text className="break-words whitespace-normal overflow-y-auto">{currentToken.description}</Text>
+        </CollapsiblePanel>
         <Flex justify="space-between" align="center">
           <Title>
             {t.volatility} / {t.risk}
@@ -197,28 +198,24 @@ export const TokenInfo = ({
           <Title>{t.initPrice}</Title>
           <Text>{currentToken.inceptionPrice.toLocaleCurrency()}</Text>
         </Flex>
-        <Flex vertical className="gap-4" justify="space-between">
-          <CollapsiblePanel hasCardStyle={false} label={<Title>{t.historic}</Title>}>
-            <AreaChart
-              className="h-40"
-              data={tokenPrices.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())}
-              categories={['price']}
-              index="date"
-              colors={[
-                tokenLimits.min < tokenLimits.max ? 'green' : tokenLimits.min > tokenLimits.max ? 'red' : 'white',
-              ]}
-              valueFormatter={number => number.toShortCurrency()}
-              yAxisWidth={65}
-              showAnimation={true}
-              animationDuration={2000}
-              curveType="monotone"
-              noDataText={t.loading}
-              showLegend={false}
-              minValue={tokenLimits.min}
-              maxValue={tokenLimits.max}
-            />
-          </CollapsiblePanel>
-        </Flex>
+        <CollapsiblePanel hasCardStyle={false} label={<Title>{t.historic}</Title>}>
+          <AreaChart
+            className="h-40"
+            data={tokenPrices}
+            categories={['price']}
+            index="date"
+            colors={[tokenLimits.min < tokenLimits.max ? 'green' : tokenLimits.min > tokenLimits.max ? 'red' : 'white']}
+            valueFormatter={number => number.toShortCurrency()}
+            yAxisWidth={65}
+            showAnimation={true}
+            animationDuration={2000}
+            curveType="monotone"
+            noDataText={t.loading}
+            showLegend={false}
+            minValue={tokenLimits.min}
+            maxValue={tokenLimits.max}
+          />
+        </CollapsiblePanel>
       </Flex>
     </Drawer>
   ) : null;
