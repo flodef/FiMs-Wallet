@@ -120,6 +120,7 @@
 /* Custom Scrollbar */
 body::-webkit-scrollbar,
 .ant-modal-wrap::-webkit-scrollbar,
+.ant-collapse::-webkit-scrollbar,
 #popup::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -127,24 +128,28 @@ body::-webkit-scrollbar,
 
 body::-webkit-scrollbar-track,
 .ant-modal-wrap::-webkit-scrollbar-track,
+.ant-collapse::-webkit-scrollbar-track,
 #popup::-webkit-scrollbar-track {
   background: transparent;
 }
 
 body::-webkit-scrollbar-thumb,
 .ant-modal-wrap::-webkit-scrollbar-thumb,
+.ant-collapse::-webkit-scrollbar-thumb,
 #popup::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar);
 }
 
 body::-webkit-scrollbar-thumb:hover,
 .ant-modal-wrap::-webkit-scrollbar-thumb:hover,
+.ant-collapse::-webkit-scrollbar-thumb:hover,
 #popup::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbarHover);
 }
 
 body::-webkit-scrollbar-thumb:active,
 .ant-modal-wrap::-webkit-scrollbar-thumb:active,
+.ant-collapse::-webkit-scrollbar-thumb:active,
 #popup::-webkit-scrollbar-thumb:active {
   background-color: var(--text);
 }

@@ -107,7 +107,7 @@ export const TokenDetails = ({
 
   return currentToken && data.length > 0 ? (
     <Drawer
-      size="large"
+      width={850}
       open={isOpen}
       onClose={handleClose}
       onClick={e => e.stopPropagation()}
@@ -159,15 +159,13 @@ export const TokenDetails = ({
               <Title>{currentToken.total.toLocaleCurrency()}</Title>
             </Flex>
           </div>
-          <Flex vertical className="flex-1 overflow-auto min-h-0">
-            <CollapsiblePanel
-              className="text-justify h-full"
-              hasCardStyle={false}
-              label={<Title>{t.transactions}</Title>}
-            >
-              <TransactionsTable getFilteredTransactions={getFilteredTransactions} />
-            </CollapsiblePanel>
-          </Flex>
+          <CollapsiblePanel
+            className="text-justify h-full overflow-auto"
+            hasCardStyle={false}
+            label={<Title>{t.transactions}</Title>}
+          >
+            <TransactionsTable getFilteredTransactions={getFilteredTransactions} />
+          </CollapsiblePanel>
         </Flex>
         <Flex
           className="gap-2 cursor-pointer hover:animate-pulse justify-center pt-2 border-t border-theme-border dark:border-dark-theme-border"
