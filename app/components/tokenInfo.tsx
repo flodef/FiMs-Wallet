@@ -1,6 +1,6 @@
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { AreaChart, Tab, TabGroup, TabList } from '@tremor/react';
-import { Drawer, Flex } from 'antd';
+import { Drawer, Flex, Segmented } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Price, useData } from '../hooks/useData';
@@ -25,6 +25,11 @@ const t: Dataset = {
   historic: 'Historique',
   loading: 'Chargement...',
   amount: 'Montant',
+  day: 'Jour',
+  week: 'Semaine',
+  month: 'Mois',
+  quarter: 'Trimestre',
+  year: 'Année',
 };
 
 interface TokenInfoData extends Data {
@@ -59,6 +64,7 @@ export const TokenInfo = ({
   const { prices, setPrices } = useData();
 
   const [isTokenListExpanded, setIsTokenListExpanded] = useState(false);
+  const [historicalPeriod, setHistoricalPeriod] = useState(t.year);
 
   useEffect(() => {
     setIsTokenListExpanded(width > 480);
@@ -123,14 +129,28 @@ export const TokenInfo = ({
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [prices, currentToken]);
 
+  const filteredTokenPrices = useMemo(() => {
+    if (!tokenPrices.length) return [];
+
+    const dataPoints = {
+      [t.day]: 2,
+      [t.week]: 8,
+      [t.month]: 31,
+      [t.quarter]: 92,
+      [t.year]: tokenPrices.length,
+    };
+
+    return tokenPrices.slice(-dataPoints[historicalPeriod]);
+  }, [tokenPrices, historicalPeriod]);
+
   const tokenLimits = useMemo(() => {
-    if (!tokenPrices.length) return { min: 0, max: 0 };
+    if (!filteredTokenPrices.length) return { min: 0, max: 0 };
 
     return {
-      min: Math.min(...tokenPrices.map(price => price.price)),
-      max: Math.max(...tokenPrices.map(price => price.price)),
+      min: Math.min(...filteredTokenPrices.map(price => price.price)),
+      max: Math.max(...filteredTokenPrices.map(price => price.price)),
     };
-  }, [tokenPrices]);
+  }, [filteredTokenPrices]);
 
   return currentToken && data.length > 0 ? (
     <Drawer
@@ -199,22 +219,36 @@ export const TokenInfo = ({
           <Text>{currentToken.inceptionPrice.toLocaleCurrency()}</Text>
         </Flex>
         <CollapsiblePanel hasCardStyle={false} label={<Title>{t.historic}</Title>}>
-          <AreaChart
-            className="h-40"
-            data={tokenPrices}
-            categories={['price']}
-            index="date"
-            colors={[tokenLimits.min < tokenLimits.max ? 'green' : tokenLimits.min > tokenLimits.max ? 'red' : 'white']}
-            valueFormatter={number => number.toShortCurrency()}
-            yAxisWidth={65}
-            showAnimation={true}
-            animationDuration={2000}
-            curveType="monotone"
-            noDataText={t.loading}
-            showLegend={false}
-            minValue={tokenLimits.min}
-            maxValue={tokenLimits.max}
-          />
+          <Flex vertical className="gap-4">
+            <Segmented
+              className="self-center"
+              options={[t.day, t.week, t.month, t.quarter, t.year]}
+              value={historicalPeriod}
+              onChange={setHistoricalPeriod}
+            />
+            <AreaChart
+              className="h-40"
+              data={filteredTokenPrices}
+              categories={['price']}
+              index="date"
+              colors={[
+                filteredTokenPrices[0].price < filteredTokenPrices[filteredTokenPrices.length - 1].price
+                  ? 'green'
+                  : filteredTokenPrices[0].price > filteredTokenPrices[filteredTokenPrices.length - 1].price
+                    ? 'red'
+                    : 'white',
+              ]}
+              valueFormatter={number => number.toShortCurrency()}
+              yAxisWidth={65}
+              showAnimation={true}
+              animationDuration={2000}
+              curveType="monotone"
+              noDataText={t.loading}
+              showLegend={false}
+              minValue={tokenLimits.min}
+              maxValue={tokenLimits.max}
+            />
+          </Flex>
         </CollapsiblePanel>
       </Flex>
     </Drawer>
