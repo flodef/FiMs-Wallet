@@ -172,7 +172,7 @@ export default function IndexPage() {
       size="large"
       style={{
         borderRadius: 24,
-        marginLeft: !isMobile ? 16 : 0,
+        marginLeft: 16,
         marginRight: 16,
         marginTop: 12,
         marginBottom: 12,
