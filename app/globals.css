@@ -49,6 +49,11 @@
   animation: drawSegment 1s ease-out forwards;
 }
 
+.ant-modal-mask,
+.ant-modal-wrap {
+  z-index: 2000 !important;
+}
+
 .ant-tabs-content-holder {
   background-color: var(--bgSubtle) !important;
 }
