@@ -167,7 +167,7 @@ export default function Dashboard() {
                 className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
                 data={historic.sort((a, b) => a.date - b.date)}
                 categories={[t.total]}
-                index={'stringDate'}
+                index="stringDate"
                 colors={['emerald']}
                 curveType="monotone"
                 noDataText={t.loading}

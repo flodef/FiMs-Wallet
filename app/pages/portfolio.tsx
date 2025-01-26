@@ -493,7 +493,7 @@ export default function Portfolio() {
             index="stringDate"
             colors={['indigo', 'fuchsia']}
             valueFormatter={amount => toPrivacy(amount, hasPrivacy, 'short')}
-            yAxisWidth={60}
+            yAxisWidth={65}
             showAnimation={true}
             animationDuration={2000}
             curveType="monotone"

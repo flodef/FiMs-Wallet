@@ -66,7 +66,7 @@ Number.prototype.toShortCurrency = function (maxDecimals?: number, currency = 'E
     // Look for the last number followed by any whitespace and then the currency
     const match = formattedNum.match(/^(.*?\d)(\s*[^\d]+)$/);
     if (match) {
-      return match[1] + suffix + match[2];
+      return match[1] + suffix + match[2].trim();
     }
     return formattedNum + suffix;
   };
