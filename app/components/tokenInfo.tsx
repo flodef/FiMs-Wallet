@@ -1,11 +1,12 @@
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { AreaChart, Tab, TabGroup, TabList } from '@tremor/react';
 import { Drawer, Flex } from 'antd';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { TokenHistoric, useData } from '../hooks/useData';
+import { Price, useData } from '../hooks/useData';
 import { useWindowParam } from '../hooks/useWindowParam';
-import { getCurrency, getRatio } from '../utils/functions';
+import { getCurrency } from '../utils/functions';
+import { DataName, loadData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
 import { CollapsiblePanel } from './collapsiblePanel';
 import RatioBadge from './ratioBadge';
@@ -25,9 +26,6 @@ const t: Dataset = {
   loading: 'Chargement...',
   amount: 'Montant',
 };
-
-const tokenValueStart = 100;
-const today = new Date();
 
 interface TokenInfoData extends Data {
   label: string;
@@ -57,8 +55,8 @@ export const TokenInfo = ({
   selectedIndex = 0,
   onSelectedIndexChange,
 }: TokenInfoProps) => {
-  const { tokenHistoric, setTokenHistoric, tokenHistoricLimit, setTokenHistoricLimit } = useData();
   const { width } = useWindowParam();
+  const { prices, setPrices } = useData();
 
   const [isTokenListExpanded, setIsTokenListExpanded] = useState(false);
 
@@ -66,34 +64,17 @@ export const TokenInfo = ({
     setIsTokenListExpanded(width > 480);
   }, [width]);
 
+  const isLoading = useRef(false);
   useEffect(() => {
-    let min = tokenValueStart;
-    let max = tokenValueStart;
-    const tokenHistoric: TokenHistoric[][] = [];
-    data
-      .map(({ label }) => tokens.find(t => t.label === label))
-      .forEach(token => {
-        if (!token) return;
-        const tokenValueEnd = tokenValueStart * (1 + parseFloat(getRatio(tokens, token.label)) / 100);
-        tokenHistoric.push([
-          {
-            date: new Date(today.getTime() - token.duration * 24 * 60 * 60 * 1000).toShortDate(),
-            Montant: tokenValueStart,
-          },
-          {
-            date: today.toShortDate(),
-            Montant: tokenValueEnd,
-          },
-        ]);
-        min = Math.min(min, tokenValueEnd);
-        max = Math.max(max, tokenValueEnd);
-      });
-    setTokenHistoric(tokenHistoric);
-    setTokenHistoricLimit({
-      min: min,
-      max: max,
-    });
-  }, [setTokenHistoric, setTokenHistoricLimit, tokens]); // eslint-disable-line
+    if (prices || isLoading.current || !isOpen) return;
+
+    isLoading.current = true;
+
+    loadData(DataName.price)
+      .then(price => setPrices(price as Price[]))
+      .catch(console.error)
+      .finally(() => (isLoading.current = false));
+  }, [prices, setPrices, isOpen]);
 
   const changeToken = useCallback(
     (increment = true) => {
@@ -120,6 +101,33 @@ export const TokenInfo = ({
     () => tokens.find(t => t.label === data.at(selectedIndex)?.label) ?? tokens[0],
     [data, selectedIndex, tokens],
   );
+
+  const tokenPrices = useMemo(() => {
+    if (!prices || !currentToken) return [];
+
+    // Get the header row which contains token labels
+    const headerRow = prices[0].prices.map(label => String(label));
+    if (!headerRow) return [];
+
+    // Find the column index for the current token
+    const tokenIndex = headerRow.findIndex(label => label.startsWith(currentToken.label));
+    if (tokenIndex === -1) return [];
+
+    // Extract prices for this token from all rows (excluding header)
+    return prices.slice(1).map(row => ({
+      date: row.date ?? new Date(0),
+      price: Number(row.prices[tokenIndex]),
+    }));
+  }, [prices, currentToken]);
+
+  const tokenLimits = useMemo(() => {
+    if (!tokenPrices.length) return { min: 0, max: 0 };
+
+    return {
+      min: Math.min(...tokenPrices.map(price => price.price)),
+      max: Math.max(...tokenPrices.map(price => price.price)),
+    };
+  }, [tokenPrices]);
 
   return currentToken && data.length > 0 ? (
     <Drawer
@@ -193,28 +201,21 @@ export const TokenInfo = ({
           <CollapsiblePanel hasCardStyle={false} label={<Title>{t.historic}</Title>}>
             <AreaChart
               className="h-40"
-              data={tokenHistoric[selectedIndex]}
-              categories={[t.amount]}
+              data={tokenPrices.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())}
+              categories={['price']}
               index="date"
               colors={[
-                tokenHistoric.length &&
-                tokenHistoric[selectedIndex][0].Montant < tokenHistoric[selectedIndex][1].Montant
-                  ? 'green'
-                  : tokenHistoric.length &&
-                      tokenHistoric[selectedIndex][0].Montant > tokenHistoric[selectedIndex][1].Montant
-                    ? 'red'
-                    : 'white',
+                tokenLimits.min < tokenLimits.max ? 'green' : tokenLimits.min > tokenLimits.max ? 'red' : 'white',
               ]}
-              valueFormatter={number => number.toFixed(0)}
-              yAxisWidth={50}
+              valueFormatter={number => number.toShortCurrency()}
+              yAxisWidth={65}
               showAnimation={true}
               animationDuration={2000}
               curveType="monotone"
               noDataText={t.loading}
-              minValue={tokenHistoricLimit?.min ?? 0}
-              maxValue={tokenHistoricLimit?.max ?? 0}
               showLegend={false}
-              startEndOnly={true}
+              minValue={tokenLimits.min}
+              maxValue={tokenLimits.max}
             />
           </CollapsiblePanel>
         </Flex>
