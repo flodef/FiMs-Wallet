@@ -1,3 +1,9 @@
+# 1.11
+
+- **Mon compte** : ajout du montant investi et des profits (sur ordinateur seulement)
+- **Mes actifs** : ajout de details pour chaque actif (investissement, profit, transactions)
+- **Jetons** : ajout d'un graphique précis de l'historique des prix, avec un filtre de période (jour, semaine, mois, trimestre, année)
+
 # 1.10
 
 - **Ajout d'animations** : encore plus de graphiques animés
