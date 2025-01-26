@@ -6,6 +6,7 @@ import {
   DataContext,
   Historic,
   Portfolio,
+  Price,
   Token,
   TokenHistoric,
   Transaction,
@@ -33,6 +34,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // Users
   const [users, setUsers] = useState<User[]>();
   const [isPublic, setIsPublic] = useState<boolean>();
+
+  // Token
+  const [prices, setPrices] = useState<Price[]>();
 
   return (
     <DataContext.Provider
@@ -66,6 +70,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setUsers,
         isPublic,
         setIsPublic,
+
+        // Token data
+        prices,
+        setPrices,
       }}
     >
       {children}

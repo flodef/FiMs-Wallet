@@ -1,5 +1,13 @@
 import { Keypair } from '@solana/web3.js';
-import { DashboardToken, Historic, Portfolio, PortfolioToken, Transaction, UserHistoric } from '../hooks/useData';
+import {
+  DashboardToken,
+  Historic,
+  Portfolio,
+  PortfolioToken,
+  Price,
+  Transaction,
+  UserHistoric,
+} from '../hooks/useData';
 import { DBUser } from '../pages/users';
 import { Data } from './types';
 
@@ -28,12 +36,13 @@ export enum DataName {
   portfolio = 'Portfolio',
   userHistoric = 'UserHistoric',
   transactions = 'Transactions',
+  price = 'Price',
 }
 
 type extractedData = { values: string[][]; error: string };
 export type TokenData = DashboardToken & PortfolioToken;
 export type PortfolioData = Portfolio & DBUser;
-export type convertedData = Data | TokenData | Historic | PortfolioData | UserHistoric | Transaction;
+export type convertedData = Data | TokenData | Historic | PortfolioData | UserHistoric | Transaction | Price;
 
 // Set a value that return all parameters needed to process data (convertFunction, hasFilter, minColInRow, minColInHeader)
 type Parameter = {
@@ -49,6 +58,7 @@ const dataNameParameters = new Map<DataName, Parameter>([
   [DataName.portfolio, { convert: convertPortfolioData, range: 'A:O' }],
   [DataName.userHistoric, { convert: convertUserHistoricData, range: 'A:I' }],
   [DataName.transactions, { convert: convertTransactionsData, range: 'A:H' }],
+  [DataName.price, { convert: convertPriceData, range: 'A1:R368', isHeaderLess: true }],
 ]);
 
 const dataCache = new Map<DataName, { data: convertedData[]; expire: number }>();
@@ -68,9 +78,10 @@ function getNumberOfColumns(range: string): number {
 }
 
 function columnNameToNumber(columnName: string): number {
+  const letters = columnName.replace(/[0-9]/g, ''); // Remove any digits from the column name
   let number = 0;
-  for (let i = 0; i < columnName.length; i++) {
-    number = number * 26 + (columnName.charCodeAt(i) - 64);
+  for (let i = 0; i < letters.length; i++) {
+    number = number * 26 + (letters.charCodeAt(i) - 64);
   }
   return number;
 }
@@ -231,5 +242,15 @@ function convertTransactionsData(item: string[]): Transaction {
     cost: Number(item.at(5)),
     token: String(item.at(6)).trim(),
     amount: Number(item.at(7)),
+  };
+}
+
+function convertPriceData(item: string[]): Price {
+  const isHeader = item.at(0) === 'Date';
+  return {
+    date: isHeader
+      ? String(item.at(0)).trim()
+      : new Date((Number(item.at(0)) - 25569) * 86400 * 1000).toLocaleDateString(),
+    prices: item.slice(1).map(price => (isHeader ? String(price).trim() : Number(price))),
   };
 }

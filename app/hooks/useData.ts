@@ -86,6 +86,11 @@ export interface Transaction {
   profit?: number;
 }
 
+export interface Price {
+  date: string;
+  prices: (number | string)[];
+}
+
 export interface DataContextState {
   // Dashboard data
   dashboard: Data[];
@@ -118,6 +123,10 @@ export interface DataContextState {
   // Public mode
   isPublic: boolean | undefined;
   setIsPublic: (isPublic: boolean | undefined) => void;
+
+  // Token
+  prices: Price[] | undefined;
+  setPrices: (data: Price[] | undefined) => void;
 }
 
 export const DataContext = createContext<DataContextState>({} as DataContextState);
