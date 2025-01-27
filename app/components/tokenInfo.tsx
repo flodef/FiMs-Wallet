@@ -152,6 +152,14 @@ export const TokenInfo = ({
     };
   }, [filteredTokenPrices]);
 
+  const filteredTokenColor = useMemo(() => {
+    if (!filteredTokenPrices.length) return 'white';
+
+    const firstPrice = filteredTokenPrices[0].price;
+    const lastPrice = filteredTokenPrices[filteredTokenPrices.length - 1].price;
+    return firstPrice < lastPrice ? 'green' : firstPrice > lastPrice ? 'red' : 'white';
+  }, [filteredTokenPrices]);
+
   return currentToken && data.length > 0 ? (
     <Drawer
       size="large"
@@ -231,13 +239,7 @@ export const TokenInfo = ({
               data={filteredTokenPrices}
               categories={['price']}
               index="date"
-              colors={[
-                filteredTokenPrices[0].price < filteredTokenPrices[filteredTokenPrices.length - 1].price
-                  ? 'green'
-                  : filteredTokenPrices[0].price > filteredTokenPrices[filteredTokenPrices.length - 1].price
-                    ? 'red'
-                    : 'white',
-              ]}
+              colors={[filteredTokenColor]}
               valueFormatter={number => number.toShortCurrency()}
               yAxisWidth={65}
               showAnimation={true}
