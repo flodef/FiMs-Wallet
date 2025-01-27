@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@ant-design/nextjs-registry": "latest",
-    "@solana/web3.js": "latest",
     "@tabler/icons-react": "latest",
     "@tremor/react": "latest",
     "@types/js-cookie": "latest",
@@ -26,7 +25,7 @@
     "firebase": "latest",
     "js-cookie": "latest",
     "marked": "latest",
-    "next": "^15.1.6",
+    "next": "latest",
     "prop-types": "latest",
     "react": "latest",
     "react-countup": "latest",
