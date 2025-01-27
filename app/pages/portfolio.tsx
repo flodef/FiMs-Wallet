@@ -1,12 +1,13 @@
 import { AreaChart, SparkAreaChart } from '@tremor/react';
 import { Divider, Flex } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { CollapsiblePanel } from '../components/collapsiblePanel';
 import GainsBar from '../components/gainsBar';
 import { Privacy, PrivacyButton, toPrivacy } from '../components/privacy';
 import RatioBadge from '../components/ratioBadge';
 import { TokenGraphs } from '../components/tokenGraphs';
-import { TokenListItem, TokenListLoading } from '../components/tokenListItem';
+import { TokenDetailsButton, TokenListItem, TokenListLoading } from '../components/tokenListItem';
 import { LoadingMetric, Title } from '../components/typography';
 import { usePrivacy } from '../contexts/privacyProvider';
 import type { PortfolioToken, Token, UserHistoric } from '../hooks/useData';
@@ -52,6 +53,8 @@ export default function Portfolio() {
   const { hasPrivacy } = usePrivacy();
   const { wallet, setWallet, portfolio, setPortfolio, userHistoric, setUserHistoric, transactions, setTransactions } =
     useData();
+
+  const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
 
   const [hasLoaded, setHasLoaded] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>();
@@ -337,17 +340,43 @@ export default function Portfolio() {
 
             {wallet ? (
               wallet.map((asset, index) => (
-                <TokenListItem
+                <div
                   key={asset.label}
-                  asset={asset}
-                  index={index}
-                  selectedIndex={selectedIndex}
-                  hasLoaded={!!transactions}
-                  tokens={wallet}
-                  tokenDetails={tokenDetails}
-                  total={portfolio?.total ?? 0}
-                  onSelectedIndexChange={setSelectedIndex}
-                />
+                  className={twMerge(
+                    'group cursor-pointer select-none touch-none transition-colors duration-200 py-4',
+                    'flex w-full border-b-2 last:border-b-0 border-theme-border dark:border-dark-theme-border',
+                    selectedIndex === index
+                      ? 'bg-theme-background-subtle dark:bg-dark-theme-background-subtle'
+                      : 'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle [@media(hover:none)]:hover:bg-transparent [@media(hover:none)]:dark:hover:bg-transparent',
+                  )}
+                  onClick={() => setSelectedIndex(selectedIndex === index ? undefined : index)}
+                  onContextMenu={e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedIndex(index);
+                    setIsTokenDetailsOpen(true);
+                  }}
+                >
+                  <TokenListItem
+                    asset={asset}
+                    hasLoaded={!!transactions}
+                    tokens={wallet}
+                    tokenDetails={tokenDetails}
+                    total={portfolio?.total ?? 0}
+                    setIsTokenDetailsOpen={setIsTokenDetailsOpen}
+                  />
+                  <TokenDetailsButton
+                    index={index}
+                    selectedIndex={selectedIndex}
+                    hasLoaded={!!transactions}
+                    isTokenDetailsOpen={isTokenDetailsOpen}
+                    tokens={wallet}
+                    tokenDetails={tokenDetails}
+                    total={portfolio?.total ?? 0}
+                    onSelectedIndexChange={setSelectedIndex}
+                    onTokenDetailsOpenChange={setIsTokenDetailsOpen}
+                  />
+                </div>
               ))
             ) : (
               <TokenListLoading />

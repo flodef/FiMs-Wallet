@@ -1,7 +1,6 @@
 import { IconChevronsRight } from '@tabler/icons-react';
 import { Flex } from 'antd';
 import Image from 'next/image';
-import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Token } from '../hooks/useData';
 import { Data, Dataset } from '../utils/types';
@@ -18,65 +17,11 @@ const t: Dataset = {
 
 interface TokenListItemProps {
   asset: Token;
-  index: number;
-  selectedIndex?: number;
   hasLoaded: boolean;
   tokens: Token[];
   tokenDetails: Data[];
   total: number;
-  onSelectedIndexChange: (index: number | undefined) => void;
-}
-
-interface TokenDetailsButtonProps {
-  index: number;
-  selectedIndex?: number;
-  hasLoaded: boolean;
-  isTokenDetailsOpen: boolean;
-  tokens: Token[];
-  tokenDetails: Data[];
-  total: number;
-  onSelectedIndexChange: (index: number | undefined) => void;
-  onTokenDetailsOpenChange: (isOpen: boolean) => void;
-}
-
-function TokenDetailsButton({
-  index,
-  selectedIndex,
-  hasLoaded,
-  isTokenDetailsOpen,
-  tokens,
-  tokenDetails,
-  total,
-  onSelectedIndexChange,
-  onTokenDetailsOpenChange,
-}: TokenDetailsButtonProps) {
-  return (
-    <div className="hidden xs:flex items-center mx-0 xs:mx-2 md:mx-4 w-[50px] h-[50px] justify-center">
-      <IconChevronsRight
-        className={twMerge(
-          'h-8 w-8 text-theme-content-strong dark:text-dark-theme-content-strong',
-          'transition-all duration-500 group-hover:animate-pulse',
-          index === selectedIndex ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-        )}
-        onClick={e => {
-          e.stopPropagation();
-          onSelectedIndexChange(index);
-          onTokenDetailsOpenChange(true);
-        }}
-      />
-      {hasLoaded ? (
-        <TokenDetails
-          isOpen={isTokenDetailsOpen}
-          onClose={() => onTokenDetailsOpenChange(false)}
-          tokens={tokens}
-          data={tokenDetails}
-          total={total}
-          selectedIndex={selectedIndex}
-          onSelectedIndexChange={onSelectedIndexChange}
-        />
-      ) : null}
-    </div>
-  );
+  setIsTokenDetailsOpen: (isOpen: boolean) => void;
 }
 
 export function TokenListLoading() {
@@ -100,36 +45,9 @@ export function TokenListLoading() {
   );
 }
 
-export function TokenListItem({
-  asset,
-  index,
-  selectedIndex,
-  hasLoaded,
-  tokens,
-  tokenDetails,
-  total,
-  onSelectedIndexChange,
-}: TokenListItemProps) {
-  const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
-
+export function TokenListItem({ asset, hasLoaded }: TokenListItemProps) {
   return (
-    <div
-      key={asset.label}
-      className={twMerge(
-        'flex w-full border-b-2 last:border-b-0 border-theme-border dark:border-dark-theme-border',
-        'group cursor-pointer select-none touch-none transition-colors duration-200 py-4',
-        selectedIndex === index
-          ? 'bg-theme-background-subtle dark:bg-dark-theme-background-subtle'
-          : 'hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle [@media(hover:none)]:hover:bg-transparent [@media(hover:none)]:dark:hover:bg-transparent',
-      )}
-      onClick={() => onSelectedIndexChange(selectedIndex === index ? undefined : index)}
-      onContextMenu={e => {
-        e.preventDefault();
-        e.stopPropagation();
-        onSelectedIndexChange(index);
-        setIsTokenDetailsOpen(true);
-      }}
-    >
+    <div className="flex w-full">
       <Image
         className="rounded-full w-[50px] h-[50px] hidden 2xs:flex items-center mx-0 xs:mx-2 md:mx-4"
         src={asset.image}
@@ -168,17 +86,58 @@ export function TokenListItem({
         </Flex>
         <Privacy className="font-bold text-lg text-right" amount={asset.total} />
       </div>
-      <TokenDetailsButton
-        index={index}
-        selectedIndex={selectedIndex}
-        hasLoaded={hasLoaded}
-        isTokenDetailsOpen={isTokenDetailsOpen}
-        tokens={tokens}
-        tokenDetails={tokenDetails}
-        total={total}
-        onSelectedIndexChange={onSelectedIndexChange}
-        onTokenDetailsOpenChange={setIsTokenDetailsOpen}
+    </div>
+  );
+}
+
+interface TokenDetailsButtonProps {
+  index: number;
+  selectedIndex?: number;
+  hasLoaded: boolean;
+  isTokenDetailsOpen: boolean;
+  tokens: Token[];
+  tokenDetails: Data[];
+  total: number;
+  onSelectedIndexChange: (index: number | undefined) => void;
+  onTokenDetailsOpenChange: (isOpen: boolean) => void;
+}
+
+export function TokenDetailsButton({
+  index,
+  selectedIndex,
+  hasLoaded,
+  isTokenDetailsOpen,
+  tokens,
+  tokenDetails,
+  total,
+  onSelectedIndexChange,
+  onTokenDetailsOpenChange,
+}: TokenDetailsButtonProps) {
+  return (
+    <div className="hidden xs:flex self-center mx-0 xs:mx-2 md:mx-4 w-[50px] h-full justify-center">
+      <IconChevronsRight
+        className={twMerge(
+          'h-8 w-8 text-theme-content-strong dark:text-dark-theme-content-strong',
+          'transition-all duration-500 group-hover:animate-pulse',
+          index === selectedIndex ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+        )}
+        onClick={e => {
+          e.stopPropagation();
+          onSelectedIndexChange(index);
+          onTokenDetailsOpenChange(true);
+        }}
       />
+      {hasLoaded ? (
+        <TokenDetails
+          isOpen={isTokenDetailsOpen}
+          onClose={() => onTokenDetailsOpenChange(false)}
+          tokens={tokens}
+          data={tokenDetails}
+          total={total}
+          selectedIndex={selectedIndex}
+          onSelectedIndexChange={onSelectedIndexChange}
+        />
+      ) : null}
     </div>
   );
 }
