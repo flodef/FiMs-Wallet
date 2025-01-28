@@ -91,6 +91,7 @@ export function TokenListItem({ asset, hasLoaded }: TokenListItemProps) {
 }
 
 interface TokenDetailsButtonProps {
+  className?: string;
   index: number;
   selectedIndex?: number;
   hasLoaded: boolean;
@@ -103,6 +104,7 @@ interface TokenDetailsButtonProps {
 }
 
 export function TokenDetailsButton({
+  className,
   index,
   selectedIndex,
   hasLoaded,
@@ -114,12 +116,12 @@ export function TokenDetailsButton({
   onTokenDetailsOpenChange,
 }: TokenDetailsButtonProps) {
   return (
-    <div className="hidden xs:flex self-center mx-0 xs:mx-2 md:mx-4 w-[50px] h-full justify-center">
+    <div className="flex items-center self-center mx-0 xs:mx-2 md:mx-4 w-[50px] h-full justify-center">
       <IconChevronsRight
         className={twMerge(
+          className,
           'h-8 w-8 text-theme-content-strong dark:text-dark-theme-content-strong',
           'transition-all duration-500 group-hover:animate-pulse',
-          index === selectedIndex ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
         )}
         onClick={e => {
           e.stopPropagation();

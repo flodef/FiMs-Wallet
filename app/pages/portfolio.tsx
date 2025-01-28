@@ -1,6 +1,7 @@
 import { AreaChart, SparkAreaChart } from '@tremor/react';
 import { Divider, Flex } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 import { twMerge } from 'tailwind-merge';
 import { CollapsiblePanel } from '../components/collapsiblePanel';
 import GainsBar from '../components/gainsBar';
@@ -19,6 +20,8 @@ import { isMobileSize } from '../utils/mobile';
 import { convertedData, DataName, forceData, loadData, PortfolioData, TokenData } from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
 import { loadTransactionData } from './transactions';
+
+import 'swiper/css';
 
 const t: Dataset = {
   totalValue: 'Valeur totale',
@@ -54,8 +57,10 @@ export default function Portfolio() {
   const { wallet, setWallet, portfolio, setPortfolio, userHistoric, setUserHistoric, transactions, setTransactions } =
     useData();
 
-  const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
+  const [swipers, setSwipers] = useState<Record<number, SwiperClass>>({});
+  const isResettingSwipers = useRef(false);
 
+  const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>();
   const [isMobile, setIsMobile] = useState(false);
@@ -302,6 +307,21 @@ export default function Portfolio() {
     );
   }, [wallet]);
 
+  useEffect(() => {
+    if (isResettingSwipers.current) return;
+    isResettingSwipers.current = true;
+
+    Object.values(swipers).forEach(swiperInstance => {
+      if (swiperInstance.el.id !== `${wallet?.[selectedIndex ?? -1]?.label}`) {
+        swiperInstance.slideTo(0); // Reset swiper to token display
+      }
+    });
+
+    setTimeout(() => {
+      isResettingSwipers.current = false;
+    }, 100);
+  }, [selectedIndex, swipers, wallet]);
+
   return (
     <Flex vertical className="gap-4">
       <CollapsiblePanel
@@ -357,25 +377,66 @@ export default function Portfolio() {
                     setIsTokenDetailsOpen(true);
                   }}
                 >
-                  <TokenListItem
-                    asset={asset}
-                    hasLoaded={!!transactions}
-                    tokens={wallet}
-                    tokenDetails={tokenDetails}
-                    total={portfolio?.total ?? 0}
-                    setIsTokenDetailsOpen={setIsTokenDetailsOpen}
-                  />
-                  <TokenDetailsButton
-                    index={index}
-                    selectedIndex={selectedIndex}
-                    hasLoaded={!!transactions}
-                    isTokenDetailsOpen={isTokenDetailsOpen}
-                    tokens={wallet}
-                    tokenDetails={tokenDetails}
-                    total={portfolio?.total ?? 0}
-                    onSelectedIndexChange={setSelectedIndex}
-                    onTokenDetailsOpenChange={setIsTokenDetailsOpen}
-                  />
+                  {isMobileSize() ? (
+                    <Swiper
+                      id={asset.label}
+                      key={asset.label}
+                      onSwiper={swiper => setSwipers(prev => ({ ...prev, [index]: swiper }))}
+                      onSlideChange={swiper => {
+                        if (isResettingSwipers.current) return;
+                        setSelectedIndex(index);
+                        setIsTokenDetailsOpen(true);
+                        setTimeout(() => swiper.slideTo(0), 1000);
+                      }}
+                    >
+                      <SwiperSlide>
+                        <TokenListItem
+                          asset={asset}
+                          hasLoaded={!!transactions}
+                          tokens={wallet}
+                          tokenDetails={tokenDetails}
+                          total={portfolio?.total ?? 0}
+                          setIsTokenDetailsOpen={setIsTokenDetailsOpen}
+                        />
+                      </SwiperSlide>
+                      <SwiperSlide>
+                        <TokenDetailsButton
+                          index={index}
+                          selectedIndex={selectedIndex}
+                          hasLoaded={!!transactions}
+                          isTokenDetailsOpen={isTokenDetailsOpen}
+                          tokens={wallet}
+                          tokenDetails={tokenDetails}
+                          total={portfolio?.total ?? 0}
+                          onSelectedIndexChange={setSelectedIndex}
+                          onTokenDetailsOpenChange={setIsTokenDetailsOpen}
+                        />
+                      </SwiperSlide>
+                    </Swiper>
+                  ) : (
+                    <>
+                      <TokenListItem
+                        asset={asset}
+                        hasLoaded={!!transactions}
+                        tokens={wallet}
+                        tokenDetails={tokenDetails}
+                        total={portfolio?.total ?? 0}
+                        setIsTokenDetailsOpen={setIsTokenDetailsOpen}
+                      />
+                      <TokenDetailsButton
+                        className={index === selectedIndex ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                        index={index}
+                        selectedIndex={selectedIndex}
+                        hasLoaded={!!transactions}
+                        isTokenDetailsOpen={isTokenDetailsOpen}
+                        tokens={wallet}
+                        tokenDetails={tokenDetails}
+                        total={portfolio?.total ?? 0}
+                        onSelectedIndexChange={setSelectedIndex}
+                        onTokenDetailsOpenChange={setIsTokenDetailsOpen}
+                      />
+                    </>
+                  )}
                 </div>
               ))
             ) : (
