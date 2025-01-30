@@ -1,4 +1,3 @@
-import { Keypair } from '@solana/web3.js';
 import {
   DashboardToken,
   Historic,
@@ -62,15 +61,6 @@ const dataNameParameters = new Map<DataName, Parameter>([
 ]);
 
 const dataCache = new Map<DataName, { data: convertedData[]; expire: number }>();
-
-export function getPublicKey() {
-  let publicKey = localStorage.getItem('PublicKey');
-  if (!publicKey) {
-    publicKey = Keypair.generate().publicKey.toString();
-    localStorage.setItem('PublicKey', publicKey);
-  }
-  return publicKey;
-}
 
 function getNumberOfColumns(range: string): number {
   const [start, end] = range.split(':').map(columnNameToNumber);

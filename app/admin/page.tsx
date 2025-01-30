@@ -1,7 +1,7 @@
 'use client';
 
 import { IconCurrencyEuro } from '@tabler/icons-react';
-import { PublicKey } from '@solana/web3.js';
+// import { PublicKey } from '@solana/web3.js';
 import {
   Button,
   Card,
@@ -233,12 +233,13 @@ export default function AdminPage() {
       )
     )
       return false;
-    try {
-      const pubkey = new PublicKey(address);
-      return PublicKey.isOnCurve(pubkey.toBuffer());
-    } catch {
-      return false;
-    }
+    //TODO: restore that when using Solana/web3.js
+    // try {
+    //   const pubkey = new PublicKey(address);
+    //   return PublicKey.isOnCurve(pubkey.toBuffer());
+    // } catch {
+    //   return false;
+    // }
   }, [address, users, userTabIndex, userIndex]);
   const isValidTransaction = useMemo(
     () =>
