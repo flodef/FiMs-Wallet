@@ -7,6 +7,7 @@ import { Transaction } from '../hooks/useData';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { Data, Dataset } from '../utils/types';
 import { CollapsiblePanel } from './collapsiblePanel';
+import { Privacy } from './privacy';
 import { TokenInfo } from './tokenInfo';
 import { TransactionsTable } from './transactionsTable';
 import { Subtitle, Title } from './typography';
@@ -145,18 +146,20 @@ export const TokenDetails = ({
             <Flex justify="space-between" align="center">
               <Title>{currentToken.movement >= 0 ? t.invested : t.withdrawn}</Title>
               <Subtitle>
-                {(currentToken.movement ? currentToken.movement : currentToken.total).toLocaleCurrency()}
+                <Privacy amount={currentToken.movement ? currentToken.movement : currentToken.total} />
               </Subtitle>
             </Flex>
             <Flex justify="space-between" align="center">
               <Title>{currentToken.profit >= 0 ? t.gains : t.loss}</Title>
               <Subtitle type={currentToken.profit ? (currentToken.profit > 0 ? 'success' : 'danger') : 'secondary'}>
-                {currentToken.profit.toLocaleCurrency()}
+                <Privacy amount={currentToken.profit} />
               </Subtitle>
             </Flex>
             <Flex justify="space-between" align="center">
               <Title>{t.total}</Title>
-              <Title>{currentToken.total.toLocaleCurrency()}</Title>
+              <Title>
+                <Privacy amount={currentToken.total} />
+              </Title>
             </Flex>
           </div>
           <CollapsiblePanel
@@ -168,7 +171,7 @@ export const TokenDetails = ({
           </CollapsiblePanel>
         </Flex>
         <Flex
-          className="gap-2 cursor-pointer hover:animate-pulse justify-center pt-2 border-t border-theme-border dark:border-dark-theme-border"
+          className="gap-2 cursozr-pointer hover:animate-pulse justify-center pt-2 border-t border-theme-border dark:border-dark-theme-border"
           align="center"
           onClick={() => setIsTokenInfoOpen(true)}
         >

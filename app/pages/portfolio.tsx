@@ -312,7 +312,7 @@ export default function Portfolio() {
     isResettingSwipers.current = true;
 
     Object.values(swipers).forEach(swiperInstance => {
-      if (swiperInstance.el && swiperInstance.el.id !== `${wallet?.[selectedIndex ?? -1]?.label}`) {
+      if (swiperInstance.el?.id !== `${wallet?.[selectedIndex ?? -1]?.label}`) {
         swiperInstance.slideTo(0); // Reset swiper to token display
       }
     });
