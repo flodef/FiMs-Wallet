@@ -3,6 +3,7 @@ import { Flex } from 'antd';
 import Image from 'next/image';
 import { twMerge } from 'tailwind-merge';
 import { Token } from '../hooks/useData';
+import { FIMS } from '../utils/constants';
 import { Data, Dataset } from '../utils/types';
 import { Privacy } from './privacy';
 import { TokenDetails } from './tokenDetails';
@@ -59,26 +60,28 @@ export function TokenListItem({ asset, hasLoaded }: TokenListItemProps) {
         <div className="text-xl truncate">{asset.label}</div>
         <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
       </div>
-      {hasLoaded ? (
-        <div className={twMerge('hidden sm:flex flex-col w-32', asset.movement ? 'opacity-100' : 'opacity-0')}>
-          <Flex>
-            {asset.movement >= 0 ? t.transfered : t.withdrawn}&nbsp;:&nbsp;
-            <Privacy className="font-bold" amount={asset.movement} />
-          </Flex>
-          <Flex>
-            {asset.profit >= 0 ? t.gains : t.loss}&nbsp;:&nbsp;
-            <Privacy
-              className={twMerge('font-bold', asset.profit >= 0 ? 'text-ok' : 'text-error')}
-              amount={asset.profit}
-            />
-          </Flex>
-        </div>
-      ) : (
-        <div className="hidden sm:flex flex-col w-32 animate-pulse">
-          <div className="bg-theme-border rounded-md w-32 h-5 mb-1" />
-          <div className="bg-theme-border rounded-md w-32 h-5 mb-1" />
-        </div>
-      )}
+      {asset.label.includes(FIMS) ? (
+        hasLoaded ? (
+          <div className={twMerge('hidden sm:flex flex-col w-32', asset.movement ? 'opacity-100' : 'opacity-0')}>
+            <Flex>
+              {asset.movement >= 0 ? t.transfered : t.withdrawn}&nbsp;:&nbsp;
+              <Privacy className="font-bold" amount={asset.movement} />
+            </Flex>
+            <Flex>
+              {asset.profit >= 0 ? t.gains : t.loss}&nbsp;:&nbsp;
+              <Privacy
+                className={twMerge('font-bold', asset.profit >= 0 ? 'text-ok' : 'text-error')}
+                amount={asset.profit}
+              />
+            </Flex>
+          </div>
+        ) : (
+          <div className="hidden sm:flex flex-col w-32 animate-pulse">
+            <div className="bg-theme-border rounded-md w-32 h-5 mb-1" />
+            <div className="bg-theme-border rounded-md w-32 h-5 mb-1" />
+          </div>
+        )
+      ) : null}
       <div className="flex flex-col mx-0 md:mx-2 items-end w-32 md:flex-1">
         <Flex className="gap-1 justify-end">
           <Privacy amount={asset.balance.toDecimalPlace(asset.balance.getPrecision(), 'down')} currencyType="none" />
