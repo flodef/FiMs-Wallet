@@ -363,7 +363,7 @@ export default function Portfolio() {
                 <div
                   key={asset.label}
                   className={twMerge(
-                    'group cursor-pointer select-none touch-none transition-colors duration-200 py-4',
+                    'group cursor-pointer select-none transition-colors duration-200 py-4',
                     'flex w-full border-b-2 last:border-b-0 border-theme-border dark:border-dark-theme-border',
                     selectedIndex === index
                       ? 'bg-theme-background-subtle dark:bg-dark-theme-background-subtle'
