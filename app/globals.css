@@ -117,6 +117,19 @@
   align-self: center !important;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  .ant-drawer-close:hover {
+    background-color: transparent !important;
+    color: rgba(0, 0, 0, 0.45) !important;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .ant-drawer-close:hover {
+      color: rgba(255, 255, 255, 0.45) !important;
+    }
+  }
+}
+
 /* Custom Scrollbar */
 body::-webkit-scrollbar,
 .ant-modal-wrap::-webkit-scrollbar,
