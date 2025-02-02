@@ -160,7 +160,9 @@ export default function AdminPage() {
       setMovement(Number(transaction.movement));
       setTokenAmount(Number(transaction.amount ?? 0));
       setTokenPrice(
-        Number(transaction.amount) ? Math.abs(Number(transaction.movement) / Number(transaction.amount)) : 0,
+        Number(transaction.amount)
+          ? Math.abs((Number(transaction.movement) + Number(transaction.cost)) / Number(transaction.amount))
+          : 0,
       );
       setHasCost(Number(transaction.cost) < 0);
     } else if (!transactionTabIndex) {
@@ -552,7 +554,7 @@ export default function AdminPage() {
               (transactionType === 'withdrawal' && tokenAmount > 0)
             }
             errorMessage={`The token amount should be ${tokenAmount > 0 ? 'negative' : 'positive'}!`}
-            step={1}
+            step={0.01}
             min={-100000}
             max={100000}
             disabled={transactionTabIndex === 2}
