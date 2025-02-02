@@ -171,7 +171,7 @@ export const TokenDetails = ({
           </CollapsiblePanel>
         </Flex>
         <Flex
-          className="gap-2 cursozr-pointer hover:animate-pulse justify-center pt-2 border-t border-theme-border dark:border-dark-theme-border"
+          className="gap-2 cursor-pointer hover:animate-pulse justify-center pt-2 border-t border-theme-border dark:border-dark-theme-border"
           align="center"
           onClick={() => setIsTokenInfoOpen(true)}
         >
