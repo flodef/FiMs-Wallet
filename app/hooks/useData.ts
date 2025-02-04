@@ -64,10 +64,10 @@ export interface UserHistoric {
 }
 
 export enum TransactionType {
-  deposit,
-  withdrawal,
-  donation,
-  payment,
+  deposit = 'deposit',
+  withdrawal = 'withdrawal',
+  donation = 'donation',
+  payment = 'payment',
 }
 
 export interface Transaction {

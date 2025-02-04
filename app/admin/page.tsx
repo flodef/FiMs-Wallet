@@ -64,7 +64,7 @@ export default function AdminPage() {
   const [isPublic, setIsPublic] = useState(false);
   const [date, setDate] = useState(new Date());
   const [hasCost, setHasCost] = useState(false);
-  const [transactionType, setTransactionType] = useState(TransactionType[TransactionType.deposit]);
+  const [transactionType, setTransactionType] = useState(TransactionType.deposit);
   const [movement, setMovement] = useState(0);
   const [users, setUsers] = useState<DBUser[]>();
   const [transactions, setTransactions] = useState<Transaction[]>();
@@ -86,10 +86,7 @@ export default function AdminPage() {
   const [messageApi, contextHolder] = message.useMessage();
 
   const isFiatToken = useMemo(() => selectedToken === fiatToken, [selectedToken]);
-  const isTransactionType = useCallback(
-    (type: TransactionType) => TransactionType[transactionType as keyof typeof TransactionType] === type,
-    [transactionType],
-  );
+  const isTransactionType = useCallback((type: TransactionType) => transactionType === type, [transactionType]);
 
   const initUser = useCallback(() => {
     setName('');
@@ -501,7 +498,7 @@ export default function AdminPage() {
           <Select
             className="max-w-sm min-w-32"
             value={transactionType}
-            onValueChange={setTransactionType}
+            onValueChange={t => setTransactionType(t as TransactionType)}
             enableClear={false}
             disabled={transactionTabIndex === 2}
           >
