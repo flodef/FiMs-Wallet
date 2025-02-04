@@ -168,7 +168,7 @@ export default function Transactions() {
         selectedDates.includes(new Date(t.date).getFullYear().toString()) || !selectedDates.length;
       const isMovementSelected = (t: Transaction) =>
         selectedMovements.includes(String(t.movement.toClosestPowerOfTen())) || !selectedMovements.length;
-      const isTypeSelected = (t: Transaction) => selectedType === TransactionType[t.type ?? -1] || !selectedType;
+      const isTypeSelected = (t: Transaction) => selectedType === t.type || !selectedType;
       const isTokenSelected = (t: Transaction) => selectedToken === t.token || !selectedToken;
 
       const dateFilter = (filter: TransactionFilter) =>
@@ -224,7 +224,7 @@ export default function Transactions() {
   }, [getFilteredTransactions, transactions]);
 
   return (
-    <>
+    <Flex vertical className="gap-6">
       {transactions?.length ? (
         <Card>
           <Flex align="center">
@@ -237,42 +237,44 @@ export default function Transactions() {
               {Object.values(TransactionType)
                 .filter(v => typeof v !== 'number')
                 .map(
-                  (type, index) =>
-                    getFilteredTransactions()?.filter(t => t.type === index).length !== 0 && (
+                  type =>
+                    getFilteredTransactions()?.filter(t => t.type === type).length !== 0 && (
                       <TableRow
                         className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
                         onClick={() => {
-                          setSelectedType(TransactionType[index]);
+                          setSelectedType(type);
                           setCostFilter(false);
                         }}
                         key={type}
                       >
                         <TableCell>{t[type]}</TableCell>
-                        <TableCell>{getFilteredTransactions()?.filter(t => t.type === index).length}</TableCell>
+                        <TableCell>{getFilteredTransactions()?.filter(t => t.type === type).length}</TableCell>
                         <TableCell>
                           <Privacy
                             amount={getFilteredTransactions()
-                              ?.filter(t => t.type === index)
+                              ?.filter(t => t.type === type)
                               .reduce((a, b) => a + b.movement, 0)}
                           />
                         </TableCell>
                       </TableRow>
                     ),
                 )}
-              <TableRow className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle">
-                <TableCell>{t.profit}</TableCell>
-                <TableCell>{getFilteredTransactions()?.length}</TableCell>
-                <TableCell
-                  className={twMerge(
-                    'font-bold',
-                    (getFilteredTransactions()?.reduce((a, b) => a + (b.profit ?? 0), 0) ?? 0) >= 0
-                      ? 'text-ok'
-                      : 'text-error',
-                  )}
-                >
-                  <Privacy amount={getFilteredTransactions()?.reduce((a, b) => a + (b.profit ?? 0), 0)} />
-                </TableCell>
-              </TableRow>
+              {selectedType !== TransactionType.donation && (
+                <TableRow className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle">
+                  <TableCell>{t.profit}</TableCell>
+                  <TableCell>{getFilteredTransactions()?.length}</TableCell>
+                  <TableCell
+                    className={twMerge(
+                      'font-bold',
+                      (getFilteredTransactions()?.reduce((a, b) => a + (b.profit ?? 0), 0) ?? 0) >= 0
+                        ? 'text-ok'
+                        : 'text-error',
+                    )}
+                  >
+                    <Privacy amount={getFilteredTransactions()?.reduce((a, b) => a + (b.profit ?? 0), 0)} />
+                  </TableCell>
+                </TableRow>
+              )}
               {getFilteredTransactions()?.filter(t => t.cost < 0).length !== 0 && (
                 <TableRow
                   className="hover:bg-theme-background-subtle dark:hover:bg-dark-theme-background-subtle cursor-pointer"
@@ -311,8 +313,12 @@ export default function Transactions() {
                 <TableCell>
                   <Privacy
                     amount={getFilteredTransactions()
-                      ?.filter(t => t.cost <= 0)
-                      .reduce((a, b) => a + b.movement + (b.profit ?? 0) + b.cost, 0)}
+                      ?.filter(t => selectedType === TransactionType.donation || t.cost <= 0)
+                      .reduce(
+                        (a, b) =>
+                          a + b.movement + (b.profit ?? 0) + (selectedType !== TransactionType.donation ? b.cost : 0),
+                        0,
+                      )}
                   />
                 </TableCell>
               </TableRow>
@@ -426,6 +432,6 @@ export default function Transactions() {
           </>
         ) : null}
       </Card>
-    </>
+    </Flex>
   );
 }
