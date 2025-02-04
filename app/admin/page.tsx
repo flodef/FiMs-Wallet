@@ -42,6 +42,7 @@ const transactionCost = 0.5;
 const nameLimit: MinMax = { min: 5, max: 25 };
 const addressLimit: MinMax = { min: 32, max: 44 };
 const actions = ['Add', 'Edit', 'Delete'];
+const fiatToken = 'Euro (fiat)';
 
 const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
   if (e.target.value === '0') e.target.value = '';
@@ -83,6 +84,12 @@ export default function AdminPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   const [messageApi, contextHolder] = message.useMessage();
+
+  const isFiatToken = useMemo(() => selectedToken === fiatToken, [selectedToken]);
+  const isTransactionType = useCallback(
+    (type: TransactionType) => TransactionType[transactionType as keyof typeof TransactionType] === type,
+    [transactionType],
+  );
 
   const initUser = useCallback(() => {
     setName('');
@@ -135,9 +142,9 @@ export default function AdminPage() {
   useEffect(() => {
     if (transactions && tokens && !transactionTabIndex) {
       const token = tokens.find(token => token.symbol === selectedToken);
-      setTokenPrice(token?.value.toDecimalPlace(2, 'down') ?? 0);
+      setTokenPrice(token?.value.toDecimalPlace(4, isTransactionType(TransactionType.deposit) ? 'down' : 'up') ?? 0);
     }
-  }, [selectedToken, tokens, transactions, transactionTabIndex]);
+  }, [selectedToken, tokens, transactions, transactionTabIndex, isTransactionType]);
 
   useEffect(() => {
     const user = users?.find(user => user.id === Number(userIndex));
@@ -156,19 +163,22 @@ export default function AdminPage() {
       setDate(new Date(transaction.date));
       setTransactionAddress(transaction.address);
       setTransactionType(TransactionType[getTransactionType(transaction)]);
-      setSelectedToken(transaction.token);
-      setMovement(Number(transaction.movement));
-      setTokenAmount(Number(transaction.amount ?? 0));
+      setSelectedToken(transaction.token || fiatToken);
+      setMovement(transaction.token ? 0 : Number(transaction.movement));
+      setTokenAmount(transaction.token ? Number(transaction.amount ?? 0) : Number(transaction.movement));
       setTokenPrice(
         Number(transaction.amount)
-          ? Math.abs((Number(transaction.movement) + Number(transaction.cost)) / Number(transaction.amount))
-          : 0,
+          ? Math.abs(
+              (Number(transaction.movement) + (Number(transaction.cost) <= 0 ? Number(transaction.cost) : 0)) /
+                Number(transaction.amount),
+            ).toDecimalPlace(4, isTransactionType(TransactionType.deposit) ? 'down' : 'up')
+          : 1,
       );
       setHasCost(Number(transaction.cost) < 0);
     } else if (!transactionTabIndex) {
       initTransaction();
     }
-  }, [transactionIndex, transactions, transactionTabIndex, initTransaction]);
+  }, [transactionIndex, transactions, transactionTabIndex, initTransaction]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const filteredTransactions = transactions
@@ -203,20 +213,15 @@ export default function AdminPage() {
     }
   }, [transactionFilter, transactions, users, tokens, transactionTabIndex]);
 
-  const isTransactionType = useCallback(
-    (type: TransactionType) => TransactionType[transactionType as keyof typeof TransactionType] === type,
-    [transactionType],
-  );
-
   const getTransactionDetails = useCallback(() => {
     const value = tokenAmount * tokenPrice;
     const isDonation = isTransactionType(TransactionType.donation);
     const cost = hasCost ? -((Math.abs(value) * transactionCost) / 100).toDecimalPlace(2, 'down') : 0;
     return {
-      value: isDonation ? movement : value - cost,
-      cost: isDonation ? movement : cost,
+      value: value - cost,
+      cost: isDonation ? (isFiatToken ? movement : value) : cost,
     };
-  }, [hasCost, isTransactionType, tokenAmount, tokenPrice, movement]);
+  }, [hasCost, isTransactionType, tokenAmount, tokenPrice, movement, isFiatToken]);
 
   const isValidName = useMemo(
     () =>
@@ -235,6 +240,8 @@ export default function AdminPage() {
       )
     )
       return false;
+
+    return true;
     //TODO: restore that when using Solana/web3.js
     // try {
     //   const pubkey = new PublicKey(address);
@@ -245,7 +252,6 @@ export default function AdminPage() {
   }, [address, users, userTabIndex, userIndex]);
   const isValidTransaction = useMemo(
     () =>
-      getTransactionDetails().value &&
       transactionAddress &&
       getTransactionDetails().value * tokenAmount >= 0 &&
       ((!!tokenPrice && !!tokenAmount) || (!tokenPrice && !tokenAmount)) &&
@@ -292,7 +298,6 @@ export default function AdminPage() {
     const action = actions[transactionTabIndex].toLowerCase();
 
     const { value, cost } = getTransactionDetails();
-    const isDonation = isTransactionType(TransactionType.donation);
 
     fetch(`/api/database/${action}Transaction`, {
       method: 'POST',
@@ -302,8 +307,8 @@ export default function AdminPage() {
         movement: value.toFixed(2),
         cost: cost,
         userId: users?.find(user => user.address === transactionAddress)?.id,
-        token: !isDonation ? selectedToken : '',
-        amount: !isDonation ? tokenAmount : 0,
+        token: selectedToken,
+        amount: tokenAmount,
         id: transactionIndex,
       }),
     })
@@ -508,25 +513,8 @@ export default function AdminPage() {
                 </SelectItem>
               ))}
           </Select>
-          <NumberInput
-            className={twMerge('max-w-sm min-w-32', isTransactionType(TransactionType.donation) ? 'visible' : 'hidden')}
-            value={movement}
-            onValueChange={setMovement}
-            onFocus={handleFocus}
-            placeholder="Movement"
-            error={isTransactionType(TransactionType.donation) && movement <= 0}
-            errorMessage={`The movement should be positive!`}
-            icon={IconCurrencyEuro}
-            step={1}
-            min={0}
-            max={100000}
-            disabled={transactionTabIndex === 2}
-          />
           <Select
-            className={twMerge(
-              'max-w-sm min-w-32',
-              !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden',
-            )}
+            className={'max-w-sm min-w-32'}
             value={selectedToken}
             onValueChange={setSelectedToken}
             enableClear={false}
@@ -534,17 +522,28 @@ export default function AdminPage() {
             error={(!!tokenAmount || !!tokenPrice) && !selectedToken}
             errorMessage="The token should be set!"
           >
-            {tokens?.map(({ symbol }) => (
+            {[{ symbol: fiatToken }].concat(tokens ? tokens : []).map(({ symbol }) => (
               <SelectItem key={symbol} value={symbol}>
                 {symbol.toFirstUpperCase()}
               </SelectItem>
             ))}
           </Select>
           <NumberInput
-            className={twMerge(
-              'max-w-sm min-w-32',
-              !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden',
-            )}
+            className={twMerge('max-w-sm min-w-32', isFiatToken ? 'visible' : 'hidden')}
+            value={movement.toFixed(2)}
+            onValueChange={setMovement}
+            onFocus={handleFocus}
+            placeholder="Movement"
+            error={isTransactionType(TransactionType.donation) && movement <= 0 && isFiatToken}
+            errorMessage={`The movement should be positive!`}
+            icon={IconCurrencyEuro}
+            step={0.01}
+            min={0}
+            max={100000}
+            disabled={transactionTabIndex === 2}
+          />
+          <NumberInput
+            className={twMerge('max-w-sm min-w-32', !isFiatToken ? 'visible' : 'hidden')}
             value={tokenAmount}
             onValueChange={setTokenAmount}
             onFocus={handleFocus}
@@ -560,11 +559,8 @@ export default function AdminPage() {
             disabled={transactionTabIndex === 2}
           />
           <NumberInput
-            className={twMerge(
-              'max-w-sm min-w-32',
-              !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden',
-            )}
-            value={tokenPrice.toFixed(3)}
+            className={twMerge('max-w-sm min-w-32', !isFiatToken ? 'visible' : 'hidden')}
+            value={tokenPrice}
             onValueChange={setTokenPrice}
             onFocus={handleFocus}
             placeholder="Token Price"
@@ -573,13 +569,13 @@ export default function AdminPage() {
             min={0}
             max={10000}
             disabled={transactionTabIndex === 2}
-            error={(!!tokenAmount && !tokenPrice) || (!tokenAmount && !!tokenPrice)}
+            error={((!!tokenAmount && !tokenPrice) || (!tokenAmount && !!tokenPrice)) && !isFiatToken}
             errorMessage="The token price / amount should be set!"
           />
           <Flex
             className={twMerge(
               'max-w-sm min-w-32 space-x-2',
-              !isTransactionType(TransactionType.donation) ? 'visible' : 'hidden',
+              isTransactionType(TransactionType.withdrawal) ? 'visible' : 'hidden',
             )}
             flexDirection="row"
             justifyContent="start"
@@ -593,7 +589,7 @@ export default function AdminPage() {
             <Text>{hasCost ? `Costs ${getTransactionDetails().cost.toLocaleCurrency()}` : 'Free'}</Text>
           </Flex>
           <Title className={isValidTransaction ? 'visible' : 'hidden'}>
-            {!isNaN(getTransactionDetails().value) ? getTransactionDetails().value.toCurrency() : 'Error'}
+            {!isNaN(getTransactionDetails().value) ? getTransactionDetails().value.toLocaleCurrency() : 'Error'}
           </Title>
           <Button
             className="flex font-bold col-span-2"
