@@ -204,6 +204,8 @@ function convertPortfolioData(item: string[]): PortfolioData {
     profitRatio: Number(item.at(10)),
     yearlyYield: Number(item.at(11)),
     transferCost: Number(item.at(12)),
+    duration: Number(item.at(13)),
+    donated: Number(item.at(14)),
   };
 }
 
