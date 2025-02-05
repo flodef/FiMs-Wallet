@@ -76,7 +76,9 @@ export function TransactionsTable({ getFilteredTransactions }: TransactionsTable
                       size="lg"
                       color={transaction.type === TransactionType.deposit ? 'green' : 'red'}
                     />
-                    <Text className="self-center sm:ml-2">{t[TransactionType[transaction?.type ?? 0]]}</Text>
+                    <Text className="self-center sm:ml-2">
+                      {transaction.type ? t[TransactionType[transaction.type]] : ''}
+                    </Text>
                   </Flex>
                 </TableCell>
                 <TableCell className="hidden xs:table-cell">

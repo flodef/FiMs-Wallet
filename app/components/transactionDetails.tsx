@@ -63,7 +63,7 @@ export const TransactionDetails = ({ transaction }: { transaction: Transaction }
       align="center"
     >
       <Title className="text-center mb-2">
-        {t[TransactionType[transaction.type ?? 0]]} {t.from} {transaction.date.toShortDate()}
+        {transaction.type ? t[TransactionType[transaction.type]] + t.from : ''} {transaction.date.toShortDate()}
       </Title>
       <List
         className="max-w-xs w-full"
