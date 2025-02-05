@@ -3,7 +3,7 @@ import { Tab, TabGroup, TabList } from '@tremor/react';
 import { Drawer, Flex } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { Transaction } from '../hooks/useData';
+import { Transaction, useData } from '../hooks/useData';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { Data, Dataset } from '../utils/types';
 import { CollapsiblePanel } from './collapsiblePanel';
@@ -30,26 +30,11 @@ const t: Dataset = {
   withdrawalCost: 'Frais de retrait',
 };
 
-interface TokenDetailsData extends Data {
-  label: string;
-  movement: number;
-  profit: number;
-  total: number;
-  symbol: string;
-  transactions: Transaction[];
-  yearlyYield: number;
-  description: string;
-  volatility: number;
-  duration: number;
-  inceptionPrice: number;
-}
-
 interface TokenDetailsProps {
   isOpen: boolean;
   onClose: () => void;
   selectedIndex: number | undefined;
   onSelectedIndexChange: (index?: number) => void;
-  tokens: TokenDetailsData[];
   data: Data[];
   total: number;
 }
@@ -57,13 +42,13 @@ interface TokenDetailsProps {
 export const TokenDetails = ({
   isOpen,
   onClose,
-  tokens,
   data,
   total,
   selectedIndex = 0,
   onSelectedIndexChange,
 }: TokenDetailsProps) => {
   const { width } = useWindowParam();
+  const { wallet: tokens } = useData();
 
   const [isTokenInfoOpen, setIsTokenInfoOpen] = useState(false);
   const [isTokenListExpanded, setIsTokenListExpanded] = useState(false);
@@ -77,12 +62,13 @@ export const TokenDetails = ({
       setTimeout(
         () =>
           onSelectedIndexChange(
-            ((selectedIndex || increment ? selectedIndex : tokens.length) + (increment ? 1 : -1)) % tokens.length,
+            ((selectedIndex || increment ? selectedIndex : (tokens?.length ?? 0)) + (increment ? 1 : -1)) %
+              (tokens?.length ?? 0),
           ),
         100,
       ); // Wait for indexChange event to be triggered
     },
-    [tokens.length, onSelectedIndexChange, selectedIndex],
+    [tokens?.length, onSelectedIndexChange, selectedIndex],
   );
 
   const handleClose = useCallback(
@@ -94,7 +80,7 @@ export const TokenDetails = ({
   );
 
   const currentToken = useMemo(
-    () => tokens.find(t => t.label === data.at(selectedIndex)?.label) ?? tokens[0],
+    () => tokens?.find(t => t.label === data.at(selectedIndex)?.label),
     [data, selectedIndex, tokens],
   );
 
@@ -182,7 +168,7 @@ export const TokenDetails = ({
             onClose={() => setIsTokenInfoOpen(false)}
             selectedIndex={selectedIndex}
             onSelectedIndexChange={onSelectedIndexChange}
-            tokens={tokens}
+            tokens={tokens ?? []}
             data={data}
             total={total}
           />

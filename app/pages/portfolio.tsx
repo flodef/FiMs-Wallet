@@ -390,14 +390,7 @@ export default function Portfolio() {
                       }}
                     >
                       <SwiperSlide>
-                        <TokenListItem
-                          asset={asset}
-                          hasLoaded={!!transactions}
-                          tokens={wallet}
-                          tokenDetails={tokenDetails}
-                          total={portfolio?.total ?? 0}
-                          setIsTokenDetailsOpen={setIsTokenDetailsOpen}
-                        />
+                        <TokenListItem asset={asset} hasLoaded={!!transactions} />
                       </SwiperSlide>
                       <SwiperSlide>
                         <TokenDetailsButton
@@ -405,7 +398,6 @@ export default function Portfolio() {
                           selectedIndex={selectedIndex}
                           hasLoaded={!!transactions}
                           isTokenDetailsOpen={isTokenDetailsOpen}
-                          tokens={wallet}
                           tokenDetails={tokenDetails}
                           total={portfolio?.total ?? 0}
                           onSelectedIndexChange={setSelectedIndex}
@@ -415,21 +407,13 @@ export default function Portfolio() {
                     </Swiper>
                   ) : (
                     <>
-                      <TokenListItem
-                        asset={asset}
-                        hasLoaded={!!transactions}
-                        tokens={wallet}
-                        tokenDetails={tokenDetails}
-                        total={portfolio?.total ?? 0}
-                        setIsTokenDetailsOpen={setIsTokenDetailsOpen}
-                      />
+                      <TokenListItem asset={asset} hasLoaded={!!transactions} />
                       <TokenDetailsButton
                         className={index === selectedIndex ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
                         index={index}
                         selectedIndex={selectedIndex}
                         hasLoaded={!!transactions}
                         isTokenDetailsOpen={isTokenDetailsOpen}
-                        tokens={wallet}
                         tokenDetails={tokenDetails}
                         total={portfolio?.total ?? 0}
                         onSelectedIndexChange={setSelectedIndex}

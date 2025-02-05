@@ -19,10 +19,6 @@ const t: Dataset = {
 interface TokenListItemProps {
   asset: Token;
   hasLoaded: boolean;
-  tokens: Token[];
-  tokenDetails: Data[];
-  total: number;
-  setIsTokenDetailsOpen: (isOpen: boolean) => void;
 }
 
 export function TokenListLoading() {
@@ -99,7 +95,6 @@ interface TokenDetailsButtonProps {
   selectedIndex?: number;
   hasLoaded: boolean;
   isTokenDetailsOpen: boolean;
-  tokens: Token[];
   tokenDetails: Data[];
   total: number;
   onSelectedIndexChange: (index: number | undefined) => void;
@@ -112,7 +107,6 @@ export function TokenDetailsButton({
   selectedIndex,
   hasLoaded,
   isTokenDetailsOpen,
-  tokens,
   tokenDetails,
   total,
   onSelectedIndexChange,
@@ -136,7 +130,6 @@ export function TokenDetailsButton({
         <TokenDetails
           isOpen={isTokenDetailsOpen}
           onClose={() => onTokenDetailsOpenChange(false)}
-          tokens={tokens}
           data={tokenDetails}
           total={total}
           selectedIndex={selectedIndex}
