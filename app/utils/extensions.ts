@@ -1,7 +1,16 @@
 'use client';
 
 import { getCurrentLanguage } from './functions';
-import { MinMax, RoundingDirection, SymbolPosition } from './types';
+import { Dataset, MinMax, RoundingDirection, SymbolPosition } from './types';
+
+const t: Dataset = {
+  year: 'an',
+  years: 'ans',
+  month: 'mois',
+  months: 'mois',
+  day: 'jour',
+  days: 'jours',
+};
 
 // Extend prototype
 declare global {
@@ -15,7 +24,7 @@ declare global {
     toDecimalPlace(decimalPlace?: number, direction?: RoundingDirection): number;
     toClosestPowerOfTen(direction?: RoundingDirection): number;
     getPrecision(maxDecimals?: number): number;
-    formatDuration(): string;
+    formatDuration(prefix?: string, suffix?: string): string;
   }
   interface String {
     fromCurrency(locale?: string): number;
@@ -142,21 +151,24 @@ Number.prototype.getPrecision = function (maxDecimals = 5) {
   return Math.min(precision, maxDecimals);
 };
 
-Number.prototype.formatDuration = function () {
+Number.prototype.formatDuration = function (prefix?: string, suffix?: string) {
   const days = Number(this);
   const years = Math.floor(days / 365);
   const months = Math.floor((days % 365) / 30);
 
+  prefix = prefix ?? '';
+  suffix = suffix ?? '';
+
   if (years > 0) {
     if (months > 0) {
-      return `il y a ${years} ${years === 1 ? 'an' : 'ans'} et ${months} ${months === 1 ? 'mois' : 'mois'}`;
+      return `${prefix} ${years} ${years === 1 ? t.year : t.years} et ${months} ${months === 1 ? t.month : t.months} ${suffix}`;
     }
-    return `il y a ${years} ${years === 1 ? 'an' : 'ans'}`;
+    return `${prefix} ${years} ${years === 1 ? t.year : t.years} ${suffix}`;
   }
   if (months > 0) {
-    return `il y a ${months} ${months === 1 ? 'mois' : 'mois'}`;
+    return `${prefix} ${months} ${months === 1 ? t.month : t.months} ${suffix}`;
   }
-  return `il y a ${days} ${days === 1 ? 'jour' : 'jours'}`;
+  return `${prefix} ${days} ${days === 1 ? t.day : t.days} ${suffix}`;
 };
 
 String.prototype.fromCurrency = function (locale?: string) {

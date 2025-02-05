@@ -30,6 +30,7 @@ const t: Dataset = {
   month: 'Mois',
   quarter: 'Trimestre',
   year: 'Année',
+  ago: 'il y a',
 };
 
 interface TokenInfoData extends Data {
@@ -220,7 +221,7 @@ export const TokenInfo = ({
         </Flex>
         <Flex justify="space-between" align="center">
           <Title>{t.creation}</Title>
-          <Text>{currentToken.duration.formatDuration()}</Text>
+          <Text>{currentToken.duration.formatDuration(t.ago)}</Text>
         </Flex>
         <Flex justify="space-between" align="center">
           <Title>{t.initPrice}</Title>
