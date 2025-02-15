@@ -1,10 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLoading } from '../contexts/loadingProvider';
 
-export enum ColorScheme {
+enum ColorScheme {
   Light = 'light',
   Dark = 'dark',
 }
+
+const breakpoints = {
+  '2xs': 320,
+  xs: 480,
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+  '2xl': 1536,
+} as const;
 
 export const isWindowReady = typeof window !== 'undefined';
 
@@ -24,6 +34,19 @@ export function useWindowParam() {
   const [colorScheme, setColorScheme] = useState(ColorScheme.Light);
   const [isOnline, setIsOnline] = useState(true);
   const isReady = useMemo(() => windowSize.width > 0 && !isLoading, [windowSize.width, isLoading]);
+
+  const breakpointsReached = useMemo(
+    () => ({
+      is2xs: windowSize.width > 0 && windowSize.width <= breakpoints['2xs'],
+      isXs: windowSize.width > 0 && windowSize.width <= breakpoints.xs,
+      isSm: windowSize.width > 0 && windowSize.width <= breakpoints.sm,
+      isMd: windowSize.width > 0 && windowSize.width <= breakpoints.md,
+      isLg: windowSize.width > 0 && windowSize.width <= breakpoints.lg,
+      isXl: windowSize.width > 0 && windowSize.width <= breakpoints.xl,
+      is2xl: windowSize.width > 0 && windowSize.width <= breakpoints['2xl'],
+    }),
+    [windowSize.width],
+  );
 
   useEffect(() => {
     // only execute all the code below in client side
@@ -74,5 +97,6 @@ export function useWindowParam() {
     isDark: colorScheme === ColorScheme.Dark,
     isOnline,
     isReady,
+    breakpoints: breakpointsReached,
   };
 }
