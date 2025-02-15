@@ -239,10 +239,10 @@ function convertTransactionsData(item: string[]): Transaction {
 
 function convertPriceData(item: string[]): Price {
   const isHeader = item.at(0) === 'Date';
+  const date = isHeader ? new Date(0) : new Date((Number(item.at(0)) - 25569) * 86400 * 1000);
   return {
-    date: isHeader
-      ? String(item.at(0)).trim()
-      : new Date((Number(item.at(0)) - 25569) * 86400 * 1000).toLocaleDateString(),
+    date,
+    stringDate: date.toLocaleDateString(),
     prices: item.slice(1).map(price => (isHeader ? String(price).trim() : Number(price))),
   };
 }

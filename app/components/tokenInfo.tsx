@@ -11,7 +11,7 @@ import { Data, Dataset } from '../utils/types';
 import { CollapsiblePanel } from './collapsiblePanel';
 import RatioBadge from './ratioBadge';
 import { getRisk } from './tokenGraphs';
-import { LoadingMetric, Text, Title } from './typography';
+import { LoadingMetric, Text, TextCenter, Title } from './typography';
 
 const t: Dataset = {
   price: 'Prix',
@@ -24,6 +24,8 @@ const t: Dataset = {
   initPrice: 'Prix initial',
   historic: 'Historique',
   loading: 'Chargement...',
+  noData: 'Aucune donnée disponible',
+  unknownToken: 'Jeton inconnu',
   amount: 'Montant',
   day: 'Jour',
   week: 'Semaine',
@@ -124,10 +126,10 @@ export const TokenInfo = ({
     return prices
       .slice(1)
       .map(row => ({
-        date: row.date ?? new Date(0),
+        ...row,
         price: Number(row.prices[tokenIndex]),
       }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [prices, currentToken]);
 
   const filteredTokenPrices = useMemo(() => {
@@ -205,7 +207,13 @@ export const TokenInfo = ({
           <RatioBadge data={currentToken.yearlyYield} />
         </Flex>
         <CollapsiblePanel className="text-justify" hasCardStyle={false} label={<Title>{t.description}</Title>}>
-          <Text className="break-words whitespace-normal overflow-y-auto">{currentToken.description}</Text>
+          {currentToken.description ? (
+            <Text className="break-words whitespace-normal overflow-y-auto text-center">
+              {currentToken.description}
+            </Text>
+          ) : (
+            <TextCenter>{t.unknownToken}</TextCenter>
+          )}
         </CollapsiblePanel>
         <Flex justify="space-between" align="center">
           <Title>
@@ -228,30 +236,34 @@ export const TokenInfo = ({
           <Text>{currentToken.inceptionPrice.toLocaleCurrency()}</Text>
         </Flex>
         <CollapsiblePanel hasCardStyle={false} label={<Title>{t.historic}</Title>}>
-          <Flex vertical className="gap-4">
-            <Segmented
-              className="self-center"
-              options={[t.day, t.week, t.month, t.quarter, t.year]}
-              value={historicalPeriod}
-              onChange={setHistoricalPeriod}
-            />
-            <AreaChart
-              className="h-40"
-              data={filteredTokenPrices}
-              categories={['price']}
-              index="date"
-              colors={[filteredTokenColor]}
-              valueFormatter={number => number.toShortCurrency()}
-              yAxisWidth={65}
-              showAnimation={true}
-              animationDuration={2000}
-              curveType="monotone"
-              noDataText={t.loading}
-              showLegend={false}
-              minValue={tokenLimits.min}
-              maxValue={tokenLimits.max}
-            />
-          </Flex>
+          {!prices || filteredTokenPrices.length ? (
+            <Flex vertical className="gap-4">
+              <Segmented
+                className="self-center"
+                options={[t.day, t.week, t.month, t.quarter, t.year]}
+                value={historicalPeriod}
+                onChange={setHistoricalPeriod}
+              />
+              <AreaChart
+                className="h-40"
+                data={filteredTokenPrices}
+                categories={['price']}
+                index="stringDate"
+                colors={[filteredTokenColor]}
+                valueFormatter={number => number.toShortCurrency()}
+                yAxisWidth={65}
+                showAnimation={true}
+                animationDuration={2000}
+                curveType="monotone"
+                noDataText={t.loading}
+                showLegend={false}
+                minValue={tokenLimits.min}
+                maxValue={tokenLimits.max}
+              />
+            </Flex>
+          ) : (
+            <TextCenter>{t.noData}</TextCenter>
+          )}
         </CollapsiblePanel>
       </Flex>
     </Drawer>

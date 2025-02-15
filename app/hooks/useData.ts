@@ -87,7 +87,8 @@ export interface Transaction {
 }
 
 export interface Price {
-  date: string;
+  date: Date;
+  stringDate: string;
   prices: (number | string)[];
 }
 
