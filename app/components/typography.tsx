@@ -1,4 +1,4 @@
-import { Typography } from 'antd';
+import { Flex, Typography } from 'antd';
 import { BaseType } from 'antd/es/typography/Base';
 import { ReactNode, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -64,6 +64,14 @@ export const Text = ({ children, className, type }: TitleProps) => (
   <Typography.Text style={getTextStyle(type, className)} className={twMerge(titleClassName, className)} type={type}>
     {children}
   </Typography.Text>
+);
+
+export const TextCenter = ({ children, className, type }: TitleProps) => (
+  <Flex className="justify-center">
+    <Text className={className} type={type}>
+      {children}
+    </Text>
+  </Flex>
 );
 
 interface LoadingMetricProps {
