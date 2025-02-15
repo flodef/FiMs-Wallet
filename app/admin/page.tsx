@@ -1,7 +1,7 @@
 'use client';
 
+import { isAddress } from '@solana/web3.js';
 import { IconCurrencyEuro } from '@tabler/icons-react';
-// import { PublicKey } from '@solana/web3.js';
 import {
   Button,
   Card,
@@ -25,8 +25,10 @@ import {
   Text,
   TextInput,
 } from '@tremor/react';
+import { message } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { Title } from '../components/typography';
 import { PortfolioToken, Transaction, TransactionType } from '../hooks/useData';
 import Loading from '../loading';
 import { getTransactionType } from '../pages/transactions';
@@ -35,8 +37,6 @@ import { getShortAddress } from '../utils/constants';
 import {} from '../utils/extensions';
 import { DataName, loadData } from '../utils/processData';
 import { MinMax } from '../utils/types';
-import { message } from 'antd';
-import { Title } from '../components/typography';
 
 const transactionCost = 0.5;
 const nameLimit: MinMax = { min: 5, max: 25 };
@@ -157,12 +157,13 @@ export default function AdminPage() {
   useEffect(() => {
     const transaction = transactions?.find(transaction => transaction.id === Number(transactionIndex));
     if (!!transaction && !!transactionTabIndex) {
+      const isCryptoToken = transaction.token && transaction.token !== fiatToken;
       setDate(new Date(transaction.date));
       setTransactionAddress(transaction.address);
       setTransactionType(TransactionType[getTransactionType(transaction)]);
       setSelectedToken(transaction.token || fiatToken);
-      setMovement(transaction.token ? 0 : Number(transaction.movement));
-      setTokenAmount(transaction.token ? Number(transaction.amount ?? 0) : Number(transaction.movement));
+      setMovement(isCryptoToken ? 0 : Number(transaction.movement));
+      setTokenAmount(isCryptoToken ? Number(transaction.amount ?? 0) : Number(transaction.movement));
       setTokenPrice(
         Number(transaction.amount)
           ? Math.abs(
@@ -238,14 +239,7 @@ export default function AdminPage() {
     )
       return false;
 
-    return true;
-    //TODO: restore that when using Solana/web3.js
-    // try {
-    //   const pubkey = new PublicKey(address);
-    //   return PublicKey.isOnCurve(pubkey.toBuffer());
-    // } catch {
-    //   return false;
-    // }
+    return isAddress(address);
   }, [address, users, userTabIndex, userIndex]);
   const isValidTransaction = useMemo(
     () =>
@@ -304,7 +298,7 @@ export default function AdminPage() {
         movement: value.toFixed(2),
         cost: cost,
         userId: users?.find(user => user.address === transactionAddress)?.id,
-        token: selectedToken,
+        token: selectedToken !== fiatToken ? selectedToken : '',
         amount: tokenAmount,
         id: transactionIndex,
       }),
