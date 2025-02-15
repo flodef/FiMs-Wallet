@@ -1,12 +1,14 @@
 import { IconChevronsRight } from '@tabler/icons-react';
 import { Flex } from 'antd';
 import Image from 'next/image';
+import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Token } from '../hooks/useData';
 import { FIMS } from '../utils/constants';
 import { Data, Dataset } from '../utils/types';
 import { Privacy } from './privacy';
 import { TokenDetails } from './tokenDetails';
+import { Metric } from './typography';
 
 const t: Dataset = {
   tokenLogo: 'Logo du token',
@@ -43,15 +45,24 @@ export function TokenListLoading() {
 }
 
 export function TokenListItem({ asset, hasLoaded }: TokenListItemProps) {
+  const [hasError, setHasError] = useState(false);
+
   return (
     <div className="flex w-full">
-      <Image
-        className="rounded-full w-[50px] h-[50px] hidden 2xs:flex items-center mx-0 xs:mx-2 md:mx-4"
-        src={asset.image}
-        alt={t.tokenLogo}
-        width={50}
-        height={50}
-      />
+      <div className="rounded-full w-[50px] h-[50px] hidden 2xs:flex items-center justify-center mx-0 xs:mx-2 md:mx-4 bg-theme-muted">
+        {hasError || !asset.image ? (
+          <Metric>?</Metric>
+        ) : (
+          <Image
+            src={asset.image}
+            alt={t.tokenLogo}
+            width={50}
+            height={50}
+            className="rounded-full"
+            onError={() => setHasError(true)}
+          />
+        )}
+      </div>
       <div className="flex flex-col px-2 md:px-4 flex-1 min-w-0">
         <div className="text-xl truncate">{asset.label}</div>
         <div>{asset.value ? asset.value.toLocaleCurrency() : ''}</div>
