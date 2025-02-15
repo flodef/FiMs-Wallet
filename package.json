@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@ant-design/nextjs-registry": "latest",
+    "@solana/web3.js": "^2.0.0",
     "@tabler/icons-react": "latest",
     "@tremor/react": "latest",
     "@types/js-cookie": "latest",
@@ -59,7 +60,7 @@
     "jest-environment-jsdom": "latest",
     "postcss": "latest",
     "prettier": "latest",
-    "tailwindcss": "3.4.17",
+    "tailwindcss": "^3.4.17",
     "@tailwindcss/forms": "latest",
     "@tailwindcss/postcss": "latest",
     "ts-jest": "latest",
