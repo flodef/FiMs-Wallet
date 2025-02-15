@@ -1,7 +1,7 @@
 import { IconChevronsRight } from '@tabler/icons-react';
 import { Flex } from 'antd';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Token } from '../hooks/useData';
 import { FIMS } from '../utils/constants';
@@ -46,12 +46,52 @@ export function TokenListLoading() {
 
 export function TokenListItem({ asset, hasLoaded }: TokenListItemProps) {
   const [hasError, setHasError] = useState(false);
+  const [fallbackImage, setFallbackImage] = useState<string | null>(null);
+
+  const fetchTokenMetadata = useCallback(async (address: string) => {
+    try {
+      const response = await fetch(`https://api.jup.ag/tokens/v1/token/${address}`);
+      if (!response.ok) throw new Error('Failed to fetch token metadata');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching token metadata:', error);
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if ((hasError || !asset.image) && asset.address) {
+      const fetchImage = async () => {
+        try {
+          const metadata = await fetchTokenMetadata(asset.address);
+          if (metadata?.logoURI) {
+            setFallbackImage(metadata.logoURI);
+            setHasError(false);
+          }
+        } catch (error) {
+          console.error('Failed to fetch token metadata:', error);
+        }
+      };
+      fetchImage();
+    }
+  }, [hasError, asset.address, asset.image, fetchTokenMetadata]);
 
   return (
     <div className="flex w-full">
       <div className="rounded-full w-[50px] h-[50px] hidden 2xs:flex items-center justify-center mx-0 xs:mx-2 md:mx-4 bg-theme-muted">
-        {hasError || !asset.image ? (
-          <Metric>?</Metric>
+        {hasError || !asset.image || fallbackImage ? (
+          fallbackImage ? (
+            <Image
+              src={fallbackImage}
+              alt={t.tokenLogo}
+              width={50}
+              height={50}
+              className="rounded-full"
+              onError={() => setHasError(true)}
+            />
+          ) : (
+            <Metric>?</Metric>
+          )
         ) : (
           <Image
             src={asset.image}
