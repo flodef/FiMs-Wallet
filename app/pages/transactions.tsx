@@ -83,8 +83,9 @@ export const getTransactionIcon = (transaction: Transaction) => {
 export const getTokenLabel = (transaction: Transaction) =>
   transaction.token && `${transaction.amount} ${transaction.token}`;
 export const getTokenRate = (transaction: Transaction) =>
-  transaction.token &&
-  `1 ${transaction.token} = ${Math.abs(Number(transaction.movement) / Number(transaction.amount)).toLocaleCurrency()}`;
+  transaction.token && transaction.movement && transaction.amount
+    ? `1 ${transaction.token} = ${Math.abs(Number(transaction.movement) / Number(transaction.amount)).toLocaleCurrency()}`
+    : undefined;
 export const getTokenCurrentRate = (transaction: Transaction) =>
   getTokenRate({ ...transaction, movement: transaction.price ?? 0, amount: 1 });
 
@@ -120,8 +121,8 @@ export const loadTransactionData = async (
             rate: Math.abs(Number(d.movement) / Number(d.amount)),
             token: d.token,
             address: d.address,
-            cost: Number(d.cost),
-            price: getTokenPrice(d, tokens),
+            cost: !isDonationOrPayment(getTransactionType(d)) ? Number(d.cost) : 0,
+            price: !isDonationOrPayment(getTransactionType(d)) ? getTokenPrice(d, tokens) : 0,
           }))
           .sort((a, b) => b.date.getTime() - a.date.getTime()),
       );
