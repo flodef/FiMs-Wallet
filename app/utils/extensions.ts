@@ -43,7 +43,7 @@ declare global {
 Number.prototype.toLocaleCurrency = function (minDecimals?: number, maxDecimals?: number, currency = 'EUR') {
   const num = Number(this);
 
-  maxDecimals = this.getPrecision(maxDecimals);
+  maxDecimals = maxDecimals ?? this.getPrecision(maxDecimals);
   minDecimals = Math.min(minDecimals ?? maxDecimals, maxDecimals);
   const formatter = (curr: string) =>
     Intl.NumberFormat(getCurrentLanguage(), {
@@ -118,11 +118,10 @@ Number.prototype.toDecimalPlace = function (decimalPlace = 2, direction: Roundin
 };
 
 Number.prototype.toClosestPowerOfTen = function (direction: RoundingDirection = 'down') {
-  if (Math.abs(Number(this)) < 10) return direction === 'down' ? 0 : 1;
-
   let absNumber = Math.abs(Number(this));
-  let power = 1;
+  if (absNumber < 10) return direction === 'down' ? 0 : 1;
 
+  let power = 1;
   while (absNumber >= 100) {
     absNumber /= 10;
     power++;
