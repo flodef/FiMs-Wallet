@@ -31,11 +31,11 @@ import { twMerge } from 'tailwind-merge';
 import { Title } from '../components/typography';
 import { PortfolioToken, Transaction, TransactionType } from '../hooks/useData';
 import Loading from '../loading';
-import { getTransactionType } from '../pages/transactions';
+import { getTransactionType, isDonationOrPayment } from '../pages/transactions';
 import { DBUser } from '../pages/users';
 import { getShortAddress } from '../utils/constants';
 import {} from '../utils/extensions';
-import { DataName, loadData } from '../utils/processData';
+import { convertedData, DataName, loadData } from '../utils/processData';
 import { MinMax } from '../utils/types';
 
 const transactionCost = 0.5;
@@ -57,6 +57,8 @@ interface HeliusTransaction {
   feePayer: string;
   timestamp: number;
 }
+
+const adjustPrice = (price: number, movement: number) => price.toDecimalPlace(4, movement > 0 ? 'down' : 'up') ?? 0;
 
 export default function AdminPage() {
   const [name, setName] = useState('');
@@ -124,6 +126,20 @@ export default function AdminPage() {
       .finally(initTransaction);
   };
 
+  const storeTokens = (tokens: convertedData[]) => {
+    const tokenList = tokens as PortfolioToken[];
+
+    // Adjust token address for FiMs tokens to the one of the equivalent non-FiMs token to have more accurate prices
+    tokenList.forEach(token => {
+      if (token.symbol === 'FSOL')
+        token.address = tokenList.find(token => token.symbol === 'DSOL')?.address ?? token.address;
+      else if (token.symbol === 'FLiP')
+        token.address = tokenList.find(token => token.symbol === 'JLP')?.address ?? token.address;
+    });
+
+    setTokens(tokenList);
+  };
+
   useEffect(() => {
     if (location.hostname !== 'localhost') {
       location.href = `/`;
@@ -132,16 +148,25 @@ export default function AdminPage() {
 
     loadUsers();
     loadTransactions();
-    loadData(DataName.tokens).then(tokens => setTokens(tokens as PortfolioToken[]));
+    loadData(DataName.tokens).then(storeTokens);
     setIsAuthorized(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (transactions && tokens && !transactionTabIndex) {
-      const token = tokens.find(token => token.symbol === selectedToken);
-      setTokenPrice(token?.value.toDecimalPlace(4, isTransactionType(TransactionType.deposit) ? 'down' : 'up') ?? 0);
-    }
-  }, [selectedToken, tokens, transactions, transactionTabIndex, isTransactionType]);
+    if (!transactions || !tokens || !selectedToken || transactionTabIndex) return;
+
+    const token = tokens.find(token => token.symbol === selectedToken);
+    if (!token) return;
+
+    setTokenPrice(adjustPrice(token.value, movement));
+
+    // Fet latest data from solana api
+    const usdcRate = tokens.find(token => token.symbol.includes('USDC'))?.value ?? 1;
+    fetch(`/api/solana/getPrices?ids=${token?.address}&rate=${usdcRate}`)
+      .then(result => result.ok && result.json())
+      .then(({ data }) => data[token.address] && setTokenPrice(adjustPrice(data[token.address], movement)))
+      .catch(console.error);
+  }, [selectedToken, tokens, transactions, transactionTabIndex, movement]);
 
   useEffect(() => {
     const user = users?.find(user => user.id === Number(userIndex));
@@ -158,21 +183,20 @@ export default function AdminPage() {
     const transaction = transactions?.find(transaction => transaction.id === Number(transactionIndex));
     if (!!transaction && !!transactionTabIndex) {
       const isCryptoToken = transaction.token && transaction.token !== fiatToken;
+      const cost = Number(transaction.cost);
+      const movement = Number(transaction.movement);
+      const amount = Number(transaction.amount);
+      const transactionType = getTransactionType(transaction);
+      const isDorP = isDonationOrPayment(transactionType);
+
       setDate(new Date(transaction.date));
       setTransactionAddress(transaction.address);
-      setTransactionType(TransactionType[getTransactionType(transaction)]);
+      setTransactionType(transactionType);
       setSelectedToken(transaction.token || fiatToken);
-      setMovement(isCryptoToken ? 0 : Number(transaction.movement));
-      setTokenAmount(isCryptoToken ? Number(transaction.amount ?? 0) : Number(transaction.movement));
-      setTokenPrice(
-        Number(transaction.amount)
-          ? Math.abs(
-              (Number(transaction.movement) + (Number(transaction.cost) <= 0 ? Number(transaction.cost) : 0)) /
-                Number(transaction.amount),
-            ).toDecimalPlace(4, isTransactionType(TransactionType.deposit) ? 'down' : 'up')
-          : 1,
-      );
-      setHasCost(Number(transaction.cost) < 0);
+      setMovement(isCryptoToken ? 0 : movement);
+      setTokenAmount(isCryptoToken ? amount : movement);
+      setTokenPrice(amount ? adjustPrice(Math.abs((movement + (!isDorP ? cost : 0)) / amount), movement) : 1);
+      setHasCost(!isDorP && cost > 0);
     } else if (!transactionTabIndex) {
       initTransaction();
     }
@@ -213,13 +237,16 @@ export default function AdminPage() {
 
   const getTransactionDetails = useCallback(() => {
     const value = tokenAmount * tokenPrice;
-    const isDonation = isTransactionType(TransactionType.donation);
     const cost = hasCost ? -((Math.abs(value) * transactionCost) / 100).toDecimalPlace(2, 'down') : 0;
+
+    const totalValue = value - cost;
+    const totalCost = isDonationOrPayment(transactionType) ? (isFiatToken ? movement : value) : cost;
+
     return {
-      value: value - cost,
-      cost: isDonation ? (isFiatToken ? movement : value) : cost,
+      value: totalValue.toDecimalPlace(totalValue.getPrecision()),
+      cost: totalCost.toDecimalPlace(totalCost.getPrecision()),
     };
-  }, [hasCost, isTransactionType, tokenAmount, tokenPrice, movement, isFiatToken]);
+  }, [hasCost, transactionType, tokenAmount, tokenPrice, movement, isFiatToken]);
 
   const isValidName = useMemo(
     () =>
@@ -295,7 +322,7 @@ export default function AdminPage() {
       body: JSON.stringify({
         date: date,
         address: transactionAddress,
-        movement: value.toFixed(2),
+        movement: value,
         cost: cost,
         userId: users?.find(user => user.address === transactionAddress)?.id,
         token: selectedToken !== fiatToken ? selectedToken : '',
@@ -525,11 +552,18 @@ export default function AdminPage() {
             onValueChange={setMovement}
             onFocus={handleFocus}
             placeholder="Movement"
-            error={isTransactionType(TransactionType.donation) && movement <= 0 && isFiatToken}
-            errorMessage={`The movement should be positive!`}
+            error={
+              ((isTransactionType(TransactionType.deposit) || isTransactionType(TransactionType.donation)) &&
+                movement < 0 &&
+                isFiatToken) ||
+              ((isTransactionType(TransactionType.withdrawal) || isTransactionType(TransactionType.payment)) &&
+                movement > 0 &&
+                isFiatToken)
+            }
+            errorMessage={`The movement should be ${movement > 0 ? 'negative' : 'positive'}!`}
             icon={IconCurrencyEuro}
             step={0.01}
-            min={0}
+            min={-100000}
             max={100000}
             disabled={transactionTabIndex === 2}
           />
@@ -540,8 +574,12 @@ export default function AdminPage() {
             onFocus={handleFocus}
             placeholder="Token Amount"
             error={
-              (transactionType === 'deposit' && tokenAmount < 0) ||
-              (transactionType === 'withdrawal' && tokenAmount > 0)
+              ((isTransactionType(TransactionType.deposit) || isTransactionType(TransactionType.donation)) &&
+                tokenAmount < 0 &&
+                !isFiatToken) ||
+              ((isTransactionType(TransactionType.withdrawal) || isTransactionType(TransactionType.payment)) &&
+                tokenAmount > 0 &&
+                !isFiatToken)
             }
             errorMessage={`The token amount should be ${tokenAmount > 0 ? 'negative' : 'positive'}!`}
             step={0.01}
