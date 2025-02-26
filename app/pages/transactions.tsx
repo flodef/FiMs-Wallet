@@ -269,6 +269,7 @@ export default function Transactions() {
                             amount={getFilteredTransactions()
                               ?.filter(t => t.type === type)
                               .reduce((a, b) => a + b.movement, 0)}
+                            currencyType="strict"
                           />
                         </TableCell>
                       </TableRow>
@@ -286,7 +287,10 @@ export default function Transactions() {
                         : 'text-error',
                     )}
                   >
-                    <Privacy amount={getFilteredTransactions()?.reduce((a, b) => a + (b.profit ?? 0), 0)} />
+                    <Privacy
+                      amount={getFilteredTransactions()?.reduce((a, b) => a + (b.profit ?? 0), 0)}
+                      currencyType="strict"
+                    />
                   </TableCell>
                 </TableRow>
               )}
@@ -305,6 +309,7 @@ export default function Transactions() {
                       amount={getFilteredTransactions()
                         ?.filter(t => t.cost < 0)
                         .reduce((a, b) => a + b.cost, 0)}
+                      currencyType="strict"
                     />
                   </TableCell>
                 </TableRow>
@@ -334,6 +339,7 @@ export default function Transactions() {
                           a + b.movement + (b.profit ?? 0) + (selectedType !== TransactionType.donation ? b.cost : 0),
                         0,
                       )}
+                    currencyType="strict"
                   />
                 </TableCell>
               </TableRow>
