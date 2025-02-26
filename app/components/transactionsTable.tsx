@@ -3,6 +3,7 @@ import { Icon, Table, TableBody, TableCell, TableRow } from '@tremor/react';
 import { Flex } from 'antd';
 import { twMerge } from 'tailwind-merge';
 import { Transaction, TransactionType, useData } from '../hooks/useData';
+import { usePopup } from '../hooks/usePopup';
 import { getTokenCurrentRate, getTokenRate, getTransactionIcon } from '../pages/transactions';
 import { useIsMobile } from '../utils/mobile';
 import { Dataset } from '../utils/types';
@@ -10,7 +11,6 @@ import { Privacy } from './privacy';
 import SortTableHead from './sortTableHead';
 import { TransactionDetails } from './transactionDetails';
 import { Text } from './typography';
-import { usePopup } from '../hooks/usePopup';
 
 const t: Dataset = {
   date: 'Date',
@@ -74,7 +74,14 @@ export function TransactionsTable({ getFilteredTransactions }: TransactionsTable
                       className="group-hover:animate-pulse"
                       icon={getTransactionIcon(transaction)}
                       size="lg"
-                      color={transaction.type === TransactionType.deposit ? 'green' : 'red'}
+                      color={
+                        {
+                          [TransactionType.deposit]: 'green',
+                          [TransactionType.withdrawal]: 'red',
+                          [TransactionType.donation]: 'pink',
+                          [TransactionType.payment]: 'blue',
+                        }[transaction.type || 'deposit']
+                      }
                     />
                     <Text className="self-center sm:ml-2">
                       {transaction.type ? t[TransactionType[transaction.type]] : ''}

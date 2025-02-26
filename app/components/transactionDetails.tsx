@@ -2,7 +2,13 @@ import { Button } from '@tremor/react';
 import { Flex, List } from 'antd';
 import { Transaction, TransactionType } from '../hooks/useData';
 import { usePopup } from '../hooks/usePopup';
-import { getTokenCurrentRate, getTokenLabel, getTokenRate } from '../pages/transactions';
+import {
+  getTokenCurrentRate,
+  getTokenLabel,
+  getTokenRate,
+  getTransactionType,
+  isDonationOrPayment,
+} from '../pages/transactions';
 import { Dataset } from '../utils/types';
 import { Subtitle, Text, Title } from './typography';
 
@@ -63,13 +69,16 @@ export const TransactionDetails = ({ transaction }: { transaction: Transaction }
       align="center"
     >
       <Title className="text-center mb-2">
-        {transaction.type ? t[TransactionType[transaction.type]] + t.from : ''} {transaction.date.toShortDate()}
+        {transaction.type ? t[TransactionType[transaction.type]] + ' ' + t.from : ''} {transaction.date.toShortDate()}
       </Title>
       <List
         className="max-w-xs w-full"
-        dataSource={['movement'].concat(
-          transaction.type !== TransactionType.donation ? ['cost', 'token', 'rate', 'price', 'profit'] : [],
-        )}
+        dataSource={[
+          'movement',
+          ...(!isDonationOrPayment(getTransactionType(transaction))
+            ? ['cost', 'token', 'rate', 'price', 'profit']
+            : ['token', 'rate']),
+        ]}
         renderItem={renderItem}
       />
       <Flex justify="center" className="mt-6">

@@ -1,4 +1,10 @@
-import { IconArrowDownRight, IconArrowUpRight, IconHeartFilled, IconSearch } from '@tabler/icons-react';
+import {
+  IconArrowDownRight,
+  IconArrowUpRight,
+  IconCreditCardPay,
+  IconHeartFilled,
+  IconSearch,
+} from '@tabler/icons-react';
 import {
   Grid,
   MultiSelect,
@@ -59,12 +65,20 @@ enum TransactionFilter {
 }
 
 export const getTransactionType = (transaction: Transaction | { movement: number | string; cost: number | string }) => {
-  const depositType = Number(transaction.cost) > 0 ? TransactionType.donation : TransactionType.deposit;
-  return Number(transaction.movement) > 0 ? depositType : TransactionType.withdrawal;
+  const isSpecialTransaction = Math.abs(Number(transaction.movement) - Number(transaction.cost)) < 0.01;
+  const depositType = isSpecialTransaction ? TransactionType.donation : TransactionType.deposit;
+  const withdrawalType = isSpecialTransaction ? TransactionType.payment : TransactionType.withdrawal;
+  return Number(transaction.movement) > 0 ? depositType : withdrawalType;
 };
+export const isDonationOrPayment = (transactionType: TransactionType) =>
+  transactionType === TransactionType.donation || transactionType === TransactionType.payment;
 export const getTransactionIcon = (transaction: Transaction) => {
-  const transactionIcon = transaction.type === TransactionType.deposit ? IconArrowDownRight : IconArrowUpRight;
-  return transaction.type === TransactionType.donation ? IconHeartFilled : transactionIcon;
+  return {
+    deposit: IconArrowDownRight,
+    withdrawal: IconArrowUpRight,
+    donation: IconHeartFilled,
+    payment: IconCreditCardPay,
+  }[transaction.type || 'deposit'];
 };
 export const getTokenLabel = (transaction: Transaction) =>
   transaction.token && `${transaction.amount} ${transaction.token}`;
@@ -77,7 +91,7 @@ export const getTokenCurrentRate = (transaction: Transaction) =>
 const getTokenPrice = (transaction: Transaction, tokens: PortfolioToken[]) =>
   tokens.find(t => t.symbol === transaction.token)?.value;
 const getTokenProfit = (transaction: Transaction) =>
-  transaction.cost > 0 || !transaction.token
+  isDonationOrPayment(getTransactionType(transaction)) || !transaction.token
     ? 0
     : (transaction.price ?? 0) * (transaction.amount ?? 0) - transaction.movement - transaction.cost;
 

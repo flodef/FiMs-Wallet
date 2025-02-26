@@ -77,7 +77,7 @@ export function SortHeader<T extends tableObject>({
   };
 
   return (
-    <Flex className="cursor-pointer w-fit" onClick={() => changeFilter(index)}>
+    <Flex className="cursor-pointer w-fit items-center" onClick={() => changeFilter(index)}>
       {label}
       {table?.length && (
         <Icon
@@ -115,7 +115,11 @@ export default function SortTableHead<T extends tableObject>({
         {labels.map((label, index) => (
           <TableHeaderCell
             key={index}
-            className={twMerge(getVisibilityClassName(index, sizes), `w-[${(100 / labels.length).toFixed(6)}%] px-1`)}
+            className={twMerge(
+              'pb-0',
+              getVisibilityClassName(index, sizes),
+              `w-[${(100 / labels.length).toFixed(6)}%] px-1`,
+            )}
           >
             {index < tableLength ? (
               <SortHeader label={label} index={index} table={table} setTable={setTable} filters={filters} />
