@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import SortTableHead from '../components/sortTableHead';
 import { Subtitle, Text, Title } from '../components/typography';
-import { useData } from '../hooks/useData';
+import { TransactionType, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, useUser } from '../hooks/useUser';
 import { getShortAddress } from '../utils/constants';
@@ -48,7 +48,7 @@ const thisPage = Page.Users;
 export default function Users() {
   const { user: currentUser } = useUser();
   const { page, needRefresh, setNeedRefresh } = useNavigation();
-  const { users, setUsers, isPublic, setIsPublic } = useData();
+  const { users, setUsers, isPublic, setIsPublic, transactions } = useData();
   const [messageApi, contextHolder] = message.useMessage();
   const [myProfile, setMyProfile] = useState<DBUser>();
 
@@ -67,9 +67,15 @@ export default function Users() {
       );
 
       const myProfile = users.find(user => user.name === currentUser?.name);
-      if (myProfile?.duration) setMyProfile(myProfile);
+      if (myProfile?.duration) {
+        if (transactions)
+          myProfile.donated = transactions
+            .filter(t => t.userid === myProfile.id && t.type === TransactionType.donation)
+            .reduce((a, b) => a + b.movement, 0);
+        setMyProfile(myProfile);
+      }
     },
-    [currentUser?.name, setIsPublic, setUsers],
+    [currentUser?.name, setIsPublic, setUsers, transactions],
   );
 
   const isLoading = useRef(false);

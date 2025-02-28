@@ -121,6 +121,7 @@ export const loadTransactionData = async (
             rate: Math.abs(Number(d.movement) / Number(d.amount)),
             token: d.token,
             address: d.address,
+            userid: d.userid,
             cost: !isDonationOrPayment(getTransactionType(d)) ? Number(d.cost) : 0,
             price: !isDonationOrPayment(getTransactionType(d)) ? getTokenPrice(d, tokens) : 0,
           }))
@@ -133,6 +134,7 @@ export const loadTransactionData = async (
     ? loadData(DataName.transactions).then(storeTransactions)
     : Promise.resolve();
 
+  // Then load transactions from the api (most recent)
   return loadInitialData
     .then(() => fetch('/api/database/getTransactions'))
     .then(result => result.ok && result.json())
@@ -165,7 +167,6 @@ export default function Transactions() {
     isLoading.current = true;
     setNeedRefresh(false);
 
-    // First load tokens
     loadData(DataName.tokens)
       .then(tokens => {
         loadTransactionData(tokens as PortfolioToken[], user.id, transactions, setTransactions);
