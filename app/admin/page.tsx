@@ -182,7 +182,7 @@ export default function AdminPage() {
   useEffect(() => {
     const transaction = transactions?.find(transaction => transaction.id === Number(transactionIndex));
     if (!!transaction && !!transactionTabIndex) {
-      const isCryptoToken = transaction.token && transaction.token !== fiatToken;
+      const isCryptoToken = !!transaction.token && transaction.token !== fiatToken;
       const cost = Number(transaction.cost);
       const movement = Number(transaction.movement);
       const amount = Number(transaction.amount);
@@ -238,9 +238,10 @@ export default function AdminPage() {
   const getTransactionDetails = useCallback(() => {
     const value = tokenAmount * tokenPrice;
     const cost = hasCost ? -((Math.abs(value) * transactionCost) / 100).toDecimalPlace(2, 'down') : 0;
+    const isDorP = isDonationOrPayment(transactionType);
 
-    const totalValue = value - cost;
-    const totalCost = isDonationOrPayment(transactionType) ? (isFiatToken ? movement : value) : cost;
+    const totalCost = isDorP ? (isFiatToken ? movement : value) : cost;
+    const totalValue = isDorP ? totalCost : value - cost;
 
     return {
       value: totalValue.toDecimalPlace(totalValue.getPrecision()),
@@ -273,7 +274,7 @@ export default function AdminPage() {
       transactionAddress &&
       getTransactionDetails().value * tokenAmount >= 0 &&
       ((!!tokenPrice && !!tokenAmount) || (!tokenPrice && !tokenAmount)) &&
-      ((!!selectedToken && !!tokenAmount) || (!selectedToken && !tokenAmount)),
+      ((selectedToken !== fiatToken && !!tokenAmount) || (selectedToken === fiatToken && !tokenAmount)),
     [getTransactionDetails, transactionAddress, tokenAmount, tokenPrice, selectedToken],
   );
 
