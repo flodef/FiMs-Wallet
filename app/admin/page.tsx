@@ -194,8 +194,10 @@ export default function AdminPage() {
       setTransactionType(transactionType);
       setSelectedToken(transaction.token || fiatToken);
       setMovement(isCryptoToken ? 0 : movement);
-      setTokenAmount(isCryptoToken ? amount : movement);
-      setTokenPrice(amount ? adjustPrice(Math.abs((movement + (!isDorP ? cost : 0)) / amount), movement) : 1);
+      setTokenAmount(isCryptoToken ? amount : 0);
+      setTokenPrice(
+        isCryptoToken && amount ? adjustPrice(Math.abs((movement + (!isDorP ? cost : 0)) / amount), movement) : 0,
+      );
       setHasCost(!isDorP && cost > 0);
     } else if (!transactionTabIndex) {
       initTransaction();
