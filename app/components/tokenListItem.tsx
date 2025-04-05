@@ -50,7 +50,7 @@ export function TokenListItem({ asset, hasLoaded }: TokenListItemProps) {
 
   const fetchTokenMetadata = useCallback(async (address: string) => {
     try {
-      const response = await fetch(`https://api.jup.ag/tokens/v1/token/${address}`);
+      const response = await fetch(`https://lite-api.jup.ag/tokens/v1/token/${address}`);
       if (!response.ok) throw new Error('Failed to fetch token metadata');
       return await response.json();
     } catch (error) {

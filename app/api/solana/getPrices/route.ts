@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Missing token ids' }, { status: 400 });
     }
 
-    const response = await fetch(`https://api.jup.ag/price/v2?ids=${ids}`, {
+    const response = await fetch(`https://lite-api.jup.ag/price/v2?ids=${ids}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
