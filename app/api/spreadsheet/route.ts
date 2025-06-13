@@ -24,7 +24,6 @@ export async function GET(request: Request) {
         process.env.GOOGLE_API_KEY
       }`,
       {
-        cache: 'no-store',
         headers: {
           Referer: 'https://www.fims.fi',
           ContentType: 'application/json',

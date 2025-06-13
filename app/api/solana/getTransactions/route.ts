@@ -33,8 +33,7 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(
-      `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=${process.env.HELIUS_API_KEY}&type=TRANSFER`,
-      { cache: 'no-store' },
+      `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=${process.env.HELIUS_API_KEY}&type=TRANSFER`
     );
 
     if (!response.ok) {
