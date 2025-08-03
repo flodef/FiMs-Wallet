@@ -1,7 +1,7 @@
 'use client';
 
 import { isAddress } from '@solana/web3.js';
-import { IconCurrencyEuro } from '@tabler/icons-react';
+import { IconCopy, IconCurrencyEuro } from '@tabler/icons-react';
 import {
   Button,
   Card,
@@ -15,13 +15,13 @@ import {
   Switch,
   Tab,
   TabGroup,
-  TabList,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeaderCell,
   TableRow,
+  TabList,
   Text,
   TextInput,
 } from '@tremor/react';
@@ -353,6 +353,14 @@ export default function AdminPage() {
       .finally(() => setTransactionLoading(false));
   };
 
+  const handleCopy = (content: string, label: string) => {
+    navigator.clipboard.writeText(content);
+    messageApi.open({
+      type: 'success',
+      content: `${label} copied to clipboard`,
+    });
+  };
+
   return isAuthorized ? (
     <Grid style={{ gap: 24, margin: 24 }} numItemsSm={2} className="w-full max-w-7xl self-center px-6">
       {contextHolder}
@@ -397,21 +405,29 @@ export default function AdminPage() {
             error={!isValidName && name.length >= nameLimit.min}
             errorMessage={name.length <= nameLimit.max ? 'The name is already taken!' : 'The name is too long!'}
           />
-          <TextInput
-            className="max-w-md"
-            value={address}
-            onValueChange={setAddress}
-            placeholder="Address"
-            disabled={userTabIndex === 2}
-            error={!isValidAddress && address.length >= addressLimit.min}
-            errorMessage={
-              address.length <= addressLimit.max
-                ? users?.find(user => user.address === address)
-                  ? 'The address is already taken!'
-                  : 'The address is not a valid Solana Address!'
-                : 'The address is too long!'
-            }
-          />
+          <Flex style={{ gap: 16 }} flexDirection="row">
+            <TextInput
+              className="max-w-md"
+              value={address}
+              onValueChange={setAddress}
+              placeholder="Address"
+              disabled={userTabIndex === 2}
+              error={!isValidAddress && address.length >= addressLimit.min}
+              errorMessage={
+                address.length <= addressLimit.max
+                  ? users?.find(user => user.address === address)
+                    ? 'The address is already taken!'
+                    : 'The address is not a valid Solana Address!'
+                  : 'The address is too long!'
+              }
+            />
+            {address && (
+              <IconCopy
+                className="cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
+                onClick={() => handleCopy(address, 'Address')}
+              />
+            )}
+          </Flex>
           <Flex
             className={twMerge(userTabIndex !== 2 ? 'visible' : 'hidden', 'space-x-2')}
             flexDirection="row"
@@ -506,19 +522,27 @@ export default function AdminPage() {
             weekStartsOn={1}
             disabled={transactionTabIndex === 2}
           />
-          <Select
-            className="max-w-sm min-w-32"
-            value={transactionAddress}
-            onValueChange={setTransactionAddress}
-            enableClear={false}
-            disabled={transactionTabIndex === 2}
-          >
-            {users?.map(({ name, address }) => (
-              <SelectItem key={name} value={address}>
-                {name.toFirstUpperCase()}
-              </SelectItem>
-            ))}
-          </Select>
+          <Flex style={{ gap: 16 }} flexDirection="row">
+            <Select
+              className="max-w-sm min-w-32"
+              value={transactionAddress}
+              onValueChange={setTransactionAddress}
+              enableClear={false}
+              disabled={transactionTabIndex === 2}
+            >
+              {users?.map(({ name, address }) => (
+                <SelectItem key={name} value={address}>
+                  {name.toFirstUpperCase()}
+                </SelectItem>
+              ))}
+            </Select>
+            {transactionAddress && (
+              <IconCopy
+                className="cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
+                onClick={() => handleCopy(transactionAddress, 'Address')}
+              />
+            )}
+          </Flex>
           <Select
             className="max-w-sm min-w-32"
             value={transactionType}
@@ -620,9 +644,17 @@ export default function AdminPage() {
             />
             <Text>{hasCost ? `Costs ${getTransactionDetails().cost.toLocaleCurrency()}` : 'Free'}</Text>
           </Flex>
-          <Title className={isValidTransaction ? 'visible' : 'hidden'}>
-            {!isNaN(getTransactionDetails().value) ? getTransactionDetails().value.toLocaleCurrency() : 'Error'}
-          </Title>
+          <Flex style={{ gap: 16 }} flexDirection="row" justifyContent="start" alignItems="center">
+            <Title className={isValidTransaction ? 'visible' : 'hidden'}>
+              {!isNaN(getTransactionDetails().value) ? getTransactionDetails().value.toLocaleCurrency() : 'Error'}
+            </Title>
+            {isValidTransaction && (
+              <IconCopy
+                className="cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
+                onClick={() => handleCopy(getTransactionDetails().value.toString(), 'Value')}
+              />
+            )}
+          </Flex>
           <Button
             className="flex font-bold col-span-2"
             disabled={!isValidTransaction}
