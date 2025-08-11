@@ -594,26 +594,34 @@ export default function AdminPage() {
             max={100000}
             disabled={transactionTabIndex === 2}
           />
-          <NumberInput
-            className={twMerge('max-w-sm min-w-32', !isFiatToken ? 'visible' : 'hidden')}
-            value={tokenAmount}
-            onValueChange={setTokenAmount}
-            onFocus={handleFocus}
-            placeholder="Token Amount"
-            error={
-              ((isTransactionType(TransactionType.deposit) || isTransactionType(TransactionType.donation)) &&
-                tokenAmount < 0 &&
-                !isFiatToken) ||
-              ((isTransactionType(TransactionType.withdrawal) || isTransactionType(TransactionType.payment)) &&
-                tokenAmount > 0 &&
-                !isFiatToken)
-            }
-            errorMessage={`The token amount should be ${tokenAmount > 0 ? 'negative' : 'positive'}!`}
-            step={0.01}
-            min={-100000}
-            max={100000}
-            disabled={transactionTabIndex === 2}
-          />
+          <Flex style={{ gap: 16 }} flexDirection="row">
+            <NumberInput
+              className={twMerge('max-w-sm min-w-32', !isFiatToken ? 'visible' : 'hidden')}
+              value={tokenAmount}
+              onValueChange={setTokenAmount}
+              onFocus={handleFocus}
+              placeholder="Token Amount"
+              error={
+                ((isTransactionType(TransactionType.deposit) || isTransactionType(TransactionType.donation)) &&
+                  tokenAmount < 0 &&
+                  !isFiatToken) ||
+                ((isTransactionType(TransactionType.withdrawal) || isTransactionType(TransactionType.payment)) &&
+                  tokenAmount > 0 &&
+                  !isFiatToken)
+              }
+              errorMessage={`The token amount should be ${tokenAmount > 0 ? 'negative' : 'positive'}!`}
+              step={0.01}
+              min={-100000}
+              max={100000}
+              disabled={transactionTabIndex === 2}
+            />
+            {tokenAmount && (
+              <IconCopy
+                className="cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
+                onClick={() => handleCopy(tokenAmount.toString(), 'Token Amount')}
+              />
+            )}
+          </Flex>
           <NumberInput
             className={twMerge('max-w-sm min-w-32', !isFiatToken ? 'visible' : 'hidden')}
             value={tokenPrice}
@@ -644,17 +652,9 @@ export default function AdminPage() {
             />
             <Text>{hasCost ? `Costs ${getTransactionDetails().cost.toLocaleCurrency()}` : 'Free'}</Text>
           </Flex>
-          <Flex style={{ gap: 16 }} flexDirection="row" justifyContent="start" alignItems="center">
-            <Title className={isValidTransaction ? 'visible' : 'hidden'}>
-              {!isNaN(getTransactionDetails().value) ? getTransactionDetails().value.toLocaleCurrency() : 'Error'}
-            </Title>
-            {isValidTransaction && (
-              <IconCopy
-                className="cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
-                onClick={() => handleCopy(getTransactionDetails().value.toString(), 'Value')}
-              />
-            )}
-          </Flex>
+          <Title className={isValidTransaction ? 'visible' : 'hidden'}>
+            {!isNaN(getTransactionDetails().value) ? getTransactionDetails().value.toLocaleCurrency() : 'Error'}
+          </Title>
           <Button
             className="flex font-bold col-span-2"
             disabled={!isValidTransaction}
