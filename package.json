@@ -23,6 +23,7 @@
     "@vercel/analytics": "latest",
     "@vercel/postgres": "latest",
     "antd": "latest",
+    "caniuse-lite": "latest",
     "firebase": "latest",
     "js-cookie": "latest",
     "marked": "latest",
