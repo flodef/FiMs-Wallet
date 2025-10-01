@@ -615,7 +615,7 @@ export default function AdminPage() {
               max={100000}
               disabled={transactionTabIndex === 2}
             />
-            {tokenAmount && (
+            {!!tokenAmount && (
               <IconCopy
                 className="cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
                 onClick={() => handleCopy(tokenAmount.toString(), 'Token Amount')}
