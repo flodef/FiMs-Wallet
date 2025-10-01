@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 interface JupiterPriceResponse {
-  data: {
-    [key: string]: {
-      id: string;
-      type: string;
-      price: string;
-    };
+  [key: string]: {
+    usdPrice: number;
+    blockId: number;
+    decimals: number;
+    priceChange24h: number;
   };
-  timeTaken: number;
 }
 
 export async function GET(request: NextRequest) {
@@ -21,7 +19,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Missing token ids' }, { status: 400 });
     }
 
-    const response = await fetch(`https://lite-api.jup.ag/price/v2?ids=${ids}`, {
+    const response = await fetch(`https://lite-api.jup.ag/price/v3?ids=${ids}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -36,8 +34,8 @@ export async function GET(request: NextRequest) {
 
     // Convert prices to the requested currency
     const convertedData: { [key: string]: number } = {};
-    Object.entries(jupiterData.data).forEach(([tokenId, tokenData]) => {
-      if (tokenId && tokenData) convertedData[tokenId] = Number(tokenData.price) * rate;
+    Object.entries(jupiterData).forEach(([tokenId, tokenData]) => {
+      if (tokenId && tokenData) convertedData[tokenId] = tokenData.usdPrice * rate;
     });
 
     return NextResponse.json({ data: convertedData });
