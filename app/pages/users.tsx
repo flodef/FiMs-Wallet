@@ -56,6 +56,7 @@ export default function Users() {
   const { users, setUsers, isPublic, setIsPublic, transactions } = useData();
   const [messageApi, contextHolder] = message.useMessage();
   const [myProfile, setMyProfile] = useState<DBUser>();
+  const [isUpdatingUserPrivacy, setIsUpdatingUserPrivacy] = useState(false);
 
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
@@ -99,11 +100,10 @@ export default function Users() {
       .finally(() => (isLoading.current = false));
   }, [needRefresh, setNeedRefresh, page, processUsers]);
 
-  const isUpdatingUserPrivacy = useRef(false);
   const handleSwitchChange = (value: boolean) => {
-    if (!currentUser || isUpdatingUserPrivacy.current) return;
+    if (!currentUser || isUpdatingUserPrivacy) return;
 
-    isUpdatingUserPrivacy.current = true;
+    setIsUpdatingUserPrivacy(true);
 
     fetch('/api/database/updatePrivacy', {
       method: 'POST',
@@ -112,7 +112,7 @@ export default function Users() {
       .then(result => (result.ok ? setIsPublic(value) : undefined))
       .catch(console.error)
       .finally(() => {
-        isUpdatingUserPrivacy.current = false;
+        setIsUpdatingUserPrivacy(false);
       });
   };
 
@@ -152,7 +152,7 @@ export default function Users() {
                 {isPublic !== undefined ? (
                   <Flex justify="end" align="center">
                     <Text className="mx-2 whitespace-nowrap">{isPublic ? t.yes : t.no}</Text>
-                    <Switch disabled={isUpdatingUserPrivacy.current} checked={isPublic} onChange={handleSwitchChange} />
+                    <Switch disabled={isUpdatingUserPrivacy} checked={isPublic} onChange={handleSwitchChange} />
                   </Flex>
                 ) : (
                   <div className="bg-theme-border rounded-md w-[70px] h-5 mb-1" />
