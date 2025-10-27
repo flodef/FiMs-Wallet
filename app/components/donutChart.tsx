@@ -360,7 +360,7 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
               isAnimationActive={false}
               activeShape={renderActiveShape}
               onClick={handleShapeClick}
-              activeIndex={activeIndex}
+              {...(activeIndex !== undefined && { activeIndex })}
               inactiveShape={renderInactiveShape}
               style={{ outline: 'none' }}
             />
