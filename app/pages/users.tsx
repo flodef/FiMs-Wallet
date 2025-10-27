@@ -1,6 +1,6 @@
-import { IconSearch } from '@tabler/icons-react';
+import { IconInfoCircle, IconSearch } from '@tabler/icons-react';
 import { MultiSelect, MultiSelectItem, Table, TableBody, TableCell, TableRow } from '@tremor/react';
-import { Card, Flex, message, Switch } from 'antd';
+import { Card, Flex, message, Switch, Tooltip } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { CopyButton } from '../components/copyButton';
@@ -10,9 +10,11 @@ import { TransactionType, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, useUser } from '../hooks/useUser';
 import { getShortAddress } from '../utils/constants';
-import { useIsMobile } from '../utils/mobile';
+import { isMobileSize } from '../utils/mobile';
 import { DataName, loadData } from '../utils/processData';
 import { Dataset } from '../utils/types';
+
+const DONATION_RATIO = 0.1; // Donation ratio is 10%
 
 const t: Dataset = {
   myInfo: 'Mes informations',
@@ -32,6 +34,9 @@ const t: Dataset = {
   appearance: 'Visible des autres FiMseurs•es',
   duration: 'FiMseur•se depuis',
   donated: 'Montant des dons',
+  remainingToDonate: 'Restant à donner',
+  remainingToDonateTooltip:
+    '% des gains correspondent à la rémunération pour mon travail. Il peuvent être :\n- soit versés sur le compte de la Tontine.\n- soit donnés à une association de votre choix (déduction sur justificatifs).',
   transferCost: 'Frais à rembourser',
 };
 
@@ -122,51 +127,91 @@ export default function Users() {
     <Flex vertical className="gap-6">
       {contextHolder}
       <Card>
-        <Title className="text-left whitespace-nowrap">{t.myInfo}</Title>
-        <Flex justify="space-between" align="center">
-          <Subtitle className="truncate whitespace-nowrap">{t.name}</Subtitle>
-          <Text>{currentUser?.name}</Text>
-        </Flex>
-        <Flex justify="space-between" align="center">
-          <Subtitle className="truncate whitespace-nowrap">{t.address}</Subtitle>
-          <Flex>
-            <Text>{useIsMobile() ? getShortAddress(currentUser?.address ?? '') : currentUser?.address}</Text>
-            <CopyButton content={currentUser?.address} label={t.address} messageApi={messageApi} />
-          </Flex>
-        </Flex>
-        <Flex justify="space-between" align="center">
-          <Subtitle className="truncate whitespace-nowrap">{t.appearance}</Subtitle>
-          {isPublic !== undefined ? (
-            <Flex justify="end" align="center">
-              <Text className="mx-2 whitespace-nowrap">{isPublic ? t.yes : t.no}</Text>
-              <Switch disabled={isUpdatingUserPrivacy.current} checked={isPublic} onChange={handleSwitchChange} />
-            </Flex>
-          ) : (
-            <div className="bg-theme-border rounded-md w-[70px] h-5 mb-1" />
-          )}
-        </Flex>
-        <Flex justify="space-between" align="center">
-          <Subtitle className="truncate whitespace-nowrap">{t.duration}</Subtitle>
-          {myProfile?.duration !== undefined ? (
-            <Text>{myProfile.duration.formatDuration()}</Text>
-          ) : (
-            <div className="bg-theme-border rounded-md w-24 h-5 mb-1" />
-          )}
-        </Flex>
-        <Flex justify="space-between" align="center">
-          <Subtitle className="truncate whitespace-nowrap">{t.donated}</Subtitle>
-          {myProfile?.donated !== undefined && myProfile?.profitValue !== undefined ? (
-            <Text>{`${myProfile.donated.toLocaleCurrency()} (${(myProfile.donated / myProfile.profitValue).toRatio()})`}</Text>
-          ) : (
-            <div className="bg-theme-border rounded-md w-32 h-5 mb-1" />
-          )}
-        </Flex>
-        {!!myProfile?.transferCost && (
-          <Flex justify="space-between" align="center">
-            <Subtitle className="truncate whitespace-nowrap">{t.transferCost}</Subtitle>
-            <Text className="font-bold">{myProfile?.transferCost?.toLocaleCurrency()}</Text>
-          </Flex>
-        )}
+        {(() => {
+          const donated = myProfile?.donated;
+          const profitValue = myProfile?.profitValue;
+          const donationRatio = donated !== undefined && profitValue !== undefined ? donated / profitValue : undefined;
+          const isBelowThreshold = donationRatio !== undefined && donationRatio < DONATION_RATIO;
+
+          return (
+            <>
+              <Title className="text-left whitespace-nowrap">{t.myInfo}</Title>
+              <Flex justify="space-between" align="center">
+                <Subtitle className="truncate whitespace-nowrap">{t.name}</Subtitle>
+                <Text>{currentUser?.name}</Text>
+              </Flex>
+              <Flex justify="space-between" align="center">
+                <Subtitle className="truncate whitespace-nowrap">{t.address}</Subtitle>
+                <Flex>
+                  <Text>{isMobileSize() ? getShortAddress(currentUser?.address ?? '') : currentUser?.address}</Text>
+                  <CopyButton content={currentUser?.address} label={t.address} messageApi={messageApi} />
+                </Flex>
+              </Flex>
+              <Flex justify="space-between" align="center">
+                <Subtitle className="truncate whitespace-nowrap">{t.appearance}</Subtitle>
+                {isPublic !== undefined ? (
+                  <Flex justify="end" align="center">
+                    <Text className="mx-2 whitespace-nowrap">{isPublic ? t.yes : t.no}</Text>
+                    <Switch disabled={isUpdatingUserPrivacy.current} checked={isPublic} onChange={handleSwitchChange} />
+                  </Flex>
+                ) : (
+                  <div className="bg-theme-border rounded-md w-[70px] h-5 mb-1" />
+                )}
+              </Flex>
+              <Flex justify="space-between" align="center">
+                <Subtitle className="truncate whitespace-nowrap">{t.duration}</Subtitle>
+                {myProfile?.duration !== undefined ? (
+                  <Text>{myProfile.duration.formatDuration()}</Text>
+                ) : (
+                  <div className="bg-theme-border rounded-md w-24 h-5 mb-1" />
+                )}
+              </Flex>
+              <Flex justify="space-between" align="center">
+                <Subtitle className="truncate whitespace-nowrap">{t.donated}</Subtitle>
+                {donationRatio !== undefined && donated !== undefined ? (
+                  <Text type={isBelowThreshold ? 'danger' : 'success'} className="font-bold">
+                    {`${donated.toLocaleCurrency()} (${donationRatio.toRatio()})`}
+                  </Text>
+                ) : (
+                  <div className="bg-theme-border rounded-md w-32 h-5 mb-1" />
+                )}
+              </Flex>
+              {isBelowThreshold && (
+                <Flex justify="space-between" align="center">
+                  <Flex align="center" gap={4}>
+                    <Subtitle className="truncate whitespace-nowrap">{t.remainingToDonate}</Subtitle>
+                    <Tooltip
+                      title={
+                        <Flex vertical>
+                          <Text className="text-theme-content-emphasis dark:text-dark-theme-content-emphasis">{`${DONATION_RATIO * 100}% des gains correspondent à la rémunération pour mon travail. Il peuvent être :`}</Text>
+                          <Text className="text-theme-content-emphasis dark:text-dark-theme-content-emphasis">
+                            - soit versés sur le compte de la Tontine.
+                          </Text>
+                          <Text className="text-theme-content-emphasis dark:text-dark-theme-content-emphasis">
+                            - soit donnés à une association de votre choix (déduction sur justificatifs).
+                          </Text>
+                        </Flex>
+                      }
+                    >
+                      <IconInfoCircle size={20} className="cursor-help text-gray-400" />
+                    </Tooltip>
+                  </Flex>
+                  <Text className="font-bold">
+                    {profitValue !== undefined && donated !== undefined
+                      ? ((profitValue - donated) * DONATION_RATIO).toLocaleCurrency()
+                      : ''}
+                  </Text>
+                </Flex>
+              )}
+              {!!myProfile?.transferCost && (
+                <Flex justify="space-between" align="center">
+                  <Subtitle className="truncate whitespace-nowrap">{t.transferCost}</Subtitle>
+                  <Text className="font-bold">{myProfile?.transferCost?.toLocaleCurrency()}</Text>
+                </Flex>
+              )}
+            </>
+          );
+        })()}
       </Card>
       <Card>
         <Flex justify="space-between">
