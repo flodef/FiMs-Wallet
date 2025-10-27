@@ -21,7 +21,7 @@ export function useDatabase() {
       querySnapshot.docChanges().forEach(change => {
         // change type can be 'added', 'modified', or 'deleted'
         const data = change.doc.data();
-        console.log(change.type, data);
+        console.log(change.type, data); // eslint-disable-line no-console
       });
     });
 
