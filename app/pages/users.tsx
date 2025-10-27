@@ -1,8 +1,9 @@
-import { IconCopy, IconSearch } from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 import { MultiSelect, MultiSelectItem, Switch, Table, TableBody, TableCell, TableRow } from '@tremor/react';
 import { Card, Flex, message } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { CopyButton } from '../components/copyButton';
 import SortTableHead from '../components/sortTableHead';
 import { Subtitle, Text, Title } from '../components/typography';
 import { TransactionType, useData } from '../hooks/useData';
@@ -24,7 +25,6 @@ const t: Dataset = {
   name: 'Pseudo',
   address: 'Adresse Solana',
   copy: 'Copier',
-  addressCopied: 'Adresse copiée !',
   private: 'Privé',
   public: 'Public',
   yes: 'Oui',
@@ -118,14 +118,6 @@ export default function Users() {
     }
   }, [users]);
 
-  const handleCopy = (address: string) => {
-    navigator.clipboard.writeText(address);
-    messageApi.open({
-      type: 'success',
-      content: t.addressCopied,
-    });
-  };
-
   return (
     <Flex vertical className="gap-6">
       {contextHolder}
@@ -137,7 +129,10 @@ export default function Users() {
         </Flex>
         <Flex justify="space-between" align="center">
           <Subtitle className="truncate whitespace-nowrap">{t.address}</Subtitle>
-          <Text>{useIsMobile() ? getShortAddress(currentUser?.address ?? '') : currentUser?.address}</Text>
+          <Flex>
+            <Text>{useIsMobile() ? getShortAddress(currentUser?.address ?? '') : currentUser?.address}</Text>
+            <CopyButton content={currentUser?.address} label={t.address} messageApi={messageApi} />
+          </Flex>
         </Flex>
         <Flex justify="space-between" align="center">
           <Subtitle className="truncate whitespace-nowrap">{t.appearance}</Subtitle>
@@ -222,14 +217,7 @@ export default function Users() {
                         <Text>{getShortAddress(user.address)}</Text>
                       </TableCell>
                       <TableCell>
-                        <IconCopy
-                          className={twMerge(
-                            'h-5 w-5 ml-3 cursor-pointer',
-                            'text-theme-content-subtle dark:text-dark-theme-content-subtle',
-                            'hover:text-theme-content dark:hover:text-dark-theme-content',
-                          )}
-                          onClick={() => handleCopy(user.address)}
-                        />
+                        <CopyButton content={user.address} label={t.address} messageApi={messageApi} />
                       </TableCell>
                     </TableRow>
                   ))

@@ -1,7 +1,7 @@
 'use client';
 
 import { isAddress } from '@solana/web3.js';
-import { IconCopy, IconCurrencyEuro } from '@tabler/icons-react';
+import { IconCurrencyEuro } from '@tabler/icons-react';
 import {
   Button,
   Card,
@@ -28,6 +28,7 @@ import {
 import { message } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { CopyButton } from '../components/copyButton';
 import { Title } from '../components/typography';
 import { PortfolioToken, Transaction, TransactionType } from '../hooks/useData';
 import Loading from '../loading';
@@ -353,14 +354,6 @@ export default function AdminPage() {
       .finally(() => setTransactionLoading(false));
   };
 
-  const handleCopy = (content: string, label: string) => {
-    navigator.clipboard.writeText(content);
-    messageApi.open({
-      type: 'success',
-      content: `${label} copied to clipboard`,
-    });
-  };
-
   return isAuthorized ? (
     <Grid style={{ gap: 24, margin: 24 }} numItemsSm={2} className="w-full max-w-7xl self-center px-6">
       {contextHolder}
@@ -421,12 +414,7 @@ export default function AdminPage() {
                   : 'The address is too long!'
               }
             />
-            {address && (
-              <IconCopy
-                className="cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
-                onClick={() => handleCopy(address, 'Address')}
-              />
-            )}
+            <CopyButton content={address} label="Address" messageApi={messageApi} />
           </Flex>
           <Flex
             className={twMerge(userTabIndex !== 2 ? 'visible' : 'hidden', 'space-x-2')}
@@ -536,12 +524,7 @@ export default function AdminPage() {
                 </SelectItem>
               ))}
             </Select>
-            {transactionAddress && (
-              <IconCopy
-                className="cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
-                onClick={() => handleCopy(transactionAddress, 'Address')}
-              />
-            )}
+            <CopyButton content={transactionAddress} label={'Address'} messageApi={messageApi} />
           </Flex>
           <Select
             className="max-w-sm min-w-32"
@@ -615,12 +598,7 @@ export default function AdminPage() {
               max={100000}
               disabled={transactionTabIndex === 2}
             />
-            {!!tokenAmount && (
-              <IconCopy
-                className="cursor-pointer text-theme-content-emphasis dark:text-dark-theme-content-emphasis"
-                onClick={() => handleCopy(tokenAmount.toString(), 'Token Amount')}
-              />
-            )}
+            <CopyButton content={tokenAmount} label="Token Amount" messageApi={messageApi} />
           </Flex>
           <NumberInput
             className={twMerge('max-w-sm min-w-32', !isFiatToken ? 'visible' : 'hidden')}
