@@ -174,7 +174,7 @@ String.prototype.fromCurrency = function (locale?: string) {
   const number = (locale ?? Intl.NumberFormat(getCurrentLanguage()).resolvedOptions().locale).startsWith('fr')
     ? this.replace(/,/g, '.')
     : this.replace(/,/g, '');
-  return parseFloat(number.replace(/[^0-9\.\-]/g, ''));
+  return parseFloat(number.replace(/[^0-9.-]/g, ''));
 };
 
 String.prototype.toFirstUpperCase = function () {

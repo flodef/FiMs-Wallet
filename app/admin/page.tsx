@@ -203,7 +203,7 @@ export default function AdminPage() {
     } else if (!transactionTabIndex) {
       initTransaction();
     }
-  }, [transactionIndex, transactions, transactionTabIndex, initTransaction]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [transactionIndex, transactions, transactionTabIndex, initTransaction]);
 
   useEffect(() => {
     const filteredTransactions = transactions
