@@ -1,6 +1,6 @@
 import { IconSearch } from '@tabler/icons-react';
-import { MultiSelect, MultiSelectItem, Switch, Table, TableBody, TableCell, TableRow } from '@tremor/react';
-import { Card, Flex, message } from 'antd';
+import { MultiSelect, MultiSelectItem, Table, TableBody, TableCell, TableRow } from '@tremor/react';
+import { Card, Flex, message, Switch } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { CopyButton } from '../components/copyButton';
