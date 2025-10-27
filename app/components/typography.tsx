@@ -61,7 +61,11 @@ export const Subtitle = ({ children, className, type }: TitleProps) => (
 );
 
 export const Text = ({ children, className, type }: TitleProps) => (
-  <Typography.Text style={getTextStyle(type, className)} className={twMerge(titleClassName, className)} type={type}>
+  <Typography.Text
+    style={getTextStyle(type, className)}
+    className={twMerge(titleClassName, 'whitespace-normal', className)}
+    type={type}
+  >
     {children}
   </Typography.Text>
 );

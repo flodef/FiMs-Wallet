@@ -141,10 +141,9 @@ export default function Users() {
         </Flex>
         <Flex justify="space-between" align="center">
           <Subtitle className="truncate whitespace-nowrap">{t.appearance}</Subtitle>
-          {/* <Text>{isPublic ? t.yes : t.no}</Text> */}
           {isPublic !== undefined ? (
             <Flex justify="end" align="center">
-              <Text className="mr-2">{isPublic ? t.yes : t.no}</Text>
+              <Text className="mx-2 whitespace-nowrap">{isPublic ? t.yes : t.no}</Text>
               <Switch disabled={isUpdatingUserPrivacy.current} checked={isPublic} onChange={handleSwitchChange} />
             </Flex>
           ) : (
