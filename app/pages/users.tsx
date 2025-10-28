@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { CopyButton } from '../components/copyButton';
 import SortTableHead from '../components/sortTableHead';
-import { Subtitle, Text, Title } from '../components/typography';
+import { Subtitle, Text, Title, TooltipText } from '../components/typography';
 import { TransactionType, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { User, useUser } from '../hooks/useUser';
@@ -37,7 +37,12 @@ const t: Dataset = {
   remainingToDonate: 'Restant à donner',
   remainingToDonateTooltip:
     '% des gains correspondent à la rémunération pour mon travail. Il peuvent être :\n- soit versés sur le compte de la Tontine.\n- soit donnés à une association de votre choix (déduction sur justificatifs).',
+  remainingToDonateTooltipLine1: '% des gains correspondent à la rémunération pour mon travail. Il peuvent être :',
+  remainingToDonateTooltipLine2: '- soit versés sur le compte de la Tontine.',
+  remainingToDonateTooltipLine3: '- soit donnés à une association de votre choix (déduction sur justificatifs).',
   transferCost: 'Frais à rembourser',
+  transferCostTooltip:
+    "Montant avancé par FiMs pour convertir vos euros investis dans l'ancien système FiMs en cryptomonnaie",
 };
 
 export interface DBUser extends User {
@@ -183,13 +188,9 @@ export default function Users() {
                     <Tooltip
                       title={
                         <Flex vertical>
-                          <Text className="text-theme-content-emphasis dark:text-dark-theme-content-emphasis">{`${DONATION_RATIO * 100}% des gains correspondent à la rémunération pour mon travail. Il peuvent être :`}</Text>
-                          <Text className="text-theme-content-emphasis dark:text-dark-theme-content-emphasis">
-                            - soit versés sur le compte de la Tontine.
-                          </Text>
-                          <Text className="text-theme-content-emphasis dark:text-dark-theme-content-emphasis">
-                            - soit donnés à une association de votre choix (déduction sur justificatifs).
-                          </Text>
+                          <TooltipText>{`${DONATION_RATIO * 100}${t.remainingToDonateTooltipLine1}`}</TooltipText>
+                          <TooltipText>{t.remainingToDonateTooltipLine2}</TooltipText>
+                          <TooltipText>{t.remainingToDonateTooltipLine3}</TooltipText>
                         </Flex>
                       }
                     >
@@ -205,7 +206,12 @@ export default function Users() {
               )}
               {!!myProfile?.transferCost && (
                 <Flex justify="space-between" align="center">
-                  <Subtitle className="truncate whitespace-nowrap">{t.transferCost}</Subtitle>
+                  <Flex align="center" gap={4}>
+                    <Subtitle className="truncate whitespace-nowrap">{t.transferCost}</Subtitle>
+                    <Tooltip title={<TooltipText>{t.transferCostTooltip}</TooltipText>}>
+                      <IconInfoCircle size={20} className="cursor-help text-gray-400" />
+                    </Tooltip>
+                  </Flex>
                   <Text className="font-bold">{myProfile?.transferCost?.toLocaleCurrency()}</Text>
                 </Flex>
               )}

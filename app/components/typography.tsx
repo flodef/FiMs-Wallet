@@ -78,6 +78,12 @@ export const TextCenter = ({ children, className, type }: TitleProps) => (
   </Flex>
 );
 
+export const TooltipText = ({ children, className }: TitleProps) => (
+  <Text className={twMerge('text-theme-content-emphasis dark:text-dark-theme-content-emphasis', className)}>
+    {children}
+  </Text>
+);
+
 interface LoadingMetricProps {
   isReady: boolean;
   type?: BaseType;
