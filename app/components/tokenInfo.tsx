@@ -167,7 +167,7 @@ export const TokenInfo = ({
     <Drawer
       size="large"
       open={isOpen}
-      onClose={handleClose}
+      onClose={handleClose as any}
       onClick={e => e.stopPropagation()}
       title={
         <TabGroup

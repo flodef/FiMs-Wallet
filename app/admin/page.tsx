@@ -1,6 +1,6 @@
 'use client';
 
-import { isAddress } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { IconCurrencyEuro } from '@tabler/icons-react';
 import {
   Button,
@@ -270,7 +270,12 @@ export default function AdminPage() {
     )
       return false;
 
-    return isAddress(address);
+    try {
+      new PublicKey(address);
+      return true;
+    } catch {
+      return false;
+    }
   }, [address, users, userTabIndex, userIndex]);
   const isValidTransaction = useMemo(
     () =>
