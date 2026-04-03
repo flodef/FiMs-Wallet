@@ -244,22 +244,24 @@ export const TokenInfo = ({
                 value={historicalPeriod}
                 onChange={setHistoricalPeriod}
               />
-              <AreaChart
-                className="h-40"
-                data={filteredTokenPrices}
-                categories={['price']}
-                index="stringDate"
-                colors={[filteredTokenColor]}
-                valueFormatter={number => number.toShortCurrency()}
-                yAxisWidth={65}
-                showAnimation={true}
-                animationDuration={2000}
-                curveType="monotone"
-                noDataText={t.loading}
-                showLegend={false}
-                minValue={tokenLimits.min}
-                maxValue={tokenLimits.max}
-              />
+              <div className="min-w-[300px] min-h-[160px]">
+                <AreaChart
+                  className="h-40"
+                  data={filteredTokenPrices}
+                  categories={['price']}
+                  index="stringDate"
+                  colors={[filteredTokenColor]}
+                  valueFormatter={number => number.toShortCurrency()}
+                  yAxisWidth={65}
+                  showAnimation={true}
+                  animationDuration={2000}
+                  curveType="monotone"
+                  noDataText={t.loading}
+                  showLegend={false}
+                  minValue={tokenLimits.min}
+                  maxValue={tokenLimits.max}
+                />
+              </div>
             </Flex>
           ) : (
             <TextCenter>{t.noData}</TextCenter>

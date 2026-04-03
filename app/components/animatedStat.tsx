@@ -24,5 +24,5 @@ export default function AnimatedStat({ type = 'success', className, value }: Ani
     default: '#d9d9d9',
   }[type];
 
-  return <Statistic className={className} value={value} formatter={formatter} valueStyle={{ color }} />;
+  return <Statistic className={className} value={value} formatter={formatter} style={{ color }} />;
 }

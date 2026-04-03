@@ -316,8 +316,14 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
     }, [actualSelectedIndex, isLoaded]);
 
     return (
-      <div ref={forwardedRef} className={twMerge('h-40 w-40', className)} tremor-id="tremor-raw" {...other}>
-        <ResponsiveContainer className="size-full">
+      <div
+        ref={forwardedRef}
+        style={{ width: 160, height: 160 }}
+        className={className}
+        tremor-id="tremor-raw"
+        {...other}
+      >
+        <ResponsiveContainer className="size-full" minWidth={160} minHeight={160}>
           <ReChartsDonutChart
             onClick={
               isHandlingEvent && actualSelectedIndex !== undefined

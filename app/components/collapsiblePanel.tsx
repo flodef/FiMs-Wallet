@@ -47,7 +47,7 @@ export const CollapsiblePanel = ({
       )}
       className={twMerge(hasCardStyle ? 'ant-card' : 'ant-cardless', className)}
       bordered={false}
-      expandIconPosition="end"
+      expandIconPlacement="end"
       onChange={setActiveKey}
     />
   );

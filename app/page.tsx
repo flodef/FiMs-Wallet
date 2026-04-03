@@ -294,7 +294,7 @@ export default function IndexPage() {
               setPage(activeKey as Page);
               setIsMenuOpen(false);
             }}
-            tabPosition={isMobile ? 'right' : 'top'}
+            tabPlacement={isMobile ? 'end' : 'top'}
             more={{ icon: null, trigger: 'hover' }}
           />
         </div>

@@ -437,36 +437,40 @@ export default function Portfolio() {
               <Title>{t.performance}</Title>
               {userHistoric.length > 1 && (
                 <Flex className="w-full" justify="center">
-                  <SparkAreaChart
-                    className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
-                    data={userHistoric.sort((a, b) => a.date - b.date)}
-                    categories={[t.total]}
-                    index={'stringDate'}
-                    colors={['emerald']}
-                    curveType="monotone"
-                    noDataText={t.loading}
-                  />
+                  <div className="min-w-[100px] min-h-[40px] w-full">
+                    <SparkAreaChart
+                      className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
+                      data={userHistoric.sort((a, b) => a.date - b.date)}
+                      categories={[t.total]}
+                      index={'stringDate'}
+                      colors={['emerald']}
+                      curveType="monotone"
+                      noDataText={t.loading}
+                    />
+                  </div>
                 </Flex>
               )}
             </Flex>
           }
           isExpanded={!isMobile}
         >
-          <AreaChart
-            className="h-80"
-            data={userHistoric.sort((a, b) => a.date - b.date)}
-            categories={[t.transfered, t.total]}
-            index="stringDate"
-            colors={['indigo', 'fuchsia']}
-            valueFormatter={amount => toPrivacy(amount, hasPrivacy, 'short')}
-            yAxisWidth={65}
-            showAnimation={true}
-            animationDuration={2000}
-            curveType="monotone"
-            noDataText={t.loading}
-            minValue={minHisto}
-            maxValue={maxHisto}
-          />
+          <div className="min-w-[300px] min-h-[320px]">
+            <AreaChart
+              className="h-80"
+              data={userHistoric.sort((a, b) => a.date - b.date)}
+              categories={[t.transfered, t.total]}
+              index="stringDate"
+              colors={['indigo', 'fuchsia']}
+              valueFormatter={amount => toPrivacy(amount, hasPrivacy, 'short')}
+              yAxisWidth={65}
+              showAnimation={true}
+              animationDuration={2000}
+              curveType="monotone"
+              noDataText={t.loading}
+              minValue={minHisto}
+              maxValue={maxHisto}
+            />
+          </div>
         </CollapsiblePanel>
       )}
     </Flex>

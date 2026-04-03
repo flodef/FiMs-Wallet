@@ -1,7 +1,7 @@
 import { IconChartDonut3, IconGauge } from '@tabler/icons-react';
 import { Flex, Segmented } from 'antd';
 import { BaseType } from 'antd/es/typography/Base';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AvailableChartColorsKeys } from '../utils/chart';
 import { useIsMobile } from '../utils/mobile';
 import { Data, Dataset } from '../utils/types';
@@ -56,6 +56,11 @@ export function TokenGraphs({
 }: TokenGraphsProps) {
   const isMobile = useIsMobile();
   const [graphType, setGraphType] = useState(GraphType.Distribution);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const overallVolatility = useMemo(() => {
     if (!tokens.length) return -1;
@@ -105,21 +110,22 @@ export function TokenGraphs({
           }`}
         />
       ) : null}
-      {graphType === GraphType.Distribution || !isMobile ? (
-        <DonutChart
-          className="mx-auto"
-          data={data}
-          category="label"
-          value="value"
-          colors={tokenColors}
-          variant="donut"
-          label={t.price + ' : ' + currentToken?.value.toLocaleCurrency()}
-          showLabel={selectedIndex !== undefined && !!currentToken}
-          showTooltip={false}
-          selectedIndex={selectedIndex}
-          onSelectedIndexChange={onSelectedIndexChange}
-          valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
-        />
+      {isMounted && (graphType === GraphType.Distribution || !isMobile) ? (
+        <div style={{ width: 160, height: 160, margin: '0 auto' }}>
+          <DonutChart
+            data={data}
+            category="label"
+            value="value"
+            colors={tokenColors}
+            variant="donut"
+            label={t.price + ' : ' + currentToken?.value.toLocaleCurrency()}
+            showLabel={selectedIndex !== undefined && !!currentToken}
+            showTooltip={false}
+            selectedIndex={selectedIndex}
+            onSelectedIndexChange={onSelectedIndexChange}
+            valueFormatter={(number: number) => `${number.toLocaleCurrency()}`}
+          />
+        </div>
       ) : null}
     </Flex>
   );

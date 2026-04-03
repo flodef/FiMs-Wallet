@@ -50,7 +50,7 @@ export default function RatioBadge({ className, data, label }: BadgeProps) {
         className={twMerge('self-center', className)}
         value={ratio}
         precision={2}
-        valueStyle={{
+        style={{
           color,
           fontSize: isMobile ? 'small' : 'large',
           display: 'flex',

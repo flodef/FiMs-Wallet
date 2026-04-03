@@ -49,6 +49,11 @@ export default function Dashboard() {
   const [selectedIndex, setSelectedIndex] = useState<number>();
   const [isTokenInfoOpen, setIsTokenInfoOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     setIsMobile(width < 768);
@@ -162,34 +167,40 @@ export default function Dashboard() {
         label={
           <Flex>
             <Title>{t.performances}</Title>
-            {historic.length > 1 && (
-              <SparkAreaChart
-                className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
-                data={historic.sort((a, b) => a.date - b.date)}
-                categories={[t.total]}
-                index="stringDate"
-                colors={['emerald']}
-                curveType="monotone"
-                noDataText={t.loading}
-              />
+            {historic.length > 1 && isMounted && (
+              <div style={{ width: 200, height: 40 }}>
+                <SparkAreaChart
+                  className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
+                  data={historic.sort((a, b) => a.date - b.date)}
+                  categories={[t.total]}
+                  index="stringDate"
+                  colors={['emerald']}
+                  curveType="monotone"
+                  noDataText={t.loading}
+                />
+              </div>
             )}
           </Flex>
         }
         isExpanded={!isMobile}
       >
-        <AreaChart
-          className="h-80"
-          data={historic.sort((a, b) => a.date - b.date)}
-          categories={[t.transfered, t.total]}
-          index="stringDate"
-          colors={['indigo', 'fuchsia']}
-          valueFormatter={number => number.toShortCurrency(1)}
-          yAxisWidth={50}
-          showAnimation={true}
-          animationDuration={2000}
-          curveType="monotone"
-          noDataText={t.loading}
-        />
+        {isMounted && (
+          <div style={{ minWidth: 300, minHeight: 320 }}>
+            <AreaChart
+              className="h-80"
+              data={historic.sort((a, b) => a.date - b.date)}
+              categories={[t.transfered, t.total]}
+              index="stringDate"
+              colors={['indigo', 'fuchsia']}
+              valueFormatter={number => number.toShortCurrency(1)}
+              yAxisWidth={50}
+              showAnimation={true}
+              animationDuration={2000}
+              curveType="monotone"
+              noDataText={t.loading}
+            />
+          </div>
+        )}
       </CollapsiblePanel>
     </Flex>
   );
