@@ -185,7 +185,7 @@ export default function Users() {
               {isBelowThreshold &&
                 profitValue !== undefined &&
                 donated !== undefined &&
-                (profitValue - donated) * DONATION_RATIO > 0 && (
+                profitValue * DONATION_RATIO - donated > 0 && (
                   <Flex justify="space-between" align="center">
                     <Flex align="center" gap={4}>
                       <Subtitle className="truncate whitespace-nowrap">{t.remainingToDonate}</Subtitle>
@@ -203,7 +203,7 @@ export default function Users() {
                     </Flex>
                     <Text className="font-bold">
                       {profitValue !== undefined && donated !== undefined
-                        ? ((profitValue - donated) * DONATION_RATIO).toLocaleCurrency()
+                        ? (profitValue * DONATION_RATIO - donated).toLocaleCurrency()
                         : ''}
                     </Text>
                   </Flex>
