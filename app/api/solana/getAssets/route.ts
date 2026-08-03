@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       method: 'POST',
       headers: {
         Referer: 'https://www.fims.fi',
-        ContentType: 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         jsonrpc: '2.0',
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
         params: {
           ownerAddress: address,
           tokenType: 'fungible',
-          displayOptions: {
+          options: {
             showNativeBalance: true,
             showGrandTotal: true,
           },
