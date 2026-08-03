@@ -68,6 +68,11 @@ export const TokenInfo = ({
 
   const [isTokenListExpanded, setIsTokenListExpanded] = useState(false);
   const [historicalPeriod, setHistoricalPeriod] = useState(t.year);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     setIsTokenListExpanded(width > 480);
@@ -99,7 +104,7 @@ export const TokenInfo = ({
   );
 
   const handleClose = useCallback(
-    (e: React.MouseEvent | React.KeyboardEvent) => {
+    (e: React.MouseEvent | React.KeyboardEvent | KeyboardEvent) => {
       e.stopPropagation();
       onClose();
     },
@@ -167,7 +172,7 @@ export const TokenInfo = ({
     <Drawer
       size="large"
       open={isOpen}
-      onClose={handleClose as any}
+      onClose={handleClose}
       onClick={e => e.stopPropagation()}
       title={
         <TabGroup
@@ -237,32 +242,34 @@ export const TokenInfo = ({
         </Flex>
         <CollapsiblePanel hasCardStyle={false} label={<Title>{t.historic}</Title>}>
           {!prices || filteredTokenPrices.length ? (
-            <Flex vertical className="gap-4">
-              <Segmented
-                className="self-center"
-                options={[t.day, t.week, t.month, t.quarter, t.year]}
-                value={historicalPeriod}
-                onChange={setHistoricalPeriod}
-              />
-              <div className="min-w-[300px] min-h-[160px]">
-                <AreaChart
-                  className="h-40"
-                  data={filteredTokenPrices}
-                  categories={['price']}
-                  index="stringDate"
-                  colors={[filteredTokenColor]}
-                  valueFormatter={number => number.toShortCurrency()}
-                  yAxisWidth={65}
-                  showAnimation={true}
-                  animationDuration={2000}
-                  curveType="monotone"
-                  noDataText={t.loading}
-                  showLegend={false}
-                  minValue={tokenLimits.min}
-                  maxValue={tokenLimits.max}
+            isMounted && (
+              <Flex vertical className="gap-4">
+                <Segmented
+                  className="self-center"
+                  options={[t.day, t.week, t.month, t.quarter, t.year]}
+                  value={historicalPeriod}
+                  onChange={setHistoricalPeriod}
                 />
-              </div>
-            </Flex>
+                <div className="min-w-75 min-h-40">
+                  <AreaChart
+                    className="h-40"
+                    data={filteredTokenPrices}
+                    categories={['price']}
+                    index="stringDate"
+                    colors={[filteredTokenColor]}
+                    valueFormatter={number => number.toShortCurrency()}
+                    yAxisWidth={65}
+                    showAnimation={true}
+                    animationDuration={2000}
+                    curveType="monotone"
+                    noDataText={t.loading}
+                    showLegend={false}
+                    minValue={tokenLimits.min}
+                    maxValue={tokenLimits.max}
+                  />
+                </div>
+              </Flex>
+            )
           ) : (
             <TextCenter>{t.noData}</TextCenter>
           )}

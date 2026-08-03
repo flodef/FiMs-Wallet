@@ -1,6 +1,13 @@
 @import 'tailwindcss';
 @config '../tailwind.config.ts';
 
+@source inline('{hover:,ui-selected:,}bg-{slate,gray,zinc,neutral,stone,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,{100..900..100},950}');
+@source inline('{hover:,ui-selected:,}text-{slate,gray,zinc,neutral,stone,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,{100..900..100},950}');
+@source inline('{hover:,ui-selected:,}border-{slate,gray,zinc,neutral,stone,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,{100..900..100},950}');
+@source inline('ring-{slate,gray,zinc,neutral,stone,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,{100..900..100},950}');
+@source inline('stroke-{slate,gray,zinc,neutral,stone,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,{100..900..100},950}');
+@source inline('fill-{slate,gray,zinc,neutral,stone,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,{100..900..100},950}');
+
 :root {
   --background: #ffffff;
   --text: #374151;

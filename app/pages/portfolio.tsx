@@ -64,9 +64,11 @@ export default function Portfolio() {
   const [hasLoaded, setHasLoaded] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number>();
   const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMobile(isMobileSize());
+    setIsMounted(true);
   }, []);
 
   const updateTokenPrices = async (assets: Asset[], tokenData: TokenData[]) => {
@@ -109,14 +111,12 @@ export default function Portfolio() {
   const createFiMsAssets = (tokenData: TokenData[], portfolioTokens: number[], assets: Asset[]): Asset[] =>
     tokenData
       .filter(token => token.label.includes(FIMS))
-      .map(
-        (token, i): Asset => ({
-          id: token.address,
-          name: token.label,
-          symbol: token.symbol,
-          balance: portfolioTokens[i],
-        }),
-      )
+      .map((token, i): Asset => ({
+        id: token.address,
+        name: token.label,
+        symbol: token.symbol,
+        balance: portfolioTokens[i],
+      }))
       .filter(fimsToken => !assets.some(asset => asset.symbol === fimsToken.symbol));
 
   const updatePortfolioData = (p: PortfolioData, tokenData: TokenData[], combinedAssets: Asset[]) => {
@@ -435,9 +435,9 @@ export default function Portfolio() {
           label={
             <Flex>
               <Title>{t.performance}</Title>
-              {userHistoric.length > 1 && (
+              {userHistoric.length > 1 && isMounted && (
                 <Flex className="w-full" justify="center">
-                  <div className="min-w-[200px] min-h-[40px] w-full">
+                  <div className="min-w-50 min-h-10 w-full">
                     <SparkAreaChart
                       className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
                       data={userHistoric.sort((a, b) => a.date - b.date)}
@@ -454,23 +454,25 @@ export default function Portfolio() {
           }
           isExpanded={!isMobile}
         >
-          <div className="min-w-[300px] min-h-[320px]">
-            <AreaChart
-              className="h-80"
-              data={userHistoric.sort((a, b) => a.date - b.date)}
-              categories={[t.transfered, t.total]}
-              index="stringDate"
-              colors={['indigo', 'fuchsia']}
-              valueFormatter={amount => toPrivacy(amount, hasPrivacy, 'short')}
-              yAxisWidth={65}
-              showAnimation={true}
-              animationDuration={2000}
-              curveType="monotone"
-              noDataText={t.loading}
-              minValue={minHisto}
-              maxValue={maxHisto}
-            />
-          </div>
+          {isMounted && (
+            <div className="min-w-75 min-h-80">
+              <AreaChart
+                className="h-80"
+                data={userHistoric.sort((a, b) => a.date - b.date)}
+                categories={[t.transfered, t.total]}
+                index="stringDate"
+                colors={['indigo', 'fuchsia']}
+                valueFormatter={amount => toPrivacy(amount, hasPrivacy, 'short')}
+                yAxisWidth={65}
+                showAnimation={true}
+                animationDuration={2000}
+                curveType="monotone"
+                noDataText={t.loading}
+                minValue={minHisto}
+                maxValue={maxHisto}
+              />
+            </div>
+          )}
         </CollapsiblePanel>
       )}
     </Flex>
