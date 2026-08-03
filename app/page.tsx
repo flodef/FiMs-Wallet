@@ -146,7 +146,7 @@ export default function IndexPage() {
         className={twMerge(
           genericHamburgerLine,
           isMenuOpen
-            ? '-rotate-45 -translate-y-[10px] opacity-100 group-hover:opacity-100'
+            ? '-rotate-45 translate-y-[-10px] opacity-100 group-hover:opacity-100'
             : 'opacity-100 group-hover:opacity-100',
         )}
       />
@@ -156,7 +156,7 @@ export default function IndexPage() {
   const logoButton = (
     <a
       className={twMerge(
-        'flex flex-shrink-0 p-4 items-center',
+        'flex shrink-0 p-4 items-center',
         !isMobile && 'mr-3',
         isConnected && currentPage !== Page.Dashboard ? 'cursor-pointer' : 'cursor-default',
       )}
@@ -281,7 +281,7 @@ export default function IndexPage() {
       }}
     >
       {currentPage ? (
-        <div className={twMerge('flex flex-grow w-[99%] lg:w-full justify-center', isPopupOpen ? 'blur-sm' : '')}>
+        <div className={twMerge('flex grow w-[99%] lg:w-full justify-center', isPopupOpen ? 'blur-sm' : '')}>
           <Tabs
             className="w-full"
             renderTabBar={renderTabBar}

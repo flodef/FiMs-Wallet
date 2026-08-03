@@ -208,7 +208,7 @@ export const TokenInfo = ({
         </Flex>
         <CollapsiblePanel className="text-justify" hasCardStyle={false} label={<Title>{t.description}</Title>}>
           {currentToken.description ? (
-            <Text className="break-words whitespace-normal overflow-y-auto text-center">
+            <Text className="wrap-break-word whitespace-normal overflow-y-auto text-center">
               {currentToken.description}
             </Text>
           ) : (

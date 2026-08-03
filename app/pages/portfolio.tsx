@@ -437,7 +437,7 @@ export default function Portfolio() {
               <Title>{t.performance}</Title>
               {userHistoric.length > 1 && (
                 <Flex className="w-full" justify="center">
-                  <div className="min-w-[100px] min-h-[40px] w-full">
+                  <div className="min-w-[200px] min-h-[40px] w-full">
                     <SparkAreaChart
                       className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
                       data={userHistoric.sort((a, b) => a.date - b.date)}

@@ -72,7 +72,7 @@ export const TokenDetails = ({
   );
 
   const handleClose = useCallback(
-    (e: MouseEvent | KeyboardEvent) => {
+    (e: React.MouseEvent | React.KeyboardEvent | KeyboardEvent) => {
       e.stopPropagation?.();
       onClose();
     },
@@ -94,9 +94,10 @@ export const TokenDetails = ({
 
   return currentToken && data.length > 0 ? (
     <Drawer
-      width={850}
+      size="large"
+      styles={{ body: { maxWidth: 850 } }}
       open={isOpen}
-      onClose={handleClose as any}
+      onClose={handleClose}
       onClick={e => e.stopPropagation()}
       title={
         <TabGroup

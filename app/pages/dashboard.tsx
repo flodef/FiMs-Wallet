@@ -168,7 +168,7 @@ export default function Dashboard() {
           <Flex>
             <Title>{t.performances}</Title>
             {historic.length > 1 && isMounted && (
-              <div style={{ width: 200, height: 40 }}>
+              <div style={{ minWidth: 200, width: 200, height: 40 }}>
                 <SparkAreaChart
                   className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
                   data={historic.sort((a, b) => a.date - b.date)}
