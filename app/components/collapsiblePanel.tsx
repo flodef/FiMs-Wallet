@@ -9,6 +9,7 @@ interface CollapsiblePanelProps {
   isExpanded?: boolean;
   hasCardStyle?: boolean;
   className?: string;
+  onExpandedChange?: (isExpanded: boolean) => void;
 }
 
 export const CollapsiblePanel = ({
@@ -17,12 +18,18 @@ export const CollapsiblePanel = ({
   isExpanded = true,
   hasCardStyle = true,
   className,
+  onExpandedChange,
 }: CollapsiblePanelProps) => {
   const [activeKey, setActiveKey] = useState<Array<string | number> | string | number | undefined>();
 
   useEffect(() => {
     setActiveKey(isExpanded ? [0] : undefined);
   }, [isExpanded]);
+
+  const handleChange = (key: Array<string | number> | string | number | undefined) => {
+    setActiveKey(key);
+    onExpandedChange?.(Array.isArray(key) ? key.length > 0 : key !== undefined);
+  };
 
   return (
     <Collapse
@@ -49,7 +56,7 @@ export const CollapsiblePanel = ({
       bordered={false}
       expandIconPlacement="end"
       destroyOnHidden
-      onChange={setActiveKey}
+      onChange={handleChange}
     />
   );
 };

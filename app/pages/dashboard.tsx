@@ -50,6 +50,7 @@ export default function Dashboard() {
   const [isTokenInfoOpen, setIsTokenInfoOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isPerformanceExpanded, setIsPerformanceExpanded] = useState(!isMobile);
 
   useEffect(() => {
     setIsMounted(true);
@@ -57,6 +58,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     setIsMobile(width < 768);
+    setIsPerformanceExpanded(!(width < 768));
   }, [width]);
 
   const getBarList = useCallback(
@@ -167,10 +169,10 @@ export default function Dashboard() {
         label={
           <Flex>
             <Title>{t.performances}</Title>
-            {historic.length > 1 && isMounted && (
+            {historic.length > 1 && isMounted && !isPerformanceExpanded && (
               <div style={{ minWidth: 200, width: 200, height: 40 }}>
                 <SparkAreaChart
-                  className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
+                  className="mx-4 h-10 w-full text-center"
                   data={historic.sort((a, b) => a.date - b.date)}
                   categories={[t.total]}
                   index="stringDate"
@@ -183,6 +185,7 @@ export default function Dashboard() {
           </Flex>
         }
         isExpanded={!isMobile}
+        onExpandedChange={setIsPerformanceExpanded}
       >
         {isMounted && (
           <div style={{ minWidth: 300, minHeight: 320 }}>

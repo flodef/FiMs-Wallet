@@ -65,6 +65,7 @@ export default function Portfolio() {
   const [selectedIndex, setSelectedIndex] = useState<number>();
   const [isMobile, setIsMobile] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isPerformanceExpanded, setIsPerformanceExpanded] = useState(!isMobile);
 
   useEffect(() => {
     setIsMobile(isMobileSize());
@@ -435,11 +436,11 @@ export default function Portfolio() {
           label={
             <Flex>
               <Title>{t.performance}</Title>
-              {userHistoric.length > 1 && isMounted && (
+              {userHistoric.length > 1 && isMounted && !isPerformanceExpanded && (
                 <Flex className="w-full" justify="center">
                   <div className="min-w-50 min-h-10 w-full">
                     <SparkAreaChart
-                      className="mx-4 h-10 w-full text-center animate-display [.ant-collapse-header[aria-expanded='true']_&]:hidden"
+                      className="mx-4 h-10 w-full text-center"
                       data={userHistoric.sort((a, b) => a.date - b.date)}
                       categories={[t.total]}
                       index={'stringDate'}
@@ -453,6 +454,7 @@ export default function Portfolio() {
             </Flex>
           }
           isExpanded={!isMobile}
+          onExpandedChange={setIsPerformanceExpanded}
         >
           {isMounted && (
             <div className="min-w-75 min-h-80">

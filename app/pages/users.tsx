@@ -135,8 +135,9 @@ export default function Users() {
         {(() => {
           const donated = myProfile?.donated;
           const profitValue = myProfile?.profitValue;
-          const donationRatio = donated !== undefined && profitValue !== undefined ? donated / profitValue : undefined;
-          const isBelowThreshold = donationRatio !== undefined && donationRatio < DONATION_RATIO;
+          const donationRatio =
+            donated !== undefined && profitValue !== undefined && profitValue > 0 ? donated / profitValue : 0;
+          const isBelowThreshold = profitValue !== undefined && profitValue > 0 && donationRatio < DONATION_RATIO;
 
           return (
             <>
@@ -160,7 +161,7 @@ export default function Users() {
                     <Switch disabled={isUpdatingUserPrivacy} checked={isPublic} onChange={handleSwitchChange} />
                   </Flex>
                 ) : (
-                  <div className="bg-theme-border rounded-md w-[70px] h-5 mb-1" />
+                  <div className="bg-theme-border rounded-md w-17.5 h-5 mb-1" />
                 )}
               </Flex>
               <Flex justify="space-between" align="center">
@@ -173,37 +174,40 @@ export default function Users() {
               </Flex>
               <Flex justify="space-between" align="center">
                 <Subtitle className="truncate whitespace-nowrap">{t.donated}</Subtitle>
-                {donationRatio !== undefined && donated !== undefined ? (
+                {donated !== undefined ? (
                   <Text type={isBelowThreshold ? 'danger' : 'success'} className="font-bold">
-                    {`${donated.toLocaleCurrency()} (${donationRatio.toRatio()})`}
+                    {`${donated.toLocaleCurrency()}${donationRatio > 0 ? ` (${donationRatio.toRatio()})` : ''}`}
                   </Text>
                 ) : (
                   <div className="bg-theme-border rounded-md w-32 h-5 mb-1" />
                 )}
               </Flex>
-              {isBelowThreshold && (
-                <Flex justify="space-between" align="center">
-                  <Flex align="center" gap={4}>
-                    <Subtitle className="truncate whitespace-nowrap">{t.remainingToDonate}</Subtitle>
-                    <Tooltip
-                      title={
-                        <Flex vertical>
-                          <TooltipText>{`${DONATION_RATIO * 100}${t.remainingToDonateTooltipLine1}`}</TooltipText>
-                          <TooltipText>{t.remainingToDonateTooltipLine2}</TooltipText>
-                          <TooltipText>{t.remainingToDonateTooltipLine3}</TooltipText>
-                        </Flex>
-                      }
-                    >
-                      <IconInfoCircle size={20} className="cursor-help text-gray-400" />
-                    </Tooltip>
+              {isBelowThreshold &&
+                profitValue !== undefined &&
+                donated !== undefined &&
+                (profitValue - donated) * DONATION_RATIO > 0 && (
+                  <Flex justify="space-between" align="center">
+                    <Flex align="center" gap={4}>
+                      <Subtitle className="truncate whitespace-nowrap">{t.remainingToDonate}</Subtitle>
+                      <Tooltip
+                        title={
+                          <Flex vertical>
+                            <TooltipText>{`${DONATION_RATIO * 100}${t.remainingToDonateTooltipLine1}`}</TooltipText>
+                            <TooltipText>{t.remainingToDonateTooltipLine2}</TooltipText>
+                            <TooltipText>{t.remainingToDonateTooltipLine3}</TooltipText>
+                          </Flex>
+                        }
+                      >
+                        <IconInfoCircle size={20} className="cursor-help text-gray-400" />
+                      </Tooltip>
+                    </Flex>
+                    <Text className="font-bold">
+                      {profitValue !== undefined && donated !== undefined
+                        ? ((profitValue - donated) * DONATION_RATIO).toLocaleCurrency()
+                        : ''}
+                    </Text>
                   </Flex>
-                  <Text className="font-bold">
-                    {profitValue !== undefined && donated !== undefined
-                      ? ((profitValue - donated) * DONATION_RATIO).toLocaleCurrency()
-                      : ''}
-                  </Text>
-                </Flex>
-              )}
+                )}
               {!!myProfile?.transferCost && (
                 <Flex justify="space-between" align="center">
                   <Flex align="center" gap={4}>

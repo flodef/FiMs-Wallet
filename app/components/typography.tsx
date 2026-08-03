@@ -79,9 +79,7 @@ export const TextCenter = ({ children, className, type }: TitleProps) => (
 );
 
 export const TooltipText = ({ children, className }: TitleProps) => (
-  <Text className={twMerge('text-theme-content-emphasis dark:text-dark-theme-content-emphasis', className)}>
-    {children}
-  </Text>
+  <Text className={twMerge('text-white', className)}>{children}</Text>
 );
 
 interface LoadingMetricProps {
