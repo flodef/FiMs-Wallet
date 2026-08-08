@@ -29,7 +29,7 @@
     "firebase": "latest",
     "js-cookie": "latest",
     "marked": "latest",
-    "next": "latest",
+    "next": "15.5.8",
     "prop-types": "latest",
     "react": "latest",
     "react-countup": "latest",
