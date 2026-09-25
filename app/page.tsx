@@ -53,8 +53,8 @@ export default function IndexPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setNeedRefresh(true);
-    }, 60000); // Refresh every minute
+      if (document.visibilityState === 'visible') setNeedRefresh(true);
+    }, 60000); // Refresh every minute while the tab is visible
 
     return () => {
       clearInterval(interval);

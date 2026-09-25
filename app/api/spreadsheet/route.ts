@@ -37,7 +37,11 @@ export async function GET(request: Request) {
 
     const data = await response.json();
 
-    return NextResponse.json(data);
+    // Shared sheet data — the CDN serves one cached response per URL per
+    // minute for all visitors instead of one function call each.
+    return NextResponse.json(data, {
+      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
