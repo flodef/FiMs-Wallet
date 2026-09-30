@@ -6,7 +6,6 @@ import { twMerge } from 'tailwind-merge';
 import { Transaction, useData } from '../hooks/useData';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { Data, Dataset } from '../utils/types';
-import { CollapsiblePanel } from './collapsiblePanel';
 import { Privacy } from './privacy';
 import { TokenInfo } from './tokenInfo';
 import { TransactionsTable } from './transactionsTable';
@@ -149,13 +148,12 @@ export const TokenDetails = ({
               </Title>
             </Flex>
           </div>
-          <CollapsiblePanel
-            className="text-justify h-full overflow-auto"
-            hasCardStyle={false}
-            label={<Title>{t.transactions}</Title>}
-          >
-            <TransactionsTable getFilteredTransactions={getFilteredTransactions} />
-          </CollapsiblePanel>
+          <Flex vertical className="flex-1 min-h-0">
+            <Title className="shrink-0">{t.transactions}</Title>
+            <div className="flex-1 min-h-0 overflow-auto">
+              <TransactionsTable stickyHeader getFilteredTransactions={getFilteredTransactions} />
+            </div>
+          </Flex>
         </Flex>
         <Flex
           className="gap-2 cursor-pointer hover:animate-pulse justify-center pt-2 border-t border-theme-border dark:border-dark-theme-border"

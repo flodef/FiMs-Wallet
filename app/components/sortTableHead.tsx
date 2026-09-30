@@ -100,17 +100,19 @@ export default function SortTableHead<T extends tableObject>({
   table,
   setTable,
   sizes,
+  className,
 }: {
   labels: string[];
   table: T[] | undefined;
   setTable: (table: T[] | undefined) => void;
   sizes?: Sizes;
+  className?: string;
 }) {
   const [filters] = useState<Filter[]>(Array.from({ length: labels.length }, () => 'none'));
   const tableLength = table?.length ? Object.keys(table[0]).length : 0;
 
   return (
-    <TableHead>
+    <TableHead className={className}>
       <TableRow>
         {labels.map((label, index) => (
           <TableHeaderCell

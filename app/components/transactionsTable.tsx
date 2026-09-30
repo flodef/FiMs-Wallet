@@ -27,9 +27,10 @@ const t: Dataset = {
 
 interface TransactionsTableProps {
   getFilteredTransactions?: (transactions?: Transaction[] | undefined) => Transaction[] | undefined;
+  stickyHeader?: boolean;
 }
 
-export function TransactionsTable({ getFilteredTransactions }: TransactionsTableProps) {
+export function TransactionsTable({ getFilteredTransactions, stickyHeader }: TransactionsTableProps) {
   const { transactions, setTransactions } = useData();
   const { openPopup } = usePopup();
 
@@ -44,6 +45,7 @@ export function TransactionsTable({ getFilteredTransactions }: TransactionsTable
             table={transactions}
             setTable={setTransactions}
             sizes={{ xs: 4, sm: 5, md: 6, lg: 7 }}
+            className={stickyHeader ? 'sticky top-0 z-10 bg-theme-background dark:bg-dark-theme-background' : undefined}
           />
           <TableBody>
             {getFilteredTransactions(transactions)?.map((transaction, index) => (

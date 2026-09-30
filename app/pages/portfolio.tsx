@@ -1,5 +1,6 @@
+import { IconRefresh } from '@tabler/icons-react';
 import { AreaChart, SparkAreaChart } from '@tremor/react';
-import { Divider, Flex } from 'antd';
+import { Alert, Divider, Flex, notification, Tooltip } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 import { twMerge } from 'tailwind-merge';
@@ -17,7 +18,15 @@ import { Page, useNavigation } from '../hooks/useNavigation';
 import { useUser } from '../hooks/useUser';
 import { FIMS, FIMS_TOKEN_PATH, SPL_TOKEN_PATH } from '../utils/constants';
 import { isMobileSize } from '../utils/mobile';
-import { convertedData, DataName, forceData, loadData, PortfolioData, TokenData } from '../utils/processData';
+import {
+  clearData,
+  convertedData,
+  DataName,
+  forceData,
+  loadData,
+  PortfolioData,
+  TokenData,
+} from '../utils/processData';
 import { Data, Dataset } from '../utils/types';
 import { loadTransactionData } from './transactions';
 
@@ -32,6 +41,14 @@ const t: Dataset = {
   transfered: 'Investi',
   performance: 'Performances FiMs',
   loading: 'Chargement...',
+  refresh: 'Recharger les données',
+  noSolWarning:
+    'Aucun SOL détecté : vous ne pourrez pas payer les frais de transaction. Envoyez du SOL sur votre adresse.',
+  emptyWallet: 'Aucun actif détecté dans ce portefeuille.',
+  suggestedTokens: 'Jetons suggérés',
+  yearlyYield: 'Rendement annuel estimé',
+  newTransaction: 'Nouvelle transaction détectée',
+  newTransactions: 'Nouvelles transactions détectées',
 };
 
 interface Asset {
@@ -66,6 +83,10 @@ export default function Portfolio() {
   const [isMobile, setIsMobile] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isPerformanceExpanded, setIsPerformanceExpanded] = useState(!isMobile);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasSol, setHasSol] = useState<boolean>();
+  const [suggestedTokens, setSuggestedTokens] = useState<string[]>([]);
+  const [notificationApi, notificationContextHolder] = notification.useNotification();
 
   useEffect(() => {
     setIsMobile(isMobileSize());
@@ -176,6 +197,8 @@ export default function Portfolio() {
       tokenData = (tokenData.length ? tokenData : await forceData(DataName.tokens)) as TokenData[];
       portfolioData = (portfolioData.length ? portfolioData : await forceData(DataName.portfolio)) as PortfolioData[];
 
+      setSuggestedTokens(tokenData.filter(t => t.label.includes(FIMS)).map(t => t.symbol));
+
       if (!user || portfolio) return { tokenData, portfolioData };
 
       const p = portfolioData.find(d => d.id === user.id) ?? {
@@ -222,6 +245,9 @@ export default function Portfolio() {
       // Combine all assets
       const combinedAssets = [...assets, ...fimsAssets].filter(a => a.balance);
 
+      // Warn when there is no SOL left to pay for transaction fees (only when on-chain data was loaded)
+      setHasSol(isAssetsLoaded ? combinedAssets.some(a => a.symbol === 'SOL') : undefined);
+
       // Update portfolio data
       if (isAssetsLoaded) {
         updatePortfolioData(p, tokenData, combinedAssets);
@@ -262,7 +288,12 @@ export default function Portfolio() {
           .finally(() => (isLoading.current = false)),
       )
       .then(tokens => loadTransactionData(tokens as PortfolioToken[], user.id, transactions, setTransactions))
-      .catch(console.error);
+      .then(newCount => {
+        if (newCount === 1) notificationApi.info({ message: t.newTransaction });
+        else if (newCount) notificationApi.info({ message: `${newCount} ${t.newTransactions}` });
+      })
+      .catch(console.error)
+      .finally(() => setIsRefreshing(false));
   }, [
     needRefresh,
     setNeedRefresh,
@@ -274,7 +305,15 @@ export default function Portfolio() {
     userHistoric,
     transactions,
     setTransactions,
+    notificationApi,
   ]);
+
+  const refreshData = useCallback(() => {
+    if (isLoading.current) return;
+    setIsRefreshing(true);
+    clearData(true); // Expire every sheet cache so the next load fetches fresh data
+    setNeedRefresh(true);
+  }, [setNeedRefresh]);
 
   // Update wallet with transactions data
   useEffect(() => {
@@ -325,6 +364,17 @@ export default function Portfolio() {
 
   return (
     <Flex vertical className="gap-4">
+      {notificationContextHolder}
+      {hasLoaded && wallet?.length === 0 ? (
+        <Alert
+          type="info"
+          showIcon
+          message={t.emptyWallet}
+          description={suggestedTokens.length ? `${t.suggestedTokens} : ${suggestedTokens.join(', ')}` : undefined}
+        />
+      ) : hasLoaded && hasSol === false ? (
+        <Alert type="warning" showIcon message={t.noSolWarning} />
+      ) : null}
       <CollapsiblePanel
         label={
           <Flex justify="space-between">
@@ -335,11 +385,24 @@ export default function Portfolio() {
                   <Privacy amount={portfolio?.total ?? 0} />
                 </LoadingMetric>
                 <PrivacyButton />
+                <Tooltip title={t.refresh}>
+                  <IconRefresh
+                    className={twMerge(
+                      'ml-2 h-5 w-5 cursor-pointer self-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300',
+                      isRefreshing && 'animate-spin',
+                    )}
+                    onClick={e => {
+                      e.stopPropagation();
+                      refreshData();
+                    }}
+                  />
+                </Tooltip>
               </Flex>
             </Flex>
             <RatioBadge
               className={portfolio?.yearlyYield ? 'hidden 2xs:block' : 'hidden'}
               data={portfolio?.yearlyYield ?? 0}
+              tooltip={t.yearlyYield}
             />
           </Flex>
         }

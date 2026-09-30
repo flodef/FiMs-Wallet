@@ -106,8 +106,8 @@ export async function forceData(name: DataName | string) {
   return data;
 }
 
-export function clearData() {
-  [DataName.userHistoric].forEach(name => {
+export function clearData(all = false) {
+  (all ? Object.values(DataName) : [DataName.userHistoric]).forEach(name => {
     dataCache.set(name, { data: [], expire: 0 });
   });
 }

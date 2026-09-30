@@ -11,6 +11,7 @@ interface BadgeProps {
   className?: string;
   data: Data[] | number;
   label?: string;
+  tooltip?: string;
 }
 
 type DeltaType = 'up' | 'down' | 'slightlyUp' | 'slightlyDown' | 'neutral';
@@ -22,7 +23,7 @@ const getDeltaType = (ratio: number | string | undefined): DeltaType => {
   return (r ? delta : 'neutral') as DeltaType;
 };
 
-export default function RatioBadge({ className, data, label }: BadgeProps) {
+export default function RatioBadge({ className, data, label, tooltip }: BadgeProps) {
   const isMobile = useIsMobile(480);
 
   const ratio = Array.isArray(data) ? getRatio(data, label) : data.toRatio();
@@ -45,7 +46,7 @@ export default function RatioBadge({ className, data, label }: BadgeProps) {
   }[delta];
 
   return (
-    <Tooltip title={label}>
+    <Tooltip title={tooltip}>
       <Statistic
         className={twMerge('self-center', className)}
         value={ratio}

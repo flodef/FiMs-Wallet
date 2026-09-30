@@ -9,12 +9,12 @@ import GainsBar from '../components/gainsBar';
 import RatioBadge from '../components/ratioBadge';
 import { TokenInfo } from '../components/tokenInfo';
 import { TokenGraphs } from '../components/tokenGraphs';
-import { LoadingMetric, Subtitle, Title } from '../components/typography';
+import { LoadingMetric, Subtitle, Text, Title } from '../components/typography';
 import { DashboardToken, Historic, useData } from '../hooks/useData';
 import { Page, useNavigation } from '../hooks/useNavigation';
 import { useWindowParam } from '../hooks/useWindowParam';
 import { AvailableChartColorsKeys } from '../utils/chart';
-import { FIMS } from '../utils/constants';
+import { FIMS, FIMS_AUDIT_URL, FIMS_SNS_DOMAIN, FIMS_WALLET_ADDRESS, SNS_RESOLVER_URL } from '../utils/constants';
 import {} from '../utils/extensions';
 import { findValue, getCurrency, getRatio } from '../utils/functions';
 import { DataName, loadData } from '../utils/processData';
@@ -37,6 +37,12 @@ const t: Dataset = {
   charity: 'Charité',
   loading: 'Chargement...',
   learnMore: 'En savoir plus',
+  assetsPerformance: 'Performance de la trésorerie',
+  audit: 'Audit',
+  disclaimer:
+    'FiMs Wallet est un outil de suivi de portefeuille, pas un conseil en investissement. ' +
+    'Les performances passées ne préjugent pas des performances futures. ' +
+    'Chacun est seul responsable de ses décisions et de ses pertes éventuelles.',
 };
 
 const thisPage = Page.Dashboard;
@@ -51,9 +57,20 @@ export default function Dashboard() {
   const [isMobile, setIsMobile] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isPerformanceExpanded, setIsPerformanceExpanded] = useState(!isMobile);
+  const [snsDomain, setSnsDomain] = useState<string>();
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    fetch(`${SNS_RESOLVER_URL}${FIMS_SNS_DOMAIN}`)
+      .then(result => (result.ok ? result.json() : undefined))
+      .then(data => {
+        // Only display the domain when it actually resolves to the audited wallet
+        if (data?.result === FIMS_WALLET_ADDRESS) setSnsDomain(FIMS_SNS_DOMAIN);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -108,7 +125,7 @@ export default function Dashboard() {
               <Title className="text-left">{t.assets}</Title>
               <LoadingMetric isReady={dashboard.length > 0}>{getCurrency(dashboard, 'assets', 1000000)}</LoadingMetric>
             </div>
-            <RatioBadge data={dashboard} label="assets" />
+            <RatioBadge data={dashboard} label="assets" tooltip={t.assetsPerformance} />
           </Flex>
         }
       >
@@ -205,6 +222,18 @@ export default function Dashboard() {
           </div>
         )}
       </CollapsiblePanel>
+      <Flex vertical className="gap-1 pt-2 border-t border-theme-border dark:border-dark-theme-border" align="center">
+        <Text className="text-xs text-center opacity-70">{t.disclaimer}</Text>
+        <a
+          className="text-xs underline opacity-70 hover:opacity-100"
+          href={FIMS_AUDIT_URL}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {t.audit}
+          {snsDomain ? ` — ${snsDomain}` : ''}
+        </a>
+      </Flex>
     </Flex>
   );
 }

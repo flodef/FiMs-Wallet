@@ -209,7 +209,7 @@ export const TokenInfo = ({
         </Flex>
         <Flex justify="space-between" align="center">
           <Title>{t.yearlyYield}</Title>
-          <RatioBadge data={currentToken.yearlyYield} />
+          <RatioBadge data={currentToken.yearlyYield} tooltip={t.yearlyYield} />
         </Flex>
         <CollapsiblePanel className="text-justify" hasCardStyle={false} label={<Title>{t.description}</Title>}>
           {currentToken.description ? (

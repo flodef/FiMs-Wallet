@@ -102,10 +102,10 @@ export const loadTransactionData = async (
   transactions: Transaction[] | undefined,
   setTransactions: (transactions: Transaction[] | undefined) => void,
 ) => {
-  const storeTransactions = (data: convertedData[]) => {
+  const storeTransactions = (data: convertedData[], force = false) => {
     const tx = (data as Transaction[]).filter(d => d.userid === userId);
 
-    if (!transactions || tx.length > transactions.length)
+    if (force || !transactions || tx.length > transactions.length)
       setTransactions(
         tx
           .map(d => ({
@@ -127,6 +127,8 @@ export const loadTransactionData = async (
           }))
           .sort((a, b) => b.date.getTime() - a.date.getTime()),
       );
+
+    return tx.length;
   };
 
   // Only load initial data if transactions are empty
@@ -134,12 +136,19 @@ export const loadTransactionData = async (
     ? loadData(DataName.transactions).then(storeTransactions)
     : Promise.resolve();
 
-  // Then load transactions from the api (most recent)
+  // Then load transactions from the api (most recent & authoritative: edits and deletions must be applied too)
   return loadInitialData
     .then(() => fetch('/api/database/getTransactions'))
     .then(result => result.ok && result.json())
-    .then(data => storeTransactions(data))
-    .catch(console.error);
+    .then(data => {
+      const count = storeTransactions(data, true);
+      // Report how many transactions were added — only when a list was already loaded, to avoid noise on first load
+      return transactions === undefined ? 0 : Math.max(count - transactions.length, 0);
+    })
+    .catch(error => {
+      console.error(error);
+      return 0;
+    });
 };
 
 const thisPage = Page.Transactions;
