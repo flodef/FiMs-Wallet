@@ -11,8 +11,8 @@ Tags par item :
 
 ## Bugs
 
-⬜ `[V3→P1]` Transactions des anciens membres : prendre en compte les achats euro→crypto  
-  ↳ à régler dans le modèle de données Neon, pas en patch front
+✅ `[V3→P1]` Transactions des anciens membres : prendre en compte les achats euro→crypto  
+  ↳ couvert par `computeFimsPositions` (dépôts euro→crypto : movement=cash investi, amount=unités)
 
 ✅ `[V2]` Transactions qui ne se rafraîchissent pas  
   ↳ le guard `tx.length > count` ignorait éditions/suppressions ; l'API est maintenant appliquée de force (fix plus large que la seule déconnexion)
@@ -22,8 +22,8 @@ Tags par item :
 ✅ `[V2]` Bouton pour recharger manuellement les données du portefeuille  
   ↳ icône refresh + `clearData(true)`
 
-⬜ `[V3→P4]` Persister la monnaie choisie  
-  ↳ pas de sélecteur de devise en V2 — fusionné avec « Compter en SOL / autre devise » (Analytics)
+✅ `[V3→P4]` Persister la monnaie choisie  
+  ↳ setting `fimsCurrency` EUR/USD persisté en DB locale, taux dérivé du prix USDC
 
 ## Style / UX
 
@@ -55,13 +55,14 @@ _Tous les items style sont du travail jetable si fait en V2 — sauf mention `[V
 
 _Regroupe : « Permettre les échanges », « Connecter wallet pour Tx avec Jupiter », « actions acheter/vendre/échanger/envoyer/recevoir », « conversion auto + frais + dépôt/retrait »._
 
-⬜ Connecter le wallet pour transactions via Jupiter
+✅ Connecter le wallet pour transactions via Jupiter  
+  ↳ onglet Swap : quote lite-api.jup.ag, tx signée par la keypair du compte actif
 
-⬜ Actions : acheter, vendre, échanger (envoyer/recevoir faits — flow samui natif + carnet FiMs)
+✅ Actions : acheter, vendre, échanger (send/receive samui + swap Jupiter)
 
-⬜ Conversion auto jeton→jeton avec frais affichés + dépôt / retrait
+✅ Conversion jeton→jeton avec min reçu + price impact affichés (Jupiter)
 
-⬜ Ordres limités via Jupiter Trigger/Limit Order
+✅ Ordres limités via Jupiter Trigger (create/list/cancel, signés wallet)
 
 ⬜ Outil de conversion / convertisseur
 
@@ -72,21 +73,25 @@ _Regroupe : « virements faciles vers les comptes », « carnet d'adresses », �
 ✅ Carnet d'adresses externe (Nexo, Binance, Coinbase, autres Fimseurs)  
   ↳ table Neon `address_book` + API signée `/fims/address-book` + UI dans /fims
 
-⬜ Virements faciles vers les différents comptes
+✅ Virements faciles vers les différents comptes  
+  ↳ carnet d'adresses FiMs injecté comme groupe dans le picker de destination samui
 
 ⬜ Virement direct depuis le profil si montant à rembourser
 
-⬜ Lien de paiement Solflare (Solana Pay)
+✅ Lien de paiement Solana Pay (bouton copier `solana:<address>` dans Receive)
 
 ### Dons & tontine — `[V3→P3]`
 
-⬜ Séparer dons tontine / dons association (fusion de 2 items)
+✅ Séparer dons tontine / dons association  
+  ↳ types `donation`/`tontine` distingués + `donationTarget` affiché
 
-⬜ Onglet « Tontine » complet (fusion de 2 items)
+⬜ Onglet « Tontine » complet (fusion de 2 items)  
+  ↳ carte Tontine ajoutée au dashboard communauté (investi/valeur) ; onglet dédié reste à faire
 
 ⬜ Améliorer le compteur de dons
 
-⬜ Explication des dons dans « Mon Profil »
+✅ Explication des dons dans « Mon Profil »  
+  ↳ hint 10% des gains → Tontine/association + « restant à donner »
 
 ⬜ 1 % sur les conversions tant que dons < 10 %, arrêt à 10 %
 
@@ -104,12 +109,14 @@ _Regroupe : « xStocks, Jupiter Lend, Flip + FiMs Token », « migrer vers JUP +
 
 ⬜ Jeton « FiMs Token » = indice réel
 
-⬜ Prix d'achat moyen + PnL dans détails token  
+✅ Prix d'achat moyen + PnL dans détails token  
+  ↳ carte Positions : unités, prix moyen, valeur, PnL réalisé+latent  
   ↳ tous jetons, pas juste les 3 FiMs (clarification « vvyvv »)
 
 ### Analytics & affichage — `[V3→P4]`
 
-⬜ Compter en SOL / autre devise + graphique (persister le choix)
+⬜ Compter en SOL / autre devise + graphique (persister le choix)  
+  ↳ EUR/USD persisté fait ; SOL + graphiques restent
 
 ⬜ Graphique comparatif des monnaies entre elles
 
