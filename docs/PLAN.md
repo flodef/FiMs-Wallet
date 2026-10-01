@@ -57,7 +57,7 @@ _Regroupe : « Permettre les échanges », « Connecter wallet pour Tx avec Jupi
 
 ⬜ Connecter le wallet pour transactions via Jupiter
 
-⬜ Actions : acheter, vendre, échanger, envoyer, recevoir
+⬜ Actions : acheter, vendre, échanger (envoyer/recevoir faits — flow samui natif + carnet FiMs)
 
 ⬜ Conversion auto jeton→jeton avec frais affichés + dépôt / retrait
 
@@ -69,8 +69,8 @@ _Regroupe : « Permettre les échanges », « Connecter wallet pour Tx avec Jupi
 
 _Regroupe : « virements faciles vers les comptes », « carnet d'adresses », « virement depuis profil », « lien Solflare »._
 
-⬜ Carnet d'adresses externe (Nexo, Binance, Coinbase, autres Fimseurs)  
-  ↳ table Neon `address_book`
+✅ Carnet d'adresses externe (Nexo, Binance, Coinbase, autres Fimseurs)  
+  ↳ table Neon `address_book` + API signée `/fims/address-book` + UI dans /fims
 
 ⬜ Virements faciles vers les différents comptes
 
